@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+ <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+    p:driverClassName="com.mysql.jdbc.Driver"
+    p:url="jdbc:mysql://localhost:3306/eftech_oils"
+    p:connectionProperties="characterEncoding=utf8"
+    p:username="root"
+    p:password="" 
+    />	
+    
+  
+   <bean id="countryDAO" class="eftech.workingset.DAO.templates.CountryTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="clientDAO" class="eftech.workingset.DAO.templates.ClientTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="userDAO" class="eftech.workingset.DAO.templates.UserTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="fluidClassDAO" class="eftech.workingset.DAO.templates.FluidClassTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="manufacturerDAO" class="eftech.workingset.DAO.templates.ManufacturerTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="brakingFluidDAO" class="eftech.workingset.DAO.templates.BrakingFluidTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+	
+</beans>
