@@ -27,7 +27,7 @@ public class RoleTemplate implements InterfaceRoleDAO {
 	
 	@Override
 	public ArrayList<Role> getRoles() {
-		String sqlQuery="select * from ordeb by name";
+		String sqlQuery="select * from role order by name";
 
 		try{
 			return (ArrayList<Role>) jdbcTemplate.query(sqlQuery, new RoleRowMapper());

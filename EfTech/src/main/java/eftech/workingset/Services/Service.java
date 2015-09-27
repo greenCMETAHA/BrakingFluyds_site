@@ -46,6 +46,10 @@ public class Service {
 	public static byte VARIANT_PRODUCT = 1;
 	public static byte VARIANT_PRICES = 2;
 	public static String EMPTY="<emptry>";
+	public static String PHONE="phone";  //for table "information" , bean infoDAO
+	public static String WEBSITE="website";
+	public static String EMAIL="email";
+	
 	
 	@Autowired
 	static BrakingFluidTemplate brakingFluidDAO;

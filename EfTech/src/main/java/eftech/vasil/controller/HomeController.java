@@ -59,8 +59,11 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
+import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
+import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.User;
@@ -73,7 +76,7 @@ import eftech.workingset.beans.Manufacturer;
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes({"user", "Basket"})
+@SessionAttributes({"user", "Basket", "Wishlist", "compare"})
 public class HomeController{
 	
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
@@ -95,12 +98,55 @@ public class HomeController{
 
 	@Autowired
 	CountryTemplate countryDAO;
+
+	@Autowired
+	InfoTemplate infoDAO;
+
+	@Autowired
+	ReviewTemplate reviewDAO;
+
+	@Autowired
+	WishlistTemplate wishlistDAO;
+	
 	
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
 	@RequestMapping(value = "/", method = {RequestMethod.POST, RequestMethod.GET})
+	public String index(@ModelAttribute User user //,// @AuthenticationPrincipal Principal userPrincipal
+			,HttpServletRequest request
+			, @ModelAttribute LinkedList<BrakingFluid>  basket,  Locale locale, Model model) {
+		//logger.info("Welcome home! The client locale is {}.", locale);
+		
+		//Date date = new Date();
+		//DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+		
+		//String formattedDate = dateFormat.format(date);
+		
+		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
+		model.addAttribute("email_part1", "");
+		model.addAttribute("email_part2", "");
+		String email=infoDAO.getInfo(Service.EMAIL).trim();
+		if (email.length()>0){
+			if (email.indexOf("@")>0){
+				model.addAttribute("email_part1", email.substring(0, email.indexOf("@")-1));
+				model.addAttribute("email_part2", email.substring(email.indexOf("@"), email.length()));
+			}
+		}
+		Principal userPrincipal = request.getUserPrincipal();
+		if (userPrincipal!=null){
+			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
+			model.addAttribute("user", user);
+		}else{
+			model.addAttribute("user", new User());
+		
+		}
+		
+		return "index";
+	}
+	
+	@RequestMapping(value = "/category-grid", method = {RequestMethod.POST, RequestMethod.GET})
 	public String home(@ModelAttribute User user //,// @AuthenticationPrincipal Principal userPrincipal
 			,HttpServletRequest request
 			, @ModelAttribute LinkedList<BrakingFluid>  basket,  Locale locale, Model model) {
@@ -122,7 +168,7 @@ public class HomeController{
 		
 		}
 		
-		return "home";
+		return "index";
 	}
 	
 	@RequestMapping(value = "/update", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
@@ -397,6 +443,16 @@ public class HomeController{
 	public LinkedList<BrakingFluid> createBasket(){
 		return new LinkedList<BrakingFluid>();
 	}
+	
+	@ModelAttribute("compare")
+	public LinkedList<BrakingFluid> createComparement(){
+		return new LinkedList<BrakingFluid>();
+	}	
+	
+	@ModelAttribute("Wishlist")
+	public LinkedList<BrakingFluid> createWishlist(){
+		return new LinkedList<BrakingFluid>();
+	}	
 	
 	@ModelAttribute("user")
 	public User createUser(){

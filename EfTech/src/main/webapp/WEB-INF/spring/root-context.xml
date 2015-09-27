@@ -32,5 +32,16 @@
    <bean id="brakingFluidDAO" class="eftech.workingset.DAO.templates.BrakingFluidTemplate">
       <property name="dataSource"  ref="dataSource" />    
    </bean>
+
+
+   <bean id="infoDAO" class="eftech.workingset.DAO.templates.InfoTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="reviewDAO" class="eftech.workingset.DAO.templates.ReviewTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   <bean id="wishlistDAO" class="eftech.workingset.DAO.templates.WishlistTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
 	
 </beans>
