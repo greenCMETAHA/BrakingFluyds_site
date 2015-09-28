@@ -67,6 +67,7 @@ import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.User;
+import eftech.workingset.beans.Wishlist;
 import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
@@ -76,7 +77,7 @@ import eftech.workingset.beans.Manufacturer;
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes({"user", "Basket", "Wishlist", "compare"})
+@SessionAttributes({"user", "Basket", "wishlist", "compare"})
 public class HomeController{
 	
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
@@ -130,8 +131,8 @@ public class HomeController{
 		String email=infoDAO.getInfo(Service.EMAIL).trim();
 		if (email.length()>0){
 			if (email.indexOf("@")>0){
-				model.addAttribute("email_part1", email.substring(0, email.indexOf("@")-1));
-				model.addAttribute("email_part2", email.substring(email.indexOf("@"), email.length()));
+				model.addAttribute("email_part1", email.substring(0, email.indexOf("@")));
+				model.addAttribute("email_part2", email.substring(email.indexOf("@")+1, email.length()));
 			}
 		}
 		Principal userPrincipal = request.getUserPrincipal();
@@ -140,8 +141,16 @@ public class HomeController{
 			model.addAttribute("user", user);
 		}else{
 			model.addAttribute("user", new User());
-		
 		}
+		ArrayList<Wishlist> wishlist = wishlistDAO.getWishList(user.getId());
+		model.addAttribute("wishlist", wishlist);
+		double totalBasket=0;	
+		for (BrakingFluid brFluid:basket){
+			totalBasket+=brFluid.getPrice();
+		}
+		model.addAttribute("totalBasket", totalBasket);  //ограничить 2 знаками после запятой.
+		
+		
 		
 		return "index";
 	}

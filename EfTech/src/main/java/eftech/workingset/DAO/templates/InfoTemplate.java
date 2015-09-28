@@ -34,7 +34,7 @@ public class InfoTemplate implements InterfaceInfoDAO {
 
 		try{
 			Info info=jdbcTemplate.queryForObject(sqlQuery, params, new InfoRowMapper());
-			return info.getName();
+			return info.getValue();
 		}catch (EmptyResultDataAccessException e){
 			return "";
 		}		

@@ -31,48 +31,56 @@ public class WishlistTemplate implements InterfaceWishlist {
 	}
 
 	public ArrayList<Wishlist> getWishList(int id){
-		String sqlQuery="select w.id AS wich_id"
-				+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
-				+ ", fc.id AS fluidclass, fc.name AS fc_name"
-				+ ", m.id AS man_id, m.name AS man_name"
-				+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
-				+ " from wishlist w"
-				+ " left join users AS u ON (w.user=u.id)"
-				+ " left join BrakingFluids AS bf ON (w.brakingFluid=bf.id)"
-				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
-				+ " left join manufacturer as m on (bf.manufacturer=m.id) where u.id=:id";
-		
-		
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("id", id);
-	
-		try{ 
-			return (ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,new WishRowMapper());
-		}catch (EmptyResultDataAccessException e){
+		if (id==0){
 			return new ArrayList<Wishlist>();
+		} else{
+			String sqlQuery="select w.id AS wich_id"
+					+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+					+ ", fc.id AS fluidclass, fc.name AS fc_name"
+					+ ", m.id AS man_id, m.name AS man_name"
+					+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
+					+ " from wishlist w"
+					+ " left join users AS u ON (w.user=u.id)"
+					+ " left join BrakingFluids AS bf ON (w.brakingFluid=bf.id)"
+					+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
+					+ " left join manufacturer as m on (bf.manufacturer=m.id) where u.id=:id";
+			
+			
+			MapSqlParameterSource params = new MapSqlParameterSource();
+			params.addValue("id", id);
+		
+			try{ 
+				return (ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,new WishRowMapper());
+			}catch (EmptyResultDataAccessException e){
+				return new ArrayList<Wishlist>();
+			}
 		}
 	}
 	
 	public Wishlist getWishById(int id){
-		String sqlQuery="select w.id AS wich_id"
-				+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
-				+ ", fc.id AS fluidclass, fc.name AS fc_name"
-				+ ", m.id AS man_id, m.name AS man_name"
-				+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
-				+ " from wishlist w"
-				+ " left join users AS u ON (w.user=u.id)"
-				+ " left join BrakingFluids AS bf ON (w.brakingFluid=bf.id)"
-				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
-				+ " left join manufacturer as m on (bf.manufacturer=m.id) where w.id=:id";
-		
-		
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("id", id);
-	
-		try{ 
-			return (Wishlist)jdbcTemplate.query(sqlQuery,new WishlistRowMapper());
-		}catch (EmptyResultDataAccessException e){
+		if (id==0){
 			return new Wishlist();
+		} else{		
+			String sqlQuery="select w.id AS wich_id"
+					+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+					+ ", fc.id AS fluidclass, fc.name AS fc_name"
+					+ ", m.id AS man_id, m.name AS man_name"
+					+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
+					+ " from wishlist w"
+					+ " left join users AS u ON (w.user=u.id)"
+					+ " left join BrakingFluids AS bf ON (w.brakingFluid=bf.id)"
+					+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
+					+ " left join manufacturer as m on (bf.manufacturer=m.id) where w.id=:id";
+			
+			
+			MapSqlParameterSource params = new MapSqlParameterSource();
+			params.addValue("id", id);
+		
+			try{ 
+				return (Wishlist)jdbcTemplate.query(sqlQuery,new WishlistRowMapper());
+			}catch (EmptyResultDataAccessException e){
+				return new Wishlist();
+			}
 		}
 	}	
 
