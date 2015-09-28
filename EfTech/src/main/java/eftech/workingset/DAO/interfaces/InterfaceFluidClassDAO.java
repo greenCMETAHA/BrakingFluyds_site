@@ -9,5 +9,4 @@ public interface InterfaceFluidClassDAO {
 	FluidClass getFluidClass(int id);
 	FluidClass getFluidClassByName(String name);
 	FluidClass createFluidClass(String name);
-
 }

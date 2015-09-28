@@ -3,6 +3,7 @@ package eftech.workingset.DAO.templates;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.sql.DataSource;
 
@@ -30,9 +31,9 @@ public class WishlistTemplate implements InterfaceWishlist {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
 
-	public ArrayList<Wishlist> getWishList(int id){
+	public LinkedList<Wishlist> getWishList(int id){
 		if (id==0){
-			return new ArrayList<Wishlist>();
+			return new LinkedList<Wishlist>();
 		} else{
 			String sqlQuery="select w.id AS wich_id"
 					+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
@@ -50,9 +51,9 @@ public class WishlistTemplate implements InterfaceWishlist {
 			params.addValue("id", id);
 		
 			try{ 
-				return (ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,new WishRowMapper());
+				return (LinkedList<Wishlist>)jdbcTemplate.query(sqlQuery,new WishRowMapper());
 			}catch (EmptyResultDataAccessException e){
-				return new ArrayList<Wishlist>();
+				return new LinkedList<Wishlist>();
 			}
 		}
 	}

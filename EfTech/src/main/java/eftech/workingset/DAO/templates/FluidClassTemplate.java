@@ -88,6 +88,8 @@ public class FluidClassTemplate implements InterfaceFluidClassDAO{
 		 		
 		return result;
 	}
+	
+	
 
 	private static final class FluidClassRowMapper implements RowMapper<FluidClass> {
 

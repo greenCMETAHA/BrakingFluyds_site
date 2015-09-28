@@ -72,12 +72,13 @@ import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Manufacturer;
+import eftech.workingset.beans.ManufacturerSelected;
 
 /**
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes({"user", "Basket", "wishlist", "compare"})
+@SessionAttributes({"user", "basket", "wishlist", "compare", "currentPriceFilter", "manufacturersFilter", "elementsInList"})
 public class HomeController{
 	
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
@@ -109,22 +110,7 @@ public class HomeController{
 	@Autowired
 	WishlistTemplate wishlistDAO;
 	
-	
-	
-	/**
-	 * Simply selects the home view to render by returning its name.
-	 */
-	@RequestMapping(value = "/", method = {RequestMethod.POST, RequestMethod.GET})
-	public String index(@ModelAttribute User user //,// @AuthenticationPrincipal Principal userPrincipal
-			,HttpServletRequest request
-			, @ModelAttribute LinkedList<BrakingFluid>  basket,  Locale locale, Model model) {
-		//logger.info("Welcome home! The client locale is {}.", locale);
-		
-		//Date date = new Date();
-		//DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
-		
-		//String formattedDate = dateFormat.format(date);
-		
+	private Model createHeader(Model model, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist){
 		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
 		model.addAttribute("email_part1", "");
 		model.addAttribute("email_part2", "");
@@ -135,14 +121,8 @@ public class HomeController{
 				model.addAttribute("email_part2", email.substring(email.indexOf("@")+1, email.length()));
 			}
 		}
-		Principal userPrincipal = request.getUserPrincipal();
-		if (userPrincipal!=null){
-			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
-			model.addAttribute("user", user);
-		}else{
-			model.addAttribute("user", new User());
-		}
-		ArrayList<Wishlist> wishlist = wishlistDAO.getWishList(user.getId());
+
+		wishlist = wishlistDAO.getWishList(user.getId());
 		model.addAttribute("wishlist", wishlist);
 		double totalBasket=0;	
 		for (BrakingFluid brFluid:basket){
@@ -151,22 +131,73 @@ public class HomeController{
 		model.addAttribute("totalBasket", totalBasket);  //ограничить 2 знаками после запятой.
 		
 		
+		return model;
+	}
+	
+	/**
+	 * Simply selects the home view to render by returning its name.
+	 */
+	@RequestMapping(value = {"/","/index",""}, method = {RequestMethod.POST, RequestMethod.GET})
+	public String index(@ModelAttribute User user //,// @AuthenticationPrincipal Principal userPrincipal
+			, @ModelAttribute LinkedList<BrakingFluid>  basket
+			, @ModelAttribute LinkedList<Wishlist>  wishlist
+			,HttpServletRequest request
+			,Locale locale, Model model) {
 		
+		Principal userPrincipal = request.getUserPrincipal();
+		if (userPrincipal!=null){
+			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
+			model.addAttribute("user", user);
+		}else{
+			model.addAttribute("user", new User());
+		}
+		model=createHeader(model, user, basket, wishlist);
+
 		return "index";
 	}
 	
-	@RequestMapping(value = "/category-grid", method = {RequestMethod.POST, RequestMethod.GET})
-	public String home(@ModelAttribute User user //,// @AuthenticationPrincipal Principal userPrincipal
+	@RequestMapping(value = "/home", method = {RequestMethod.POST, RequestMethod.GET})
+	public String home(@ModelAttribute User user
+			,@ModelAttribute  LinkedList<BrakingFluid>  basket
+			,@ModelAttribute LinkedList<Wishlist>  wishlist
+			,@ModelAttribute LinkedList<Wishlist> compare
+			,@ModelAttribute double currentPriceFilter
+			,@ModelAttribute  ArrayList<Manufacturer>  manufacturersFilter
+			,@RequestParam(value = "manufacturerSelections", required=false ) int[] manufacturerSelections
+			,@ModelAttribute int elementsInList
+			,@RequestParam("currentPage") int currentPage
 			,HttpServletRequest request
-			, @ModelAttribute LinkedList<BrakingFluid>  basket,  Locale locale, Model model) {
-		//logger.info("Welcome home! The client locale is {}.", locale);
+			,Locale locale, Model model) {
+
+		currentPage=(currentPage==0?1:currentPage);
+		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
+		double currentMinPriceFilter=brakingFluidDAO.minPrice();
+		double currentMaxPriceFilter=brakingFluidDAO.maxPrice();
+		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
+		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);
 		
-		//Date date = new Date();
-		//DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+		ArrayList<ManufacturerSelected> manufacturersSelected=new ArrayList<ManufacturerSelected>();
+		for (Manufacturer manufacturer:manufacturerDAO.getManufacturers()){
+			ManufacturerSelected manSelected=new ManufacturerSelected();
+			manSelected.setName(manufacturer.getName());
+			manSelected.setCountry(manufacturer.getCountry());
+			if (manufacturerSelections!=null){
+				for (int j=0;j<manufacturerSelections.length; j++){
+					if (manufacturerSelections[j]==manufacturer.getId()){
+						manSelected.setSelected(true);
+					}
+				}
+			}
+		}
+		ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections); 
+		model.addAttribute("listBrakFluids", listBakingFluids);
+		int totalPages=listBakingFluids.size();
+		totalPages = totalPages+(totalPages%elementsInList>0?1:0);
+		model.addAttribute("totalPages", totalPages);
 		
-		//String formattedDate = dateFormat.format(date);
-		
-		model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+		model.addAttribute("manufacturersFilter", manufacturersSelected);
+
+		model.addAttribute("currentPriceFilter", (currentPriceFilter==0?currentMaxPriceFilter:currentPriceFilter)); //если текущая цена в фильтре не задана - возьмём максимум
 
 		Principal userPrincipal = request.getUserPrincipal();
 		if (userPrincipal!=null){
@@ -177,8 +208,28 @@ public class HomeController{
 		
 		}
 		
-		return "index";
+		model=createHeader(model, user, basket, wishlist);		
+		
+		return "home";
 	}
+	
+	@RequestMapping(value = "/addTo", method = {RequestMethod.POST, RequestMethod.GET})
+	public String addTo(@ModelAttribute User user
+			,@ModelAttribute  LinkedList<BrakingFluid>  basket
+			,@ModelAttribute LinkedList<Wishlist>  wishlist
+			,@ModelAttribute LinkedList<Wishlist> compare
+			,@ModelAttribute double currentPriceFilter
+			,@ModelAttribute  ArrayList<Manufacturer>  manufacturersFilter
+			,@RequestParam(value = "manufacturerSelections", required=false ) int[] manufacturerSelections
+			,@ModelAttribute int elementsInList
+			,@RequestParam("currentPage") int currentPage
+			,HttpServletRequest request
+			,Locale locale, Model model) {
+
+			
+		
+		return "home";
+	}	
 	
 	@RequestMapping(value = "/update", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	public String update(@ModelAttribute User user
@@ -467,5 +518,21 @@ public class HomeController{
 	public User createUser(){
 		//return userDAO.getUser("admin", "111");
 		return new User();
+	}
+	
+	@ModelAttribute("currentPriceFilter")
+	public double createCurrentPriceFilter(){
+		return 0;
+	}
+	
+	@ModelAttribute("manufacturersFilter")
+	public LinkedList<Manufacturer> createManufacturersFilter(){
+		return new LinkedList<Manufacturer>();
 	}	
+	
+	@ModelAttribute("elementsInList")  //количество элементов, выводимых одновременно в списке. Используется в педжинации
+	public int createElementsInList(){
+		return Service.ELEMENTS_IN_LIST;
+	}		
+	
 }

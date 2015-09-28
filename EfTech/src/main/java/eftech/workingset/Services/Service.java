@@ -49,7 +49,9 @@ public class Service {
 	public static String PHONE="phone";  //for table "information" , bean infoDAO
 	public static String WEBSITE="website";
 	public static String EMAIL="email";
-	
+	public static int ELEMENTS_IN_LIST = 3;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
+	public static int ELEMENTS_IN_RECOMMENDED = 7; //количество номенклатуры в "Рекомендуемом"
+ 	
 	
 	@Autowired
 	static BrakingFluidTemplate brakingFluidDAO;

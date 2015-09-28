@@ -12,7 +12,7 @@
     <meta name="author" content="">
     <meta name="keywords" content="MediaCenter, Template, eCommerce">
     <meta name="robots" content="all">
-    <title>MediaCenter - Responsive eCommerce Template</title>
+    <title>ЭфТех, ООО</title>
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="resources/Ecommerce/assets/css/bootstrap.min.css">
     <!-- Customizable CSS -->

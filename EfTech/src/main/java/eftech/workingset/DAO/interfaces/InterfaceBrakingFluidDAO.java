@@ -1,6 +1,7 @@
 package eftech.workingset.DAO.interfaces;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.sql.DataSource;
 
@@ -12,4 +13,10 @@ public interface InterfaceBrakingFluidDAO {
 	BrakingFluid getBrakingFluidByName(String name);
 	BrakingFluid createBrakingFluid(BrakingFluid brFluid);
 	BrakingFluid fillPrices(BrakingFluid brFluid);
+	
+	double minPrice();
+	double maxPrice();
+	int getCount();
+	ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected);
+	LinkedList<BrakingFluid> getBrakingFluidsRecommended();
 }
