@@ -30,6 +30,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
@@ -110,7 +111,7 @@ public class HomeController{
 	@Autowired
 	WishlistTemplate wishlistDAO;
 	
-	private Model createHeader(Model model, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist){
+	private Model createHeader(Model model, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
 		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
 		model.addAttribute("email_part1", "");
 		model.addAttribute("email_part2", "");
@@ -129,107 +130,468 @@ public class HomeController{
 			totalBasket+=brFluid.getPrice();
 		}
 		model.addAttribute("totalBasket", totalBasket);  //ограничить 2 знаками после запятой.
-		
-		
 		return model;
+	}
+	
+	private LinkedList<ManufacturerSelected> fillSelectedManufacturers(int[] manufacturerSelections){
+		LinkedList<ManufacturerSelected> result=new LinkedList<ManufacturerSelected>();
+		
+		for (Manufacturer manufacturer:manufacturerDAO.getManufacturers()){
+			ManufacturerSelected manSelected=new ManufacturerSelected();
+			manSelected.setId(manufacturer.getId());
+			manSelected.setName(manufacturer.getName());
+			manSelected.setCountry(manufacturer.getCountry());
+			if (manufacturerSelections!=null){
+				if (manufacturerSelections.length==0){
+					manSelected.setSelected(true); //если не было отбора - выберем по всем
+				}else{
+					for (int j=0;j<manufacturerSelections.length; j++){
+						if (manufacturerSelections[j]==manufacturer.getId()){
+							manSelected.setSelected(true);
+						}
+					}
+				}
+			}else{
+				manSelected.setSelected(true); //если не было отбора - выберем по всем
+			}
+			result.add(manSelected);
+		}
+		
+		return result;
+	}
+	
+	private void workWithList(int id, String variant, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
+		
+		if (variant.compareTo("deleteFromBasket")==0){  
+			for(BrakingFluid current: basket){
+				if (current.getId()==id){
+					basket.remove(current);
+					break;
+				}
+			}
+		}
+		if (variant.compareTo("inBasket")==0){
+//			boolean bFind=false;                   //в корзине может быть несколько товаров одного вида 
+//			for(BrakingFluid current: basket){
+//				if (current.getId()==id){
+//					bFind=true;
+//					break;
+//				}
+//			}
+//			if (!bFind){
+				basket.add(brakingFluidDAO.getBrakingFluid(id));
+//			}
+		}
+		if (variant.compareTo("checkout")==0){
+			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование закаха на склад 
+		}
+		if (variant.compareTo("inWishlist")==0){
+			boolean bFind=false;
+			for(Wishlist current: wishlist){
+				if (((BrakingFluid)current.getBrakingFluid()).getId()==id){
+					bFind=true;
+					break;
+				}
+			}
+			if (!bFind){
+				Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id));
+				wishlist.add(currentWish);
+			}			
+		}
+		if (variant.compareTo("deleteFromWishlist")==0){
+			for(Wishlist current: wishlist){
+				if (((BrakingFluid)current.getBrakingFluid()).getId()==id){
+					wishlist.remove(current);
+					wishlistDAO.deleteFromWishlist(current);
+					break;
+				}
+			}
+		}
+
+		
+		if (variant.compareTo("inCompare")==0){
+			boolean bFind=false;
+			for(BrakingFluid current: compare){
+				if (current.getId()==id){
+					bFind=true;
+					break;
+				}
+			}
+			if (!bFind){
+				compare.add(brakingFluidDAO.getBrakingFluid(id));
+			}
+		}
+		if (variant.compareTo("deleteFromCompare")==0){
+			for(BrakingFluid current: compare){
+				if (current.getId()==id){
+					compare.remove(current);
+					break;
+				}
+			}
+		}			
 	}
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
 	@RequestMapping(value = {"/","/index",""}, method = {RequestMethod.POST, RequestMethod.GET})
-	public String index(@ModelAttribute User user //,// @AuthenticationPrincipal Principal userPrincipal
-			, @ModelAttribute LinkedList<BrakingFluid>  basket
-			, @ModelAttribute LinkedList<Wishlist>  wishlist
-			,HttpServletRequest request
-			,Locale locale, Model model) {
-		
+	public String index(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+
+		HttpSession session=request.getSession();
+
+		User user=(User) session.getAttribute("user");
 		Principal userPrincipal = request.getUserPrincipal();
 		if (userPrincipal!=null){
 			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
-			model.addAttribute("user", user);
 		}else{
-			model.addAttribute("user", new User());
+			if (user==null){
+				user=createUser();
+			}
 		}
-		model=createHeader(model, user, basket, wishlist);
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+		if (manufacturersFilter==null){
+			manufacturersFilter = createManufacturersFilter();
+		}
+		double currentPriceFilter =0.0;
+		if (session.getAttribute("currentPriceFilter")!=null){
+			currentPriceFilter =(Double) session.getAttribute("currentPriceFilter");
+		}else{
+		}
+		int elementsInList = Service.ELEMENTS_IN_LIST;
+		if (session.getAttribute("elementsInList")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInList");
+		}
+		
+		workWithList(id, variant, user, basket, wishlist, compare);
+		
+		session.setAttribute("user", user);
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		session.setAttribute("currentPriceFilter", currentPriceFilter);
+		session.setAttribute("manufacturersFilter", manufacturersFilter);
+		session.setAttribute("elementsInList", elementsInList);
+			
+		//model.addAttribute("user", user);
+		model.addAttribute("user", user);
+		model=createHeader(model, user, basket,wishlist, compare);
 
 		return "index";
 	}
 	
 	@RequestMapping(value = "/home", method = {RequestMethod.POST, RequestMethod.GET})
-	public String home(@ModelAttribute User user
-			,@ModelAttribute  LinkedList<BrakingFluid>  basket
-			,@ModelAttribute LinkedList<Wishlist>  wishlist
-			,@ModelAttribute LinkedList<Wishlist> compare
-			,@ModelAttribute double currentPriceFilter
-			,@ModelAttribute  ArrayList<Manufacturer>  manufacturersFilter
-			,@RequestParam(value = "manufacturerSelections", required=false ) int[] manufacturerSelections
-			,@ModelAttribute int elementsInList
-			,@RequestParam("currentPage") int currentPage
+	public String home(
+			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
+			,@RequestParam(value = "currentPage", defaultValue="1", required=false) int currentPage
+			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request
 			,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (userPrincipal!=null){
+			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
+		}else{
+			if (user==null){
+				user=createUser();
+			}
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+		if (manufacturersFilter==null){
+			manufacturersFilter = createManufacturersFilter();
+		}
+		double currentPriceFilter =0.0;
+		if (session.getAttribute("currentPriceFilter")!=null){
+			currentPriceFilter =(Double) session.getAttribute("currentPriceFilter");
+		}else{
+		}
+		int elementsInList = Service.ELEMENTS_IN_LIST;
+		if (session.getAttribute("elementsInList")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInList");
+		}
+ 
+		workWithList(id, variant, user, basket, wishlist, compare);
 
-		currentPage=(currentPage==0?1:currentPage);
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 		double currentMinPriceFilter=brakingFluidDAO.minPrice();
 		double currentMaxPriceFilter=brakingFluidDAO.maxPrice();
 		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
 		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);
 		
-		ArrayList<ManufacturerSelected> manufacturersSelected=new ArrayList<ManufacturerSelected>();
-		for (Manufacturer manufacturer:manufacturerDAO.getManufacturers()){
-			ManufacturerSelected manSelected=new ManufacturerSelected();
-			manSelected.setName(manufacturer.getName());
-			manSelected.setCountry(manufacturer.getCountry());
-			if (manufacturerSelections!=null){
-				for (int j=0;j<manufacturerSelections.length; j++){
-					if (manufacturerSelections[j]==manufacturer.getId()){
-						manSelected.setSelected(true);
-					}
-				}
+		LinkedList<ManufacturerSelected> manufacturersSelected=null;
+		if (manufacturerSelections==null){
+			if (manufacturersFilter.size()>0){
+				manufacturersSelected=manufacturersFilter;
+			}else{
+				manufacturersSelected=fillSelectedManufacturers(manufacturerSelections); //method
 			}
+		}else{
+			manufacturersSelected=fillSelectedManufacturers(manufacturerSelections); //method
 		}
+
 		ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections); 
 		model.addAttribute("listBrakFluids", listBakingFluids);
-		int totalPages=listBakingFluids.size();
-		totalPages = totalPages+(totalPages%elementsInList>0?1:0);
+		int totalProduct=brakingFluidDAO.getCountRows(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections);
+		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
+		model.addAttribute("currentPage", currentPage);
 		
 		model.addAttribute("manufacturersFilter", manufacturersSelected);
-
+		model.addAttribute("recommendedBrakFluids", brakingFluidDAO.getBrakingFluidsRecommended());
 		model.addAttribute("currentPriceFilter", (currentPriceFilter==0?currentMaxPriceFilter:currentPriceFilter)); //если текущая цена в фильтре не задана - возьмём максимум
+		
+		model.addAttribute("paginationString_part1", ""+((currentPage-1)*elementsInList+1)+"-"+(((currentPage-1)*elementsInList)+elementsInList));
+		model.addAttribute("paginationString_part2", totalProduct);
 
-		Principal userPrincipal = request.getUserPrincipal();
-		if (userPrincipal!=null){
-			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
-			model.addAttribute("user", user);
-		}else{
-			model.addAttribute("user", new User());
+		model.addAttribute("user", user);
 		
-		}
-		
-		model=createHeader(model, user, basket, wishlist);		
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		session.setAttribute("user", user);
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		session.setAttribute("currentPriceFilter", currentPriceFilter);
+		session.setAttribute("manufacturersFilter", manufacturersFilter);
+		session.setAttribute("elementsInList", elementsInList);
 		
 		return "home";
 	}
 	
-	@RequestMapping(value = "/addTo", method = {RequestMethod.POST, RequestMethod.GET})
-	public String addTo(@ModelAttribute User user
-			,@ModelAttribute  LinkedList<BrakingFluid>  basket
-			,@ModelAttribute LinkedList<Wishlist>  wishlist
-			,@ModelAttribute LinkedList<Wishlist> compare
-			,@ModelAttribute double currentPriceFilter
-			,@ModelAttribute  ArrayList<Manufacturer>  manufacturersFilter
-			,@RequestParam(value = "manufacturerSelections", required=false ) int[] manufacturerSelections
-			,@ModelAttribute int elementsInList
-			,@RequestParam("currentPage") int currentPage
-			,HttpServletRequest request
-			,Locale locale, Model model) {
-
-			
+	@RequestMapping(value = "/Comparison", method = {RequestMethod.POST, RequestMethod.GET})
+	public String compare(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
 		
-		return "home";
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		return "Comparison";
 	}	
+	
+	@RequestMapping(value = "/Wishlist", method = {RequestMethod.POST, RequestMethod.GET})
+	public String wishlist(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		return "Wishlist";
+	}	
+	
+	
+	@RequestMapping(value = "/Basket", method = {RequestMethod.POST, RequestMethod.GET})
+	public String basket(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		return "Basket";
+	}	
+		
+	@RequestMapping(value = "/ShowOne", method = {RequestMethod.POST, RequestMethod.GET})
+	public String showOne(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		if ((request.isUserInRole("ROLE_ADMIN")) || (request.isUserInRole("ROLE_PRODUCT"))
+				|| (request.isUserInRole("ROLE_PRICE"))){
+			
+			if (variant.compareTo("insert")==0){
+				model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
+				model.addAttribute("listBrakFluids", new BrakingFluid());
+			}else{
+				BrakingFluid currentBR = brakingFluidDAO.getBrakingFluid(id);
+				model.addAttribute("pageInfo", "Отредактируйте номенклатуру:");
+				model.addAttribute("currentBrakFluid", currentBR);
+				String photo="";
+				if (currentBR.hasPhoto()){
+					photo=currentBR.getPhoto();
+				}
+				model.addAttribute("Photo", photo);
+				model.addAttribute("photoBackUp", photo);
+			}
+			model.addAttribute("buttonInto", "Сохранить");
+			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
+			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
+			model.addAttribute("errors", new ArrayList<String>());
+			
+			return "InsertUpdate";
+		}else{
+			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
+			
+			return "ShowOne";
+		}
+	}		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	@RequestMapping(value = "/update", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	public String update(@ModelAttribute User user
@@ -267,6 +629,10 @@ public class HomeController{
 		
 		return result;
 	}
+	
+
+
+	
 	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
 	public String update(@ModelAttribute User user
@@ -510,8 +876,8 @@ public class HomeController{
 	}	
 	
 	@ModelAttribute("Wishlist")
-	public LinkedList<BrakingFluid> createWishlist(){
-		return new LinkedList<BrakingFluid>();
+	public LinkedList<Wishlist> createWishlist(){
+		return new LinkedList<Wishlist>();
 	}	
 	
 	@ModelAttribute("user")
@@ -522,12 +888,12 @@ public class HomeController{
 	
 	@ModelAttribute("currentPriceFilter")
 	public double createCurrentPriceFilter(){
-		return 0;
+		return 0.0;
 	}
 	
 	@ModelAttribute("manufacturersFilter")
-	public LinkedList<Manufacturer> createManufacturersFilter(){
-		return new LinkedList<Manufacturer>();
+	public LinkedList<ManufacturerSelected> createManufacturersFilter(){
+		return new LinkedList<ManufacturerSelected>();
 	}	
 	
 	@ModelAttribute("elementsInList")  //количество элементов, выводимых одновременно в списке. Используется в педжинации

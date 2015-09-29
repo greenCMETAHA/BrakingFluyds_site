@@ -59,7 +59,7 @@
      </div> 
 <!--        #user    -->
  	     	<c:choose> 
-		<c:when test="${currentUser.isEmpty()}"> 
+			<c:when test="${currentUser.isEmpty()}"> 
 			    <form action="login" method="POST">                      
 	     				<div id="user">
 						<input type="submit" name="authorButton" value="Авторизируйтесь"  class="button"/>

@@ -16,7 +16,7 @@ public interface InterfaceBrakingFluidDAO {
 	
 	double minPrice();
 	double maxPrice();
-	int getCount();
+	int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected);
 	ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected);
-	LinkedList<BrakingFluid> getBrakingFluidsRecommended();
+	ArrayList<BrakingFluid> getBrakingFluidsRecommended();
 }

@@ -9,21 +9,25 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import eftech.workingset.DAO.interfaces.InterfaceWishlistDAO;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.Review;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
+import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
+import eftech.workingset.beans.intefaces.InterfaceUser;
 import eftech.workingset.beans.intefaces.InterfaceWishlist;
 
-public class WishlistTemplate implements InterfaceWishlist {
+public class WishlistTemplate implements InterfaceWishlistDAO {
 	private NamedParameterJdbcTemplate jdbcTemplate;
 	
 	@Autowired
@@ -35,8 +39,8 @@ public class WishlistTemplate implements InterfaceWishlist {
 		if (id==0){
 			return new LinkedList<Wishlist>();
 		} else{
-			String sqlQuery="select w.id AS wich_id"
-					+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+			String sqlQuery="select w.id AS wish_id"
+					+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
 					+ ", fc.id AS fluidclass, fc.name AS fc_name"
 					+ ", m.id AS man_id, m.name AS man_name"
 					+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
@@ -51,19 +55,24 @@ public class WishlistTemplate implements InterfaceWishlist {
 			params.addValue("id", id);
 		
 			try{ 
-				return (LinkedList<Wishlist>)jdbcTemplate.query(sqlQuery,new WishRowMapper());
+				ArrayList<Wishlist> result=(ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()); 
+				return new LinkedList<Wishlist>(result);
 			}catch (EmptyResultDataAccessException e){
 				return new LinkedList<Wishlist>();
+			}catch (InvalidDataAccessApiUsageException e){
+				return new LinkedList<Wishlist>();				
 			}
+			
 		}
 	}
 	
+	@Override
 	public Wishlist getWishById(int id){
 		if (id==0){
 			return new Wishlist();
 		} else{		
-			String sqlQuery="select w.id AS wich_id"
-					+ ",u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+			String sqlQuery="select w.id AS wish_id"
+					+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
 					+ ", fc.id AS fluidclass, fc.name AS fc_name"
 					+ ", m.id AS man_id, m.name AS man_name"
 					+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
@@ -100,13 +109,14 @@ public class WishlistTemplate implements InterfaceWishlist {
 		
 	}
 
+	@Override
 	public Wishlist addToWishlist(Wishlist wish){
 		Wishlist result=new Wishlist();
-		Wishlist currentWishlist = null;
+		Wishlist currentWishlist = wish;
 		if (wish.getId()>0){
 			currentWishlist=getWish(((User)wish.getUser()).getId(),((BrakingFluid)wish.getBrakingFluid()).getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}
-		String sqlUpdate="insert into Wishlist (user, brakingFluid) Values (:name, :brakingFluid)";
+		String sqlUpdate="insert into Wishlist (user, brakingFluid) Values (:user, :brakingFluid)";
 		if (currentWishlist.getId()>0){ // В БД есть такой элемент
 			 sqlUpdate="update review set user=:user, brakingfluid=:brakingfluid where id=:id";
 		}
@@ -134,6 +144,7 @@ public class WishlistTemplate implements InterfaceWishlist {
 		return result;	
 	}
 	
+	@Override
 	public void deleteFromWishlist(BrakingFluid brakingFluid, User user){
 		String sqlUpdate="delete from Wishlist where user=:user and brakingfluid=:brakingfluid";
 
@@ -143,6 +154,18 @@ public class WishlistTemplate implements InterfaceWishlist {
 		
 		jdbcTemplate.update(sqlUpdate, params);
 	}	
+	
+	@Override
+	public void deleteFromWishlist(Wishlist wish) {
+		String sqlUpdate="delete from Wishlist where id=:id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id",  wish.getId());
+		
+		jdbcTemplate.update(sqlUpdate, params);
+		
+	}
+
 
 	private static final class WishlistRowMapper implements RowMapper<Wishlist> {
 
@@ -195,5 +218,7 @@ public class WishlistTemplate implements InterfaceWishlist {
 
 			return result;
 		}	
-	}	
+	}
+
+		
 }

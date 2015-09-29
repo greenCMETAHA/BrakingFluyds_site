@@ -35,6 +35,19 @@ public class Wishlist implements InterfaceWishlist{
 		this.brakingFluid = currentBrakingFluid;
 	}
 
+	public Wishlist(int user, int brakingFluid) {
+		super();
+		this.id = 0;
+
+		User currentUser=new User();
+		currentUser.setId(user);
+		this.user = currentUser;
+
+		BrakingFluid currentBrakingFluid=new BrakingFluid();
+		currentBrakingFluid.setId(brakingFluid);
+		this.brakingFluid = currentBrakingFluid;
+	}
+	
 	/**
 	 * @return the id
 	 */

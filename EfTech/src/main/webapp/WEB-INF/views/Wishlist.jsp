@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,7 +14,7 @@
     <meta name="author" content="">
     <meta name="keywords" content="MediaCenter, Template, eCommerce">
     <meta name="robots" content="all">
-    <title>ЭфТех, ООО</title>
+    <title>MediaCenter - Responsive eCommerce Template</title>
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="resources/Ecommerce/assets/css/bootstrap.min.css">
     <!-- Customizable CSS -->
@@ -21,7 +23,7 @@
     <link rel="stylesheet" href="resources/Ecommerce/assets/css/owl.carousel.css">
     <link rel="stylesheet" href="resources/Ecommerce/assets/css/owl.transitions.css">
     <link rel="stylesheet" href="resources/Ecommerce/assets/css/animate.min.css">
-    <!-- Fonts -->
+     <!-- Fonts -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800' rel='stylesheet' type='text/css'>
     <!-- Icons/Glyphs -->
     <link rel="stylesheet" href="resources/Ecommerce/assets/css/font-awesome.min.css">
@@ -34,7 +36,7 @@
     <![endif]-->
   </head>
   <body>
-    <div class="wrapper">
+      <div class="wrapper">
       <!-- ============================================================= TOP NAVIGATION ============================================================= -->
        <nav class="top-bar animate-dropdown">
 		    <div class="container">
@@ -54,15 +56,14 @@
 		                        <li><a href="BussinessOffer">Bussiness offer</a></li>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
-    								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
-		                        	
-								    <c:if test="${currentUser.isEmpty()}"> 
+									<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
+									
+									<c:if test="${currentUser.isEmpty()}"> 
 										<a href="login">Авторизируйтесь</a>
 						 			</c:if> 
 									<c:if test="${!currentUser.isEmpty()}"> 
 										<a href="j_spring_security_logout">Выйти</a>
 						 			</c:if> 
-
 		                        </li>
 		                     </ul>
 		                </li>
@@ -84,7 +85,7 @@
 		                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Белорусские рубли (BYR)</a></li>
 		                    </ul>
 		                </li>
-                		<li>
+		                <li>
                         	<c:set  var="name" value="user" />
   							<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
                         	
@@ -97,7 +98,6 @@
 								<a href="j_spring_security_logout">Выйти</a>
 				 			</c:if> 
                         </li>
-
 		            </ul>
 		        </div><!-- /.col -->
 		    </div><!-- /.container -->
@@ -154,10 +154,10 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					            <a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					            <a href="#"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
 					        </div>
 					        <div class="compare">
-					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
+					            <a href="#"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
 					        </div>
 					    </div>
 					
@@ -186,7 +186,7 @@
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
+					                                    <img height="73" width="73" alt="" src="resources/jpg/${currentBFluid.getPhoto()}"/>
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
@@ -194,9 +194,10 @@
 					                                <div class="price">$<c:out value="${currentBFluid.getPrice()}"/></div>
 					                            </div>
 					                        </div>
-											<c:url value="Basket" var="deleteFromBasket">
+											<c:url value="Wishlist" var="deleteFromBasket">
 												<c:param name="id" value="${currentBFluid.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
+												<c:param name="currentPage" value="${requestScope.currentPage}"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
 					                    </div>
@@ -206,7 +207,7 @@
 					                    <div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-12 col-sm-6">
-					                                <a href="Basket" class="le-button inverse">Корзина</a>
+					                                <a href="basket" class="le-button inverse">Корзина</a>
 					                            </div>
 					                            <!-- <div class="col-xs-12 col-sm-6">
 					                                <a href="checkout.html" class="le-button">Checkout</a>
@@ -225,87 +226,75 @@
 			</div><!-- /.container -->
 		</header>
       <!-- ============================================================= HEADER : END ============================================================= -->		
-<section id="cart-page">
-  <div class="container">
-        <c:set var="name" value="basket" />
-        <!-- ========================================= CONTENT ========================================= -->
-        <div class="col-xs-12 col-md-9 items-holder no-margin">
-            
-            <c:forEach var="currentBFluid" items="${sessionScope[name]}">
-	            <div class="row no-margin cart-item">
-	              <div class="col-xs-12 col-sm-2 no-margin">
-	                <a href="ShowOne?id=${currentBFluid.getId()}" class="thumb-holder">
-	                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
-	                </a>
-	              </div>
-	              <div class="col-xs-12 col-sm-5 ">
-	                <div class="title">
-	                  <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}" /></a>
-	                </div>
-	                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
-	              </div>
-	          	  <div class="col-xs-12 col-sm-3 no-margin">
-	                <div class="quantity">
-	                  <div class="le-quantity">
-	                    <form>
-	                      <a class="minus" href="#reduce"></a>
-	                      <input name="quantity" readonly="readonly" type="text" value="1" />
-	                      <a class="plus" href="#add"></a>
-	                    </form>
-	                  </div>
-	                </div>
-	              </div>
-	          	  <div class="col-xs-12 col-sm-2 no-margin">
-	                <div class="price">
-	                  $<c:out value="${currentBFluid.getPrice()}" />
-	                </div>
-	                <a class="close-btn" href="#"></a>
-	              </div>
-	            </div>
-	            <!-- /.cart-item -->
-          	</c:forEach>
-        </div>
-        <!-- ========================================= CONTENT : END ========================================= -->
-
-        <!-- ========================================= SIDEBAR ========================================= -->
-
-        <div class="col-xs-12 col-md-3 no-margin sidebar ">
-            <div class="widget cart-summary">
-              <h1 class="border">В Корзине:</h1>
-              <div class="body">
-                <ul class="tabled-data no-border inverse-bold">
-                  <li>
-                    <label>Итого:</label>
-                    <div class="value pull-right">$<c:out value="${requestScope.totalBasket}" /></div>
-                  </li>
-                  <li>
-                    <label>Доставка:</label>
-                    <div class="value pull-right">Самовывоз</div>
-                  </li>
-                </ul>
-                <ul id="total-price" class="tabled-data inverse-bold no-border">
-                  <li>
-                    <label>Всего:</label>
-                    <div class="value pull-right">$<c:out value="${requestScope.totalBasket}" /></div>
-                  </li>
-                </ul>
-                <div class="buttons-holder">
-                  <a class="le-button big" href="home?variant=checkout" >Оплатить</a>
-                  <a class="simple-link block" href="home" >Продолжить</a>
-                </div>
+</header>
+ 
+      <div class="main-content" id="main-content">
+        <div class="row">
+          <div class="col-lg-10 center-block page-wishlist style-cart-page inner-bottom-xs">
+            <div class="inner-xs">
+              <div class="page-header">
+                <h2 class="page-title">Избранное</h2>
               </div>
             </div>
+            <!-- /.section-page-title -->
+            <div class="items-holder">
+              <div class="container-fluid wishlist_table">
+              
+                <c:set var="name" value="wishlist" />
+                <c:forEach var="currentWishlist" items="${sessionScope[name]}">
+                    <c:set var="currentBFluid" value="${currentWishlist.getBrakingFluid()}" />
+					<div class="row cart-item cart_item" id="yith-wcwl-row-${currentBFluid.getId()}">
+                  		<div class="col-xs-12 col-sm-1 no-margin">
+                  			<c:url value="Wishlist" var="UpdateBrakingFluid">
+								<c:param name="id" value="${currentBFluid.getId()}"/>
+								<c:param name="variant" value="deleteFromWishlist"/>
+							</c:url>	
+                    		<a title="Удалить из избранного" class="remove_from_wishlist remove-item" href="${UpdateBrakingFluid}">×</a>
+                  		</div>		
+						<div class="col-xs-12 col-sm-1 no-margin">
+                    		<a href="ShowOne?id=${currentBFluid.getId()}">
+                    		<img width="73" height="73" alt="${currentBFluid.getName()}" class="attachment-shop_thumbnail wp-post-image"
+                    			 src="resources/jpg/${currentBFluid.getPhoto()}">
+                    		</a>
+                  		</div>
+						<div class="col-xs-12 col-sm-4 no-margin">
+		                    <div class="title">
+		                      <a href="ShowOne?id=${currentBFluid.getId()}">${currentBFluid.getName()}</a>
+		                    </div>
+		                    <!-- /.title --> 
+		                    <div>
+		                      <span class="label label-success wishlist-in-stock">В наличии</span>
+		                    </div>
+		                 </div>
+		                 <div class="col-xs-12 col-sm-3 no-margin">
+		                    <div class="price">
+		                      <span class="amount">$<c:out value="${currentBFluid.getPrice()}" /></span>							
+		                    </div>
+		                  </div>
+						  <div class="col-xs-12 col-sm-3 no-margin">
+		                    <div class="text-right">
+		                      <div class="add-cart-button">
+			                    <c:url value="Wishlist" var="UpdateBrakingFluid">
+									<c:param name="id" value="${currentBFluid.getId()}"/>
+									<c:param name="variant" value="inBasket"/>
+								</c:url>
+		                        <a class="le-button add_to_cart_button product_type_simple" href="${UpdateBrakingFluid}">В корзину</a>
+		                      </div>
+		                    </div>
+		                  </div>
+		              </div> <!-- /.cart-item -->
+				</c:forEach>
+              </div>
+              <!-- /.wishlist-table -->
+            </div>
+            <!-- /.items-holder -->
           </div>
-          <!-- /.sidebar -->
-
-        <!-- ========================================= SIDEBAR : END ========================================= -->
-    </div>
-
-
-
+          <!-- .large-->
+        </div>
+        <!-- .row-->	
+      </div>
       <!-- ============================================================= FOOTER ============================================================= -->
       <footer id="footer" class="color-bg">
-        <!-- /.link-list-row -->
         <div class="copyright-bar">
           <div class="container">
             <div class="col-xs-12 col-sm-6 no-margin">
@@ -333,8 +322,7 @@
       <!-- /#footer -->
       <!-- ============================================================= FOOTER : END ============================================================= -->	
     </div>
-    <!-- /.wrapper -->
- 
+   <!-- /.wrapper -->
     <!-- JavaScripts placed at the end of the document so the pages load faster -->
     <script src="resources/Ecommerce/assets/js/jquery-1.10.2.min.js"></script>
     <script src="resources/Ecommerce/assets/js/jquery-migrate-1.2.1.js"></script>
@@ -369,6 +357,7 @@
     </script>
     <!-- For demo purposes вЂ“ can be removed on production : End -->
     <script src="http://w.sharethis.com/button/buttons.js"></script>
+    
   </body>
 </html>
 

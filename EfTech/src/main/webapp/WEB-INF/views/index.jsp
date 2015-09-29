@@ -47,12 +47,23 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
-		                        <li><a href="Basketl">Корзина</a></li>
+		                        <li><a href="Basket">Корзина</a></li>
 		                        <li><a href="About">О нас</a></li>
 		                        <li><a href="Download">Загрузить данные из Excel</a></li>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
 		                        <li><a href="BossinessOffer">Bussiness offer</a></li>
-		                        <li><a href="login">Авторизация</a></li>
+		                        <li>
+		                        	<c:set  var="name" value="user" />
+    								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
+		                        	
+									<c:if test="${currentUser.isEmpty()}"> 
+										<a href="login">Авторизируйтесь</a>
+						 			</c:if> 
+									<c:if test="${!currentUser.isEmpty()}"> 
+										<a href="j_spring_security_logout">Выйти</a>
+						 			</c:if> 
+		                        </li>
+		                        
 		                     </ul>
 		                </li>
 		            </ul>
@@ -73,7 +84,19 @@
 		                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Белорусские рубли (BYR)</a></li>
 		                    </ul>
 		                </li>
-		                <li><a href="login">Авторизация</a></li>
+		                <li>
+                        	<c:set  var="name" value="user" />
+  							<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
+                        	
+							<c:if test="${currentUser.isEmpty()}"> 
+								<a href="login">Авторизируйтесь</a>
+				 			</c:if> 
+							
+							<c:if test="${!currentUser.isEmpty()}"> 
+								Здравствуйте, <c:out value="${currentUser.getName()}"  />&nbsp;&nbsp;&nbsp;
+								<a href="j_spring_security_logout">Выйти</a>
+				 			</c:if> 
+                        </li>
 		            </ul>
 		        </div><!-- /.col -->
 		    </div><!-- /.container -->
@@ -110,7 +133,7 @@
 					            <ul class="categories-filter animate-dropdown">
 					                <li class="dropdown">
 					
-					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="home">all categories</a>
+					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="index">Все категории</a>
 					
 					                    <ul class="dropdown-menu" role="menu" >
 					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
@@ -130,10 +153,10 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					            <a href="#"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					            <a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
 					        </div>
 					        <div class="compare">
-					            <a href="#"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
+					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
 					        </div>
 					    </div>
 					
@@ -162,7 +185,7 @@
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img alt="" src="resources/images/"<c:out value="${currentBFluid.getPhoto()}"/> />
+					                                    <img height="73" width="73" src="resources/jpg/${currentBFluid.getPhoto()}"/> />
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
@@ -174,8 +197,7 @@
 												<c:param name="id" value="${currentBFluid.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
-											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины."> <c:out value="${currentBFluid.getName()}"  />
-											</a>
+											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины."></a>
 					                    </div>
 					  				</c:forEach>
 					
@@ -183,7 +205,7 @@
 					                    <div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-12 col-sm-6">
-					                                <a href="basket" class="le-button inverse">Корзина</a>
+					                                <a href="Basket" class="le-button inverse">Корзина</a>
 					                            </div>
 					                            <!-- <div class="col-xs-12 col-sm-6">
 					                                <a href="checkout.html" class="le-button">Checkout</a>
@@ -226,10 +248,10 @@
                             <div class="col-md-4">
                                 <ul class="list-unstyled">
 	 		                        <li><a href="home">Список товаров</a></li>
-			                        <li><a href="Basketl">Корзина</a></li>
+			                        <li><a href="Basket">Корзина</a></li>
 			                        <li><a href="Download">Загрузить данные из Excel</a></li>
 			                        <li><a href="Comparison">Сравнить товары</a></li>
-			                        <li><a href="BossinessOffer">Bussiness offer</a></li>
+			                        <li><a href="BussinessOffer">Bussiness offer</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -351,7 +373,7 @@
     <script src="resources/Ecommerce/assets/js/wow.min.js"></script>
     <script src="resources/Ecommerce/assets/js/scripts.js"></script>
     <!-- For demo purposes – can be removed on production -->
-    <script src="switchstylesheet/switchstylesheet.js"></script>
+    <script src="resources/Ecommerce/switchstylesheet/switchstylesheet.js"></script>
     <script>
       $(document).ready(function(){ 
       	$(".changecolor").switchstylesheet( { seperator:"color"} );

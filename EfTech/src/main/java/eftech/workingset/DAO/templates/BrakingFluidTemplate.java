@@ -204,11 +204,31 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
-	public  int getCount(){
+	public  int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected){
 		int result = 0;
 		
-		String sqlQuery="select count(*) as countRows from brakingfluids";
+		String strManufacturerFilter="";
+		if (manufacturersSelected!=null){
+			if (manufacturersSelected.length>0){
+				strManufacturerFilter="and (man.id IN (";
+				for (int i=0; i<manufacturersSelected.length;i++){ //надо это внедрить в параметры
+					strManufacturerFilter+=manufacturersSelected[i];
+					if ((i+1)<manufacturersSelected.length){
+						strManufacturerFilter+=",";
+					}
+				}
+				strManufacturerFilter+="))";
+			}
+		}
+		String sqlQuery="select count(*) from"
+				+ "(select bf.id as id from brakingfluids  as bf"
+				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
+				+ "		left join manufacturer as man on bf.manufacturer=man.id "
+				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "+strManufacturerFilter+"ORDER BY bf.name ) as rez";
+		
 		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("minPrice", minPrice);
+		params.addValue("maxPrice", maxPrice);		
 		
 		try{
 			result=jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
@@ -222,27 +242,28 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	@Override
 	public ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected){
 		String strManufacturerFilter="";
-		if (manufacturersSelected.length>0){
-			strManufacturerFilter="and (man.id IN (";
-			for (int i=0; i<manufacturersSelected.length;i++){ //надо это внедрить в параметры
-				strManufacturerFilter+=manufacturersSelected[i];
-				if ((i+1)<manufacturersSelected.length){
-					strManufacturerFilter+=",";
+		if (manufacturersSelected!=null){
+			if (manufacturersSelected.length>0){
+				strManufacturerFilter="and (man.id IN (";
+				for (int i=0; i<manufacturersSelected.length;i++){ //надо это внедрить в параметры
+					strManufacturerFilter+=manufacturersSelected[i];
+					if ((i+1)<manufacturersSelected.length){
+						strManufacturerFilter+=",";
+					}
 				}
+				strManufacturerFilter+="))";
 			}
-			strManufacturerFilter+="))";
 		}
-	
 		String sqlQuery="select * from"
 				+ "(select bf.id as id, bf.name as name, bf.price as price, bf.boilingTemperatureDry AS boilingTemperatureDry"
 				+ ", bf.boilingTemperatureWet AS boilingTemperatureWet, bf.description AS description, bf.judgement AS judgement"
 				+ ", bf.photo AS photo, bf.specification AS specification, bf.viscosity40 AS viscosity40"
-				+ ", bf.viscosity100 AS viscosity100,bf.value AS value"
+				+ ", bf.viscosity100 AS viscosity100, bf.value AS value, bf.fluidclass AS fluidclass, bf.manufacturer AS manufacturer"
 				+ ", fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ "		left join manufacturer as man on bf.manufacturer=man.id "
-				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "+strManufacturerFilter+"ORDER BY bf.name ) as rez"
-				+ "LIMIT :firstRow, :number";
+				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "+strManufacturerFilter+" ORDER BY bf.name ) as rez"
+				+ " LIMIT :firstRow, :number";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("firstRow", (currentPage-1)*elementsInList);
@@ -258,19 +279,19 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
-	public LinkedList<BrakingFluid> getBrakingFluidsRecommended(){
+	public ArrayList<BrakingFluid> getBrakingFluidsRecommended(){
 		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
 				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
-				+ " left join manufacturer as man on bf.manufacturer=man.id ORDER BY bf.judgement DESC LIMIT :firstRow; number";
+				+ " left join manufacturer as man on bf.manufacturer=man.id ORDER BY bf.judgement DESC LIMIT :firstRow, :number";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("firstRow", 0);
 		params.addValue("number", Service.ELEMENTS_IN_RECOMMENDED);		
 		
 		try{ 
-			return (LinkedList<BrakingFluid>)jdbcTemplate.query(sqlQuery,params,new BrakingFluidRowMapper());
+			return (ArrayList<BrakingFluid>)jdbcTemplate.query(sqlQuery,params,new BrakingFluidRowMapper());
 		}catch (EmptyResultDataAccessException e){
-			return new LinkedList<BrakingFluid>();
+			return new ArrayList<BrakingFluid>();
 		}				
 	}
 	
