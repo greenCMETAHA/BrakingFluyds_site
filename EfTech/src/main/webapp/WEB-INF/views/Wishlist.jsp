@@ -207,7 +207,7 @@
 					                    <div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-12 col-sm-6">
-					                                <a href="basket" class="le-button inverse">Корзина</a>
+					                                <a href="Basket" class="le-button inverse">Корзина</a>
 					                            </div>
 					                            <!-- <div class="col-xs-12 col-sm-6">
 					                                <a href="checkout.html" class="le-button">Checkout</a>

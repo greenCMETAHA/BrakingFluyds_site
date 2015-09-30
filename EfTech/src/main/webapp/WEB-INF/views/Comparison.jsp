@@ -254,9 +254,8 @@
 	                                <a data-product_id="${currentBFluid.getId()}" href="${UpdateBrakingFluid}" class="remove-link"><i class="fa fa-times-circle"></i></a>
 	                                <img alt="${currentBFluid.getName()}" class="attachment-yith-woocompare-image" src="resources/jpg/${currentBFluid.getPhoto()}">                        
 	                            </div>
-								<c:url value="Comparison" var="UpdateBrakingFluid">
+								<c:url value="ShowOne" var="UpdateBrakingFluid">
 									<c:param name="id" value="${currentBFluid.getId()}"/>
-									<c:param name="variant" value="ShowOne?id=${currentBFluid.getId()}"/>
 								</c:url>	
 								<p><strong><a href="${UpdateBrakingFluid}"> <c:out value="${currentBFluid.getName()}"/></a></strong></p>
 							</td>

@@ -87,7 +87,7 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 			params.addValue("id", id);
 		
 			try{ 
-				return (Wishlist)jdbcTemplate.query(sqlQuery,new WishlistRowMapper());
+				return (Wishlist)jdbcTemplate.queryForObject(sqlQuery,params,new WishlistRowMapper());
 			}catch (EmptyResultDataAccessException e){
 				return new Wishlist();
 			}

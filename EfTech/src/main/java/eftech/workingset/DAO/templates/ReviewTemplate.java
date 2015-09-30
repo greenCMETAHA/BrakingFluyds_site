@@ -38,7 +38,7 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 		params.addValue("id", id);
 
 		try{ 
-			return (ArrayList<Review>)jdbcTemplate.query(sqlQuery,new ReviewRowMapper());
+			return (ArrayList<Review>)jdbcTemplate.query(sqlQuery,params,new ReviewRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Review>();
 		}
@@ -52,7 +52,7 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 		params.addValue("id", id);
 
 		try{ 
-			return (Review)jdbcTemplate.query(sqlQuery,new ReviewRowMapper());
+			return (Review)jdbcTemplate.queryForObject(sqlQuery,params,new ReviewRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new Review();
 		}
@@ -61,7 +61,7 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 	@Override
 	public Review createReview(Review review) {
 		Review result=new Review();
-		Review currentReview = null;
+		Review currentReview = review;
 		if (review.getId()>0){
 			currentReview=getReviewById(review.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}
@@ -103,6 +103,7 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 
 		result.setId(rs.getInt("id"));
 		result.setName(rs.getString("name"));
+		result.setReview(rs.getString("review"));
 		result.setEmail(rs.getString("email"));
 		result.setJudgement(rs.getDouble("judgement"));
 		BrakingFluid brFluid=new BrakingFluid();

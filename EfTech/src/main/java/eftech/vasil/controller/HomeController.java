@@ -74,6 +74,7 @@ import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
+import eftech.workingset.beans.Review;
 
 /**
  * Handles requests for the application home page.
@@ -186,17 +187,19 @@ public class HomeController{
 			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование закаха на склад 
 		}
 		if (variant.compareTo("inWishlist")==0){
-			boolean bFind=false;
-			for(Wishlist current: wishlist){
-				if (((BrakingFluid)current.getBrakingFluid()).getId()==id){
-					bFind=true;
-					break;
+			if (user.getId()!=0){
+				boolean bFind=false;
+				for(Wishlist current: wishlist){
+					if (((BrakingFluid)current.getBrakingFluid()).getId()==id){
+						bFind=true;
+						break;
+					}
+				}
+				if (!bFind){
+					Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id));
+					wishlist.add(currentWish);
 				}
 			}
-			if (!bFind){
-				Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id));
-				wishlist.add(currentWish);
-			}			
 		}
 		if (variant.compareTo("deleteFromWishlist")==0){
 			for(Wishlist current: wishlist){
@@ -518,6 +521,11 @@ public class HomeController{
 	public String showOne(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "userLogin", defaultValue="", required=false) String userLogin
+			,@RequestParam(value = "userEmail", defaultValue="", required=false) String userEmail
+			,@RequestParam(value = "userReviw", defaultValue="", required=false) String userReviw
+			,@RequestParam(value = "judgement", defaultValue="0", required=false) double judgement
+
 			,HttpServletRequest request,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
@@ -543,6 +551,28 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
+		
+		if ((userLogin.trim().isEmpty()) || (userEmail.trim().isEmpty())){ 
+		}else{
+			try {
+				userLogin=new String(userLogin.getBytes("iso-8859-1"), "UTF-8");
+				userEmail=new String(userEmail.getBytes("iso-8859-1"), "UTF-8");
+				userReviw= new String(userReviw.getBytes("iso-8859-1"), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+			Review review = new Review();
+			review.setEmail(userEmail);
+			review.setName(userLogin);
+			review.setJudgement(judgement);
+			review.setReview(userReviw);
+			BrakingFluid brFluid=new BrakingFluid();
+			brFluid.setId(id);
+			review.setBrakingFluid(brFluid);
+			reviewDAO.createReview(review);
+		}		
+		
 		workWithList(id, variant, user, basket, wishlist, compare);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
@@ -575,10 +605,48 @@ public class HomeController{
 			return "InsertUpdate";
 		}else{
 			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
+			model.addAttribute("reviews", reviewDAO.getReviews(id));
 			
 			return "ShowOne";
 		}
+		
 	}		
+	
+//	@RequestMapping(value = "/contact-form", method = {RequestMethod.POST, RequestMethod.GET})
+//	public String addReview(
+//			@RequestParam(value = "id", defaultValue="0", required=false) int id
+//			,@RequestParam(value = "userLogin", defaultValue="", required=false) String userLogin
+//			,@RequestParam(value = "userEmail", defaultValue="", required=false) String userEmail
+//			,@RequestParam(value = "userReviw", defaultValue="", required=false) String userReviw
+//			,@RequestParam(value = "judgement", defaultValue="0", required=false) double judgement
+//			,HttpServletRequest request,Locale locale, Model model) {
+//		
+//		if ((userLogin.trim().isEmpty()) || (userEmail.trim().isEmpty())){ 
+//			//ошибка
+//		}else{
+//			try {
+//				userLogin=new String(userLogin.getBytes("iso-8859-1"), "UTF-8");
+//				userEmail=new String(userEmail.getBytes("iso-8859-1"), "UTF-8");
+//				userReviw= new String(userReviw.getBytes("iso-8859-1"), "UTF-8");
+//			} catch (UnsupportedEncodingException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}			
+//			Review review = new Review();
+//			review.setEmail(userEmail);
+//			review.setName(userLogin);
+//			review.setJudgement(judgement);
+//			review.setReview(userReviw);
+//			BrakingFluid brFluid=new BrakingFluid();
+//			brFluid.setId(id);
+//			review.setBrakingFluid(brFluid);
+//			reviewDAO.createReview(review);
+//		}
+//		model.addAttribute("id", id);
+//		return "ShowOne";
+//		
+//	}		
+	
 	
 	
 	
