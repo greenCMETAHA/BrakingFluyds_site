@@ -158,9 +158,9 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					        	<sec:authorize access="!isAnonimous()">
-					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
-					            </sec:authorize>
+<%-- 					        	<sec:authorize access="!isAnonymous()"> --%>
+<%-- 					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a> --%>
+<%-- 					            </sec:authorize> --%>
 					        </div>
 					        <div class="compare">
 					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
@@ -181,7 +181,7 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
 					                        </sec:authorize>
 					                    </span>
@@ -199,7 +199,7 @@
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
-					                                <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                                <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                                	<div class="price">$<c:out value="${currentBFluid.getPrice()}"/></div>
 					                                </sec:authorize>
 					                            </div>
@@ -277,7 +277,7 @@
 		                    </div>
 		                 </div>
 		                 <div class="col-xs-12 col-sm-3 no-margin">
-		                 	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+		                 	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 			                    <div class="price">
 			                      <span class="amount">$<c:out value="${currentBFluid.getPrice()}" /></span>							
 			                    </div>

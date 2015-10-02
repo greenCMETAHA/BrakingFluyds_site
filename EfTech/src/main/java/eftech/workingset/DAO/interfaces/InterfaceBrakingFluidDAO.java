@@ -6,6 +6,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import eftech.workingset.beans.BrakingFluid;
+import eftech.workingset.beans.ManufacturerSelected;
 
 public interface InterfaceBrakingFluidDAO {
 	ArrayList<BrakingFluid> getBrakingFluids();  
@@ -16,7 +17,7 @@ public interface InterfaceBrakingFluidDAO {
 	
 	double minPrice();
 	double maxPrice();
-	int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected);
-	ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected);
+	int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, LinkedList<ManufacturerSelected> manufacturersSelected);
+	ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice,  LinkedList<ManufacturerSelected> manufacturersSelected);
 	ArrayList<BrakingFluid> getBrakingFluidsRecommended();
 }

@@ -47,7 +47,7 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
-		                        <sec:authorize access="!isAnonimous()">
+		                        <sec:authorize access="!isAnonymous()">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
@@ -160,7 +160,7 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					        	<sec:authorize access="!isAnonimous()">
+					        	<sec:authorize access="!isAnonymous()">
 					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
 					            </sec:authorize>
 					        </div>
@@ -183,7 +183,7 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
 					                        </sec:authorize>
 					                    </span>
@@ -196,13 +196,13 @@
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
+					                                    <img height="73" width="50" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
 					                                <div class="price">
-					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                                		$<c:out value="${currentBFluid.getPrice()}"/>
 					                                	</sec:authorize>
 					                                </div>
@@ -321,7 +321,7 @@
 		                   <div class="product-item">
 		                    
 			                    <div class="image">
-			                      <img alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
+			                      <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
 			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
 			                    </div>
 			                    <div class="body">
@@ -333,7 +333,7 @@
 			                    </div>
 			                    <div class="prices">
 			                      	<div class="price-current text-right">
-			                      		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+			                      		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 			                      			$<c:out value="${currentBFluid.getPrice()}"/>
 			                      		</sec:authorize>
 			                      	</div>
@@ -348,12 +348,15 @@
 			                        <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
 			                      </div>
 			                      <div class="wish-compare">
-			                        <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inWishlist"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
+			                      	<sec:authorize access="!isAnonymous()">
+				                        <c:url value="home" var="UpdateBrakingFluid">
+											<c:param name="id" value="${currentBFluid.getId()}"/>
+											<c:param name="variant" value="inWishlist"/>
+											<c:param name="currentPage" value="${requestScope.currentPage}"/>
+										</c:url>
+										
+					                    <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
+				                    </sec:authorize>
 			                        <c:url value="home" var="UpdateBrakingFluid">
 										<c:param name="id" value="${currentBFluid.getId()}"/>
 										<c:param name="variant" value="inCompare"/>
@@ -399,7 +402,7 @@
                   	 	  <div class="col-xs-12 col-sm-4 no-margin product-item-holder hover">
                           <div class="product-item">
                             <div class="image">
-                              <img alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
+                              <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
 			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
                             </div>
                             <div class="body">
@@ -410,7 +413,7 @@
                             </div>
                             <div class="prices">
                               <div class="price-current pull-right">
-									<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">		                              
+									<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">		                              
 	                              		$<c:out value="${currentBFluid.getPrice()}"/>
 	                              	</sec:authorize>
    	                          </div>
@@ -425,18 +428,22 @@
 			                    <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
                               </div>
                               <div class="wish-compare">
-			                        <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inWishlist"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
-			                        <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inCompare"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a class="btn-add-to-compare" href="${UpdateBrakingFluid}">Сравнить</a>
+                              	   <sec:authorize access="!isAnonymous()">
+				                        <c:url value="home" var="UpdateBrakingFluid">
+											<c:param name="id" value="${currentBFluid.getId()}"/>
+											<c:param name="variant" value="inWishlist"/>
+											<c:param name="currentPage" value="${requestScope.currentPage}"/>
+										</c:url>
+										
+				                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
+				                   </sec:authorize>
+		                        <c:url value="home" var="UpdateBrakingFluid">
+									<c:param name="id" value="${currentBFluid.getId()}"/>
+									<c:param name="variant" value="inCompare"/>
+									<c:param name="currentPage" value="${requestScope.currentPage}"/>
+								</c:url>
+		                        <a class="btn-add-to-compare" href="${UpdateBrakingFluid}">Сравнить</a>
+			                        
 			                  </div>
                             </div>
                           </div>
@@ -494,7 +501,7 @@
 						 
 	                  	 	 <div class="no-margin col-xs-12 col-sm-4 image-holder">
 	                            <div class="image">
-	                              <img alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
+	                              <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
 			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
 	                            </div>
 	                         </div> 
@@ -522,7 +529,7 @@
 	                           <div class="no-margin col-xs-12 col-sm-3 price-area">
 	                            <div class="right-clmn">
 	                              <div class="price-current">
-	                              	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                              	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 	                              		$<c:out value="${currentBFluid.getPrice()}"/>
 	                              	</sec:authorize>
 	                              </div>
@@ -536,13 +543,16 @@
 									</c:url>
 				                    <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
 		                            <div class="wish-compare">
-			                        <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inWishlist"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
+			                            <sec:authorize access="!isAnonymous()">
+					                        <c:url value="home" var="UpdateBrakingFluid">
+												<c:param name="id" value="${currentBFluid.getId()}"/>
+												<c:param name="variant" value="inWishlist"/>
+												<c:param name="currentPage" value="${requestScope.currentPage}"/>
+											</c:url>
+				                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
+				                        </sec:authorize>
 			                  		</div>
+			                  		
 	                            </div>
 	                          </div>
 	                          <!-- /.price-area -->

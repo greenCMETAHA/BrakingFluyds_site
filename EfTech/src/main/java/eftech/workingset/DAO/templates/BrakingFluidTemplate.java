@@ -204,21 +204,32 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
-	public  int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected){
+	public  int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, LinkedList<ManufacturerSelected> manufacturersSelected){
 		int result = 0;
 		
-		String strManufacturerFilter="";
-		if (manufacturersSelected!=null){
-			if (manufacturersSelected.length>0){
-				strManufacturerFilter="and (man.id IN (";
-				for (int i=0; i<manufacturersSelected.length;i++){ //надо это внедрить в параметры
-					strManufacturerFilter+=manufacturersSelected[i];
-					if ((i+1)<manufacturersSelected.length){
-						strManufacturerFilter+=",";
+		StringBuilder strManufacturerFilter=new StringBuilder();
+		if (manufacturersSelected.size()>0){
+			boolean bFind=false;
+			for (ManufacturerSelected currentMan:manufacturersSelected){
+				if (currentMan.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (ManufacturerSelected currentMan:manufacturersSelected){
+					if (currentMan.isSelected()){
+						if (strManufacturerFilter.length()!=0){
+							strManufacturerFilter.append(", ");
+						}
+
+						strManufacturerFilter.append(currentMan.getId());
 					}
 				}
-				strManufacturerFilter+="))";
+				strManufacturerFilter.insert(0, "and (man.id IN (");
+				strManufacturerFilter.append("))");
 			}
+		
 		}
 		String sqlQuery="select count(*) from"
 				+ "(select bf.id as id from brakingfluids  as bf"
@@ -240,19 +251,30 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}	
 	
 	@Override
-	public ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, int[] manufacturersSelected){
-		String strManufacturerFilter="";
-		if (manufacturersSelected!=null){
-			if (manufacturersSelected.length>0){
-				strManufacturerFilter="and (man.id IN (";
-				for (int i=0; i<manufacturersSelected.length;i++){ //надо это внедрить в параметры
-					strManufacturerFilter+=manufacturersSelected[i];
-					if ((i+1)<manufacturersSelected.length){
-						strManufacturerFilter+=",";
+	public ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, LinkedList<ManufacturerSelected> manufacturersSelected){
+		StringBuilder strManufacturerFilter=new StringBuilder();
+		if (manufacturersSelected.size()>0){
+			boolean bFind=false;
+			for (ManufacturerSelected currentMan:manufacturersSelected){
+				if (currentMan.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (ManufacturerSelected currentMan:manufacturersSelected){
+					if (currentMan.isSelected()){
+						if (strManufacturerFilter.length()!=0){
+							strManufacturerFilter.append(", ");
+						}
+
+						strManufacturerFilter.append(currentMan.getId());
 					}
 				}
-				strManufacturerFilter+="))";
+				strManufacturerFilter.insert(0, "and (man.id IN (");
+				strManufacturerFilter.append("))");
 			}
+		
 		}
 		String sqlQuery="select * from"
 				+ "(select bf.id as id, bf.name as name, bf.price as price, bf.boilingTemperatureDry AS boilingTemperatureDry"

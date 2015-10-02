@@ -47,7 +47,7 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
-		                        <sec:authorize access="!isAnonimous()">
+		                        <sec:authorize access="!isAnonymous()">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
@@ -160,7 +160,7 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					        	<sec:authorize access="!isAnonimous()">
+					        	<sec:authorize access="!isAnonymous()">
 					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
 					            </sec:authorize>
 					        </div>
@@ -183,7 +183,7 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
 					                        </sec:authorize>
 					                    </span>
@@ -202,7 +202,7 @@
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
 					                                <div class="price">
-					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                                		$<c:out value="${currentBFluid.getPrice()}"/>
 					                                	</sec:authorize>		
 					                                </div>
@@ -221,15 +221,6 @@
 					                        <div class="row">
 					                            <div class="col-xs-12 col-sm-6">
 					                                <a href="Basket" class="le-button inverse">Корзина</a>
-					                            </div>
-					                            <div class="col-xs-12 col-sm-6">
-					                            	<sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
-						                            	<c:url value="makeDemand" var="UpdateBrakingFluid">
-															<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
-															<c:param name="backPage" value="Basket"/>
-														</c:url>      
-						                                <a href="${UpdateBrakingFluid}" class="le-button inverse">Заявка</a>
-						                            </sec:authorize>
 					                            </div>
 					                            <!-- <div class="col-xs-12 col-sm-6">
 					                                <a href="checkout.html" class="le-button">Checkout</a>
@@ -279,11 +270,15 @@
 	              </div>
 	          	  <div class="col-xs-12 col-sm-2 no-margin">
 	                <div class="price">
-	                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 	                  		$<c:out value="${currentBFluid.getPrice()}" />
 	                  	</sec:authorize>
 	                </div>
-	                <a class="close-btn" href="#"></a>
+	                <c:url value="Basket" var="deleteFromBasket">
+						<c:param name="id" value="${currentBFluid.getId()}"/>
+						<c:param name="variant" value="deleteFromBasket"/>
+					</c:url>
+	                <a class="close-btn" href="${deleteFromBasket}"></a>
 	              </div>
 	            </div>
 	            <!-- /.cart-item -->
@@ -301,7 +296,7 @@
                   <li>
                     <label>Итого:</label>
                     <div class="value pull-right">
-	                   	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                   	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 	 	                 	$<c:out value="${requestScope.totalBasket}" />
 	                    </sec:authorize>
                     </div>
@@ -315,7 +310,7 @@
                   <li>
                     <label>Всего:</label>
                     <div class="value pull-right">
-	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 	                    	$<c:out value="${requestScope.totalBasket}" />
 	                    </sec:authorize>
 	                </div>
@@ -330,7 +325,7 @@
              
        
           </div>
-          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR')">
+          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR')">
 	          <h1 class="border">Коммерческое предложение</h1>
 	          <div class="row">
 	  			 <div class="items-holder">
@@ -376,7 +371,28 @@
 	               	 </div>
 	              </div>
 	            </div> 
-            </sec:authorize>           
+	            </sec:authorize>
+	            <sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
+				<div class="row">
+	  			 <div class="items-holder">
+					<div class="container-fluid wishlist_table">
+						<div class="row cart-item cart_item" id="yith-wcwl-row-1">
+							<div class="col-xs-12 col-sm-4 no-margin">Создать заявку:
+							</div>
+							<div class="col-xs-12 col-sm-2 no-margin">
+							</div>
+							<div class="col-xs-12 col-sm-3 no-margin">
+								<div class="text-right">
+									<div class="add-cart-button">
+										<a class="le-button add_to_cart_button product_type_simple" href="Basket?variant=Demand">Заявка</a>
+									</div>							
+								</div>
+							</div>
+		              	</div>
+	               	 </div>
+	              </div>
+	            </div>
+	            </sec:authorize>	            
 		</div>
 	</section>
    </div>

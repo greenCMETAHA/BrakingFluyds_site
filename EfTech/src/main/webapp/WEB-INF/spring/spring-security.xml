@@ -8,8 +8,7 @@
     <!--Auth form setup-->
     <http auto-config="true"   use-expressions="true" >
         <!-- <intercept-url pattern="/*" />  -->
-         <intercept-url pattern="/Basket" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_OFFER', 'ROLE_OFFERPRICE')" />
-         <intercept-url pattern="/Wishlist" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_OFFER', 'ROLE_OFFERPRICE')" />
+         <intercept-url pattern="/Wishlist" access="!isAnonymous()" />
          <intercept-url pattern="/BussinessOffer"   access="hasAnyRole('ROLE_ADMIN', 'ROLE_DISTR', 'ROLE_OFFERPRICE')"/>
          <intercept-url pattern="/Comparison" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_OFFER', 'ROLE_OFFERPRICE')"/>
          <intercept-url pattern="/Download" access="hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/>

@@ -527,9 +527,9 @@ public class HomeController{
 			manufacturersSelected=fillSelectedManufacturers(manufacturerSelections); //method
 		}
 
-		ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections); 
+		ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter); 
 		model.addAttribute("listBrakFluids", listBakingFluids);
-		int totalProduct=brakingFluidDAO.getCountRows(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections);
+		int totalProduct=brakingFluidDAO.getCountRows(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter);
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("currentPage", currentPage);
@@ -1102,9 +1102,9 @@ public class HomeController{
 				}															//восстановим существующий фильтр по производителю <--
 				
 				
-				ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections); 
+				ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter); 
 				model.addAttribute("listBrakFluids", listBakingFluids);
-				int totalProduct=brakingFluidDAO.getCountRows(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections);
+				int totalProduct=brakingFluidDAO.getCountRows(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter);
 				int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 				model.addAttribute("totalPages", totalPages);
 				model.addAttribute("currentPage", 1);
