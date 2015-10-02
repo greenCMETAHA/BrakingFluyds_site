@@ -46,12 +46,18 @@
 		                    <a class="dropdown-toggle" data-toggle="dropdown" href="#pages">Страницы</a>
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="index">В начало</a></li>
-		                        <li><a href="home">Список товаров</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
+		                        <sec:authorize access="!isAnonimous()">
+		                        	<li><a href="Wishlist">Избранное</a></li>
+		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
-		                        <li><a href="Download">Загрузить данные из Excel</a></li>
+		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
+   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        </sec:authorize>
+   		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
+		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
-		                        <li><a href="BussinessOffer">Bussiness offer</a></li>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -154,7 +160,9 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					            <a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					        	<sec:authorize access="!isAnonimous()">
+					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					            </sec:authorize>
 					        </div>
 					        <div class="compare">
 					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
@@ -175,7 +183,9 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                        <span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                        </sec:authorize>
 					                    </span>
 					                </div>
 					            </a>
@@ -191,7 +201,11 @@
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
-					                                <div class="price">$<c:out value="${currentBFluid.getPrice()}"/></div>
+					                                <div class="price">
+					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                                		$<c:out value="${currentBFluid.getPrice()}"/>
+					                                	</sec:authorize>
+					                                </div>
 					                            </div>
 					                        </div>
 											<c:url value="home" var="deleteFromBasket">
@@ -276,6 +290,16 @@
             </div>
             <!-- /.widget -->
             </form>
+            <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
+	            <div class="widget">
+	            	<div class="body bordered">
+		            	<div class="buttons-holder">
+		                  <a class="le-button big" href="InsertUpdate?variant=New" >Новый товар</a>
+		                </div>
+	            	</div>
+	            </div>
+            </sec:authorize>            
+                        
             <!-- ========================================= PRODUCT FILTER : END ========================================= -->
             
           </div>
@@ -308,8 +332,11 @@
 			                      </div>
 			                    </div>
 			                    <div class="prices">
-			                      <div class="price-current text-right">$<c:out value="${currentBFluid.getPrice()}"/>
-			                      </div>
+			                      	<div class="price-current text-right">
+			                      		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+			                      			$<c:out value="${currentBFluid.getPrice()}"/>
+			                      		</sec:authorize>
+			                      	</div>
 			                    </div>
 			                    <div class="hover-area">
 			                      <div class="add-cart-button">
@@ -382,8 +409,11 @@
                               <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
                             </div>
                             <div class="prices">
-                              <div class="price-current pull-right">$<c:out value="${currentBFluid.getPrice()}"/>
-                              </div>
+                              <div class="price-current pull-right">
+									<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">		                              
+	                              		$<c:out value="${currentBFluid.getPrice()}"/>
+	                              	</sec:authorize>
+   	                          </div>
                             </div>
                             <div class="hover-area">
                               <div class="add-cart-button">
@@ -491,7 +521,12 @@
 	                          <!-- /.body-holder --> 
 	                           <div class="no-margin col-xs-12 col-sm-3 price-area">
 	                            <div class="right-clmn">
-	                              <div class="price-current">$<c:out value="${currentBFluid.getPrice()}"/></div>
+	                              <div class="price-current">
+	                              	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                              		$<c:out value="${currentBFluid.getPrice()}"/>
+	                              	</sec:authorize>
+	                              </div>
+	                              	
 	                              <div class="availability"><label>В наличии:</label><span class="available"> на складе</span></div>
 	                              <div class="add-cart-button">
 	                                <c:url value="home" var="UpdateBrakingFluid">

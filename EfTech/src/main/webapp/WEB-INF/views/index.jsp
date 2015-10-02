@@ -48,10 +48,17 @@
 		                        <li><a href="">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
+		                        <sec:authorize access="!isAnonimous()">
+		                        	<li><a href="Wishlist">Избранное</a></li>
+		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
-		                        <li><a href="Download">Загрузить данные из Excel</a></li>
+		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
+   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        </sec:authorize>
+   		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
+		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
-		                        <li><a href="BossinessOffer">Bussiness offer</a></li>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -153,7 +160,9 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					            <a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					        	<sec:authorize access="!isAnonimous()">
+					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					            </sec:authorize>
 					        </div>
 					        <div class="compare">
 					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
@@ -174,7 +183,9 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                        <span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                        </sec:authorize>
 					                    </span>
 					                </div>
 					            </a>
@@ -240,7 +251,6 @@
                       	<div class="row">
                             <div class="col-md-4">
                                 <ul class="list-unstyled">
-                                   <li><a href="">В начало</a></li>
                                    <li><a href="login">Авторизация</a></li>
                                    <li><a href="About">О нас</a></li>
                                 </ul>
@@ -249,9 +259,16 @@
                                 <ul class="list-unstyled">
 	 		                        <li><a href="home">Список товаров</a></li>
 			                        <li><a href="Basket">Корзина</a></li>
-			                        <li><a href="Download">Загрузить данные из Excel</a></li>
+			                        <sec:authorize access="!isAnonimous()">
+			                        	<li><a href="Wishlist">Избранное</a></li>
+			                        </sec:authorize>		                        
+			                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
+	   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+	   		                        </sec:authorize>
+	   		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
+			                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+			                        </sec:authorize>
 			                        <li><a href="Comparison">Сравнить товары</a></li>
-			                        <li><a href="BussinessOffer">Bussiness offer</a></li>
                                 </ul>
                             </div>
                         </div>

@@ -47,11 +47,17 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
-		                        <li><a href="Basket">Корзина</a></li>
+		                        <sec:authorize access="!isAnonimous()">
+		                        	<li><a href="Wishlist">Избранное</a></li>
+		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
-		                        <li><a href="Download">Загрузить данные из Excel</a></li>
+		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
+   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        </sec:authorize>
+   		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
+		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
-		                        <li><a href="BussinessOffer">Bussiness offer</a></li>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -154,7 +160,9 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					            <a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					        	<sec:authorize access="!isAnonimous()">
+					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					            </sec:authorize>
 					        </div>
 					        <div class="compare">
 					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
@@ -175,7 +183,9 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                        <span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                        </sec:authorize>
 					                    </span>
 					                </div>
 					            </a>
@@ -191,7 +201,11 @@
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
-					                                <div class="price">$<c:out value="${currentBFluid.getPrice()}"/></div>
+					                                <div class="price">
+					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                                		$<c:out value="${currentBFluid.getPrice()}"/>
+					                                	</sec:authorize>		
+					                                </div>
 					                            </div>
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
@@ -208,13 +222,21 @@
 					                            <div class="col-xs-12 col-sm-6">
 					                                <a href="Basket" class="le-button inverse">Корзина</a>
 					                            </div>
+					                            <div class="col-xs-12 col-sm-6">
+					                            	<sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
+						                            	<c:url value="makeDemand" var="UpdateBrakingFluid">
+															<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+															<c:param name="backPage" value="Basket"/>
+														</c:url>      
+						                                <a href="${UpdateBrakingFluid}" class="le-button inverse">Заявка</a>
+						                            </sec:authorize>
+					                            </div>
 					                            <!-- <div class="col-xs-12 col-sm-6">
 					                                <a href="checkout.html" class="le-button">Checkout</a>
 					                            </div>  -->
 					                        </div>
 					                    </div>
 					                </li>
-					
 					            </ul>
 					        </div><!-- /.basket -->
 					    </div><!-- /.top-cart-holder -->
@@ -257,7 +279,9 @@
 	              </div>
 	          	  <div class="col-xs-12 col-sm-2 no-margin">
 	                <div class="price">
-	                  $<c:out value="${currentBFluid.getPrice()}" />
+	                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                  		$<c:out value="${currentBFluid.getPrice()}" />
+	                  	</sec:authorize>
 	                </div>
 	                <a class="close-btn" href="#"></a>
 	              </div>
@@ -276,7 +300,11 @@
                 <ul class="tabled-data no-border inverse-bold">
                   <li>
                     <label>Итого:</label>
-                    <div class="value pull-right">$<c:out value="${requestScope.totalBasket}" /></div>
+                    <div class="value pull-right">
+	                   	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	 	                 	$<c:out value="${requestScope.totalBasket}" />
+	                    </sec:authorize>
+                    </div>
                   </li>
                   <li>
                     <label>Доставка:</label>
@@ -286,7 +314,11 @@
                 <ul id="total-price" class="tabled-data inverse-bold no-border">
                   <li>
                     <label>Всего:</label>
-                    <div class="value pull-right">$<c:out value="${requestScope.totalBasket}" /></div>
+                    <div class="value pull-right">
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                    	$<c:out value="${requestScope.totalBasket}" />
+	                    </sec:authorize>
+	                </div>
                   </li>
                 </ul>
                 <div class="buttons-holder">
@@ -295,46 +327,60 @@
                 </div>
               </div>
             </div>
+             
+       
           </div>
-          <!-- /.sidebar -->
-
-        <!-- ========================================= SIDEBAR : END ========================================= -->
-    </div>
-
-
-
-      <!-- ============================================================= FOOTER ============================================================= -->
-      <footer id="footer" class="color-bg">
-        <!-- /.link-list-row -->
-        <div class="copyright-bar">
-          <div class="container">
-            <div class="col-xs-12 col-sm-6 no-margin">
-              <div class="copyright">
-                &copy; <a href="index">Media Center</a> - all rights reserved
-              </div>
-              <!-- /.copyright -->
-            </div>
-            <div class="col-xs-12 col-sm-6 no-margin">
-              <div class="payment-methods ">
-                <ul>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-visa.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-master.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-paypal.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-skrill.png"></li>
-                </ul>
-              </div>
-              <!-- /.payment-methods -->
-            </div>
-          </div>
-          <!-- /.container -->
-        </div>
-        <!-- /.copyright-bar -->
-      </footer>
-      <!-- /#footer -->
-      <!-- ============================================================= FOOTER : END ============================================================= -->	
-    </div>
-    <!-- /.wrapper -->
+          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR')">
+	          <h1 class="border">Коммерческое предложение</h1>
+	          <div class="row">
+	  			 <div class="items-holder">
+					<div class="container-fluid wishlist_table">
+						<div class="row cart-item cart_item" id="yith-wcwl-row-1">
+							<div class="col-xs-12 col-sm-4 no-margin">Распечатать коммерческое предложение:
+							</div>
+							<div class="col-xs-12 col-sm-2 no-margin">
+							</div>
+							<div class="col-xs-12 col-sm-3 no-margin">
+								<div class="text-right">
+									<div class="add-cart-button">
+										<a class="le-button add_to_cart_button product_type_simple" href="Basket?variant=Show">Распечатать</a>
+									</div>							
+								</div>
+							</div>
+		              	</div>
+	               	 </div>
+	              </div>
+	            </div>
  
+	            <div class="row">
+	  			 <div class="items-holder">
+					<div class="container-fluid wishlist_table">
+						<div class="col-xs-12 col-sm-4 no-margin">Отправить по электронной почте:
+						</div>
+						
+						<form action="Basket" method="POST">
+							<div class="col-xs-12 col-sm-4 no-margin">
+								<select class="select" size="1" name="client" id="input-one">
+				                    <option disabled>Выберите получателя</option>	
+									<c:forEach var="punct" items="${requestScope.listClients}">
+										<option value="${punct.getId()}"><c:out value="${punct.getName()}" />(<c:out value="${punct.getEmail()}" />)</option>
+									</c:forEach>
+				                </select>
+							</div>
+							<div class="col-xs-12 col-sm-3 no-margin">
+			                    <div class="buttons-holder">
+		                            <button class="le-button" type="submit" name="variant" value="Send">Отправить</button>
+		                        </div>
+	                        </div>
+	                    </form>
+	               	 </div>
+	              </div>
+	            </div> 
+            </sec:authorize>           
+		</div>
+	</section>
+   </div>
+    <!-- /.wrapper -->
     <!-- JavaScripts placed at the end of the document so the pages load faster -->
     <script src="resources/Ecommerce/assets/js/jquery-1.10.2.min.js"></script>
     <script src="resources/Ecommerce/assets/js/jquery-migrate-1.2.1.js"></script>
@@ -371,4 +417,3 @@
     <script src="http://w.sharethis.com/button/buttons.js"></script>
   </body>
 </html>
-

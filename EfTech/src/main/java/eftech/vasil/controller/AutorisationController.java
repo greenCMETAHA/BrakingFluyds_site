@@ -1,9 +1,12 @@
 package eftech.vasil.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,11 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
+import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
+import eftech.workingset.DAO.templates.WishlistTemplate;
+import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.User;
+import eftech.workingset.beans.Wishlist;
 
 @Controller
-@SessionAttributes({"user", "Basket"})
+@SessionAttributes({"user", "basket", "wishlist", "compare", "currentPriceFilter", "manufacturersFilter", "elementsInList"})
 public class AutorisationController {
 	@Autowired
 	UserTemplate userDAO;
@@ -28,24 +35,32 @@ public class AutorisationController {
 	@Autowired
 	BrakingFluidTemplate brakingFluidDAO;
 	
-
-	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})	
-	public String homeAuthorisation(@ModelAttribute User user
-			, Locale locale, Model model) {
-		
-		String page="login";
-		return page;
-	}
+	@Autowired
+	InfoTemplate infoDAO;
 	
-	@RequestMapping(value = "/loginOk", method = {RequestMethod.POST, RequestMethod.GET})	
-	public String homeAuthorisationOk(@ModelAttribute User user, @AuthenticationPrincipal User userPrincipal
-			,HttpServletRequest request
-			, Locale locale, Model model) {
-		
-		model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-		
-		return "home";
-	}
+	@Autowired
+	WishlistTemplate wishlistDAO;
+	
+	
+	
+
+//	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})	
+//	public String homeAuthorisation(@ModelAttribute User user
+//			, Locale locale, Model model) {
+//		
+//		String page="login";
+//		return page;
+//	}
+//	
+//	@RequestMapping(value = "/loginOk", method = {RequestMethod.POST, RequestMethod.GET})	
+//	public String homeAuthorisationOk(@ModelAttribute User user, @AuthenticationPrincipal User userPrincipal
+//			,HttpServletRequest request
+//			, Locale locale, Model model) {
+//		
+//		model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+//		
+//		return "home";
+//	}
 	
 
 //	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})	

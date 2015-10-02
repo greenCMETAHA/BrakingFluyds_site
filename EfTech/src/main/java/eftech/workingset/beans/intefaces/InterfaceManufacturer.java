@@ -1,5 +1,5 @@
 package eftech.workingset.beans.intefaces;
 
-public interface InterfaceManufacturer {
+public interface InterfaceManufacturer   {
 
 }

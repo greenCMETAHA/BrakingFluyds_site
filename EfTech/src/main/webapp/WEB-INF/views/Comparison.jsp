@@ -48,10 +48,16 @@
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
+		                        <sec:authorize access="!isAnonimous()">
+		                        	<li><a href="Wishlist">Избранное</a></li>
+		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
-		                        <li><a href="Download">Загрузить данные из Excel</a></li>
-		                        <li><a href="Comparison">Сравнить товары</a></li>
-		                        <li><a href="BussinessOffer">Bussiness offer</a></li>
+		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
+   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        </sec:authorize>
+   		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
+		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        </sec:authorize>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -154,7 +160,9 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					            <a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					        	<sec:authorize access="!isAnonimous()">
+					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
+					            </sec:authorize>
 					        </div>
 					        <div class="compare">
 					            <a href="Comparison"><i class="fa fa-exchange"></i> Сравнить <span class="value">(<c:out value="${requestScope.compare.size()}"/>)</span> </a>
@@ -175,7 +183,9 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                        <span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">    	
+					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
+					                        </sec:authorize>
 					                    </span>
 					                </div>
 					            </a>
@@ -191,7 +201,11 @@
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
-					                                <div class="price">$<c:out value="${currentBFluid.getPrice()}"/></div>
+					                                <div class="price">
+					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                                		$<c:out value="${currentBFluid.getPrice()}"/>
+					                                	</sec:authorize>		
+					                                </div>
 					                            </div>
 					                        </div>
 											<c:url value="Comparison" var="deleteFromBasket">
@@ -239,7 +253,6 @@
       	<c:set var="name" value="compare" />
         </div><!-- /.section-page-title -->
         <div class="table-responsive inner-bottom-xs inner-top-xs">
-        
              <table class="table table-bordered table-striped compare-list">
                 <thead>
                     <tr>
@@ -282,7 +295,11 @@
                         <th>Цена</th>
                         <c:forEach var="currentBFluid" items="${sessionScope[name]}">
                         	<td class="comparison-item-cell odd product_${currentBFluid.getId()}">
-                            	<span class="amount">$<c:out value="${currentBFluid.getPrice()}"/></span>                        
+                            	<span class="amount">
+                            		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+                            			$<c:out value="${currentBFluid.getPrice()}"/>
+                            		</sec:authorize>		
+                            	</span>                        
                         	</td>
                         </c:forEach>
                     </tr>
@@ -378,7 +395,11 @@
                         <th>Цена</th>
                         <c:forEach var="currentBFluid" items="${sessionScope[name]}">
                         	<td class="odd product_${currentBFluid.getId()}">
-                            	<span class="amount">$<c:out value="${currentBFluid.getPrice()}"/></span>                        
+                            	<span class="amount">
+                            		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DESTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+                            			$<c:out value="${currentBFluid.getPrice()}"/>
+                            		</sec:authorize>
+                            	</span>                        
                         	</td>
                         </c:forEach>
                     </tr>

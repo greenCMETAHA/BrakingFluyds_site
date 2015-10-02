@@ -40,19 +40,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.itextpdf.text.DocumentException;
 
@@ -161,7 +167,157 @@ public class HomeController{
 		return result;
 	}
 	
-	private void workWithList(int id, String variant, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
+	private void creadeBussinessOffer(int id, int clientId, String variant, User user, LinkedList<BrakingFluid>  basket, HttpSession session){
+		if (variant.equals("Show")){
+			File pdfFile=null;
+			try {
+				pdfFile=Service.createPDF_BussinessOffer(basket, session.getServletContext().getRealPath("/"), user);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (pdfFile!=null){
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop.getDesktop().open(pdfFile);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					System.out.println("Awt Desktop is not supported!");
+				}
+			}
+			
+		}		
+		if  (variant.equals("Send")){
+			File pdfFile=null;
+			try {
+				pdfFile=Service.createPDF_BussinessOffer(basket, session.getServletContext().getRealPath("/"), user);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//отошлем по электронной почте
+			if (pdfFile!=null){
+				if (clientId>0){
+					Client currentClient=(Client)clientDAO.getClient(clientId);
+					if (currentClient.getEmail().length()>0){
+					 	Properties props = new Properties();			//ssl для яндекса
+					 	props.put("mail.smtp.auth", "true");
+					 	props.put("mail.transport.protocol", "smtp");
+
+//						 	props.put("mail.smtp.host", "smtp.beget.ru");
+//						 	props.put("mail.smtp.port", "25");
+					 	
+					 	
+					 	props.put("mail.smtp.host", "smtp.mail.ru");
+				 	props.put("mail.smtp.port", "465");
+//					 	props.put("mail.user", "test@locomotions.ru");
+//						 	props.put("mail.password" , "12345678qa");					 	
+				        
+//						 		props.put("mail.smtp.auth", "true");
+					        props.put("mail.smtp.starttls.enable", "true");
+//						        props.put("mail.smtp.host", "smtp.gmail.com");
+//						        props.put("mail.smtp.port", "587");
+//				        
+//					        
+//					     //   Session session = Session.getInstance(props,null);
+					        Session sessionEmail = Session.getInstance(props, new Authenticator() {
+					            protected PasswordAuthentication getPasswordAuthentication() {
+					                return new PasswordAuthentication("phylife@mail.ru", "cbcmrb2000"); //phylife@mail.ru
+					            }
+					        });
+				 
+				        try {
+				            Message message = new MimeMessage(sessionEmail);
+				            //от кого
+				            message.setFrom(new InternetAddress("glebas@tut.by","Васильченко"));
+				            //кому
+				            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(currentClient.getEmail()));
+				            //Заголовок письма
+				            message.setSubject("Тестовое письмо");
+				            //Содержимое
+				            
+//					            // Create the message part
+//					            BodyPart messageBodyPart = new MimeBodyPart();
+//
+//					            // Now set the actual message
+//					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
+//
+//					            // Create a multipar message
+//					            Multipart multipart = new MimeMultipart();
+//
+//					            // Set text message part
+//					            multipart.addBodyPart(messageBodyPart);
+//
+//					            // Part two is attachment
+//					            messageBodyPart = new MimeBodyPart();
+//					            DataSource source = new FileDataSource(pdfFile);
+//					            messageBodyPart.setDataHandler(new DataHandler(source));
+//					            messageBodyPart.setFileName(pdfFile.getName());
+//					            multipart.addBodyPart(messageBodyPart);
+
+				            // Send the complete message parts
+				            // Session mailSession = Session.getDefaultInstance(props, null);
+				            //Transport = mailSession.getTransport();
+				            //Отправляем сообщение
+				            Transport.send(message);
+				        } catch (MessagingException e) {
+				            throw new RuntimeException(e);
+				        } catch (UnsupportedEncodingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}	
+					}
+			        
+				}
+			}
+			
+		}
+	}
+	
+	private void workWithList(int id, String variant, User user, LinkedList<BrakingFluid>  basket
+			, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare, HttpSession session){
+	
+		if (variant.compareTo("Demand")==0){
+			LinkedList<BrakingFluid>  listBrakingFluid = null; 
+			if (id==0){ 
+				listBrakingFluid = (LinkedList<BrakingFluid>) session.getAttribute("basket");
+			}else{
+				listBrakingFluid=new LinkedList<BrakingFluid>();
+				listBrakingFluid.add(brakingFluidDAO.getBrakingFluid(id));
+			} 
+		
+			try {
+				Service.createPDF_Demand(listBrakingFluid, session.getServletContext().getRealPath("/"), user);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+			
+		}
 		
 		if (variant.compareTo("deleteFromBasket")==0){  
 			for(BrakingFluid current: basket){
@@ -199,7 +355,7 @@ public class HomeController{
 					Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id));
 					wishlist.add(currentWish);
 				}
-			}
+			}  
 		}
 		if (variant.compareTo("deleteFromWishlist")==0){
 			for(Wishlist current: wishlist){
@@ -285,7 +441,7 @@ public class HomeController{
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
 		
-		workWithList(id, variant, user, basket, wishlist, compare);
+		workWithList(id, variant, user, basket, wishlist, compare, session);
 		
 		session.setAttribute("user", user);
 		session.setAttribute("basket", basket);
@@ -352,7 +508,7 @@ public class HomeController{
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
  
-		workWithList(id, variant, user, basket, wishlist, compare);
+		workWithList(id, variant, user, basket, wishlist, compare, session);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 		double currentMinPriceFilter=brakingFluidDAO.minPrice();
@@ -428,7 +584,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare);
+		workWithList(id, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -467,7 +623,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare);
+		workWithList(id, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -481,6 +637,115 @@ public class HomeController{
 	@RequestMapping(value = "/Basket", method = {RequestMethod.POST, RequestMethod.GET})
 	public String basket(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "client", defaultValue="0", required=false) int client
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare, session);
+		
+		creadeBussinessOffer(id, client, variant, user, basket, session);
+
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		model.addAttribute("listClients", clientDAO.getClients());
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		return "Basket";
+	}	
+	
+	
+	public ArrayList<String> downloadExcel(String variant, MultipartFile fileEcxel, HttpSession session) {
+		ArrayList<String> errors=new ArrayList<String>();
+		
+		 if ("Product".equals(variant)){
+			String productFile=fileEcxel.getOriginalFilename().trim();
+			if (!Service.isFileExist(productFile)){
+				errors.add("Указанный Вами файл с номенклатурой не существует");
+    		}else{
+    			if (!productFile.contains(".xlsx")){
+    				errors.add("Указанный Вами файл с номенклатурой не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
+    			}else{
+    				ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelProduct(Service.convertMultipartFile(fileEcxel)
+    							,session.getServletContext().getRealPath("/"));
+    				
+    			    synchronized (listBrakingFluids){
+    		        	for (BrakingFluid currentBF:listBrakingFluids){
+    		        		if (!Service.isFileExist(currentBF.getPhoto())){
+    		        			errors.add("Указанный Вами файл c изображением не существует");
+    		        		}
+    		        		currentBF.setPhoto(Service.copyPhoto(currentBF.getPhoto(), session.getServletContext().getRealPath("/")));
+    		        		Manufacturer currentManufacturer=(Manufacturer)currentBF.getManufacturer();
+    		    			FluidClass currentFluidClass=(FluidClass)currentBF.getFluidClass();
+    		    			Country country=(Country)currentManufacturer.getCountry();
+    		    			if (country.getId()==0){
+    		    				country=countryDAO.createCountry(country.getName());
+    		    				currentManufacturer.setCountry(country);
+    		    			}
+    		    			if (currentManufacturer.getId()==0){
+    		    				currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
+    		    				currentBF.setManufacturer(currentManufacturer);
+    		    			}
+    		    			if (currentFluidClass.getId()==0){
+    		    				currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
+    		    				currentBF.setFluidClass(currentFluidClass);
+    		    			}		    			
+    		        		BrakingFluid value = brakingFluidDAO.createBrakingFluid(currentBF); //breakingFluidDAO			
+		    			}
+		    		}
+					
+	        	}
+			}
+		}else if ("Price".equals(variant)){
+			String priceFile=fileEcxel.getOriginalFilename().trim();
+			if (!Service.isFileExist(priceFile)){
+				errors.add("Указанный Вами файл с ценами не существует");
+    		}else{
+    			if (!priceFile.contains(".xlsx")){
+    				errors.add("Указанный Вами файл с ценами не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
+    			}else{
+					ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelPrices(Service.convertMultipartFile(fileEcxel));
+		 	        synchronized (listBrakingFluids){
+			         	for (BrakingFluid currentBF:listBrakingFluids){
+			        		BrakingFluid value = brakingFluidDAO.fillPrices(currentBF);
+			        	}
+					}			
+    			}
+    		}
+		}
+		
+		return errors;
+	}
+	
+	@RequestMapping(value = "/Download", headers = "content-type=multipart/*", method = {RequestMethod.POST, RequestMethod.GET})
+	public String download(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value="fileEcxel", defaultValue="", required=false) MultipartFile fileEcxel
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request,Locale locale, Model model) {
 		
@@ -507,15 +772,21 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare);
+		workWithList(id, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
+		ArrayList<String> errors=new ArrayList<String>();
+		if (variant!=""){
+			errors=downloadExcel(variant,fileEcxel,session);
+		}
+		
+		model.addAttribute("errors", errors);
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return "Basket";
-	}	
+		return "Download";
+	}		
 		
 	@RequestMapping(value = "/ShowOne", method = {RequestMethod.POST, RequestMethod.GET})
 	public String showOne(
@@ -573,7 +844,7 @@ public class HomeController{
 			reviewDAO.createReview(review);
 		}		
 		
-		workWithList(id, variant, user, basket, wishlist, compare);
+		workWithList(id, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -585,7 +856,7 @@ public class HomeController{
 			
 			if (variant.compareTo("insert")==0){
 				model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
-				model.addAttribute("listBrakFluids", new BrakingFluid());
+				model.addAttribute("currentBrakFluid", new BrakingFluid());
 			}else{
 				BrakingFluid currentBR = brakingFluidDAO.getBrakingFluid(id);
 				model.addAttribute("pageInfo", "Отредактируйте номенклатуру:");
@@ -610,102 +881,14 @@ public class HomeController{
 			return "ShowOne";
 		}
 		
-	}		
+	}	
 	
-//	@RequestMapping(value = "/contact-form", method = {RequestMethod.POST, RequestMethod.GET})
-//	public String addReview(
-//			@RequestParam(value = "id", defaultValue="0", required=false) int id
-//			,@RequestParam(value = "userLogin", defaultValue="", required=false) String userLogin
-//			,@RequestParam(value = "userEmail", defaultValue="", required=false) String userEmail
-//			,@RequestParam(value = "userReviw", defaultValue="", required=false) String userReviw
-//			,@RequestParam(value = "judgement", defaultValue="0", required=false) double judgement
-//			,HttpServletRequest request,Locale locale, Model model) {
-//		
-//		if ((userLogin.trim().isEmpty()) || (userEmail.trim().isEmpty())){ 
-//			//ошибка
-//		}else{
-//			try {
-//				userLogin=new String(userLogin.getBytes("iso-8859-1"), "UTF-8");
-//				userEmail=new String(userEmail.getBytes("iso-8859-1"), "UTF-8");
-//				userReviw= new String(userReviw.getBytes("iso-8859-1"), "UTF-8");
-//			} catch (UnsupportedEncodingException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}			
-//			Review review = new Review();
-//			review.setEmail(userEmail);
-//			review.setName(userLogin);
-//			review.setJudgement(judgement);
-//			review.setReview(userReviw);
-//			BrakingFluid brFluid=new BrakingFluid();
-//			brFluid.setId(id);
-//			review.setBrakingFluid(brFluid);
-//			reviewDAO.createReview(review);
-//		}
-//		model.addAttribute("id", id);
-//		return "ShowOne";
-//		
-//	}		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	@RequestMapping(value = "/update", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-	public String update(@ModelAttribute User user
-			,@RequestParam("id") int id
-			,@RequestParam("variant") String variant
-			,HttpServletRequest request
-			,Locale locale, Model model) {
-		String result="ShowOne";
-		
-		if ((request.isUserInRole("ROLE_ADMIN")) || (request.isUserInRole("ROLE_PRODUCT"))
-				|| (request.isUserInRole("ROLE_PRICE"))){
-			if (variant.compareTo("insert")==0){
-				model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
-				model.addAttribute("listBrakFluids", new BrakingFluid());
-			}else{
-				BrakingFluid currentBR = brakingFluidDAO.getBrakingFluid(id);
-				model.addAttribute("pageInfo", "Отредактируйте номенклатуру:");
-				model.addAttribute("currentBrakFluid", currentBR);
-				String photo="";
-				if (currentBR.hasPhoto()){
-					photo=currentBR.getPhoto();
-				}
-				model.addAttribute("Photo", photo);
-				model.addAttribute("photoBackUp", photo);
-			}
-			model.addAttribute("buttonInto", "Сохранить");
-			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
-			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
-			model.addAttribute("errors", new ArrayList<String>());
-			
-			result="InsertUpdate";
-		} else {  //для неавторизорванного юзера
-			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
-		}
-		
-		return result;
-	}
-	
-
-
-	
-	
-	@RequestMapping(value = "/insert", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
-	public String update(@ModelAttribute User user
-			,@RequestParam("id_BrakeFluid" ) int id_BrakeFluid
-			,@RequestParam("name_BrakeFluid") String name_BrakeFluid
+	@RequestMapping(value = "/InsertUpdate", method = {RequestMethod.POST, RequestMethod.GET})
+	public String insertUpdate(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "id_BrakeFluid" , defaultValue="", required=false) int id_BrakeFluid
+			,@RequestParam(value = "name_BrakeFluid", defaultValue="", required=false) String name_BrakeFluid
 			,@RequestParam("Manufacturer") String manufacturer
 			,@RequestParam("FluidClass") String fluidClass
 			,@RequestParam("BoilingTemperatureDry") String boilingTemperatureDry  //double
@@ -713,225 +896,330 @@ public class HomeController{
 			,@RequestParam("Value") String value	//double
 			,@RequestParam("Price") String price	//double
 			,@RequestParam("Photo") MultipartFile formPhoto
-			,@RequestParam("photoBackUp") String photoBackUp   //в MultipartFile невозможно получить значение, оказывается. Старое сохраним в элементе формы
+			,@RequestParam(value="photoBackUp", defaultValue="", required=false) String photoBackUp   //в MultipartFile невозможно получить значение, оказывается. Старое сохраним в элементе формы
 			,@RequestParam("Description") String description
 			,@RequestParam("Viscosity40") String Viscosity40	//double
 			,@RequestParam("Viscosity100") String Viscosity100	//double
 			,@RequestParam("Specification") String specification
-			,@RequestParam("Judgement") String judgement		//double
-			,@RequestParam("button") String formButton
-			,HttpServletRequest request
-			,Locale locale, Model model) {
+			,@RequestParam(value="Judgement", defaultValue="0", required=false) String judgement		//double
+			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		//double
+
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		System.out.println(judgement);
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		
+		
+		workWithList(id, variant, user, basket, wishlist, compare, session);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
 		
 		String result="home";
-		
-		String fieldName="", fieldManufacturer="", fieldFluidClass="", fieldBoilingTemperatureDry="", fieldBoilingTemperatureWet="",
-				fieldValue="", fieldPrice="", fieldPhoto="", fieldDescription="", fieldViscosity40="", fieldViscosity100="", fieldSpecification="", fieldJudgement="";
 		try {
-			formButton=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
-			fieldName=new String(name_BrakeFluid.getBytes("iso-8859-1"), "UTF-8");
-			fieldManufacturer= new String(manufacturer.getBytes("iso-8859-1"), "UTF-8");
-			fieldFluidClass = new String(fluidClass.getBytes("iso-8859-1"), "UTF-8");
-			fieldBoilingTemperatureDry = new String(boilingTemperatureDry.getBytes("iso-8859-1"), "UTF-8");
-			fieldBoilingTemperatureWet = new String(boilingTemperatureWet.getBytes("iso-8859-1"), "UTF-8");
-			fieldValue = new String(value.getBytes("iso-8859-1"), "UTF-8");
-			fieldPrice = new String(price.getBytes("iso-8859-1"), "UTF-8");
-			fieldPhoto = (formPhoto.getOriginalFilename().length()>0?formPhoto.getOriginalFilename():new String(photoBackUp.getBytes("iso-8859-1"), "UTF-8"));
-			fieldDescription = new String(description.getBytes("iso-8859-1"), "UTF-8"); 
-			fieldViscosity40 = new String(Viscosity40.getBytes("iso-8859-1"), "UTF-8");
-			fieldViscosity100 = new String(Viscosity100.getBytes("iso-8859-1"), "UTF-8");
-			fieldSpecification = new String(specification.getBytes("iso-8859-1"), "UTF-8");
-			fieldJudgement = new String(judgement.getBytes("iso-8859-1"), "UTF-8");
+			pageInfo=new String(pageInfo.getBytes("iso-8859-1"), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}		
 		
-		
-//		user=db.getUser(user.getLogin());
-//		model.addAttribute("user", user);
-		
-		ArrayList<String> errors=new ArrayList<String>();
-		if (fieldName.length()==0){
-			errors.add("Поле \"Наименование\" должно быть заполнено");
-		}
-		{
-			try{
-				Double param = new Double(fieldBoilingTemperatureDry);
-			}catch (NumberFormatException e){
-				fieldBoilingTemperatureDry="0.0";
-				errors.add("Поле \"Температура кипения (сухая)\" должно быть заполнено правильно");
-			};
-			try{
-				Double param = new Double(fieldBoilingTemperatureWet);
-			}catch (NumberFormatException e){
-				fieldBoilingTemperatureWet="0.0";
-				errors.add("Поле \"Температура кипения (влажная)\" должно быть заполнено правильно");
-			};	
-			try{
-				Double param = new Double(fieldValue);
-			}catch (NumberFormatException e){
-				fieldValue="0.0";
-				errors.add("Поле \"Объём\" должно быть заполнено правильно");
-			};				
-			try{
-				Double param = new Double(fieldPrice);
-			}catch (NumberFormatException e){
-				fieldPrice="0.0";
-				errors.add("Поле \"Цена\" должно быть заполнено правильно");
-			};
-			try{
-				Double param = new Double(fieldViscosity40);
-			}catch (NumberFormatException e){
-				fieldViscosity40="0.0";
-				errors.add("Поле \"Вязкозть (40)\" должно быть заполнено правильно");
-			};
-			try{
-				Double param = new Double(fieldViscosity100);
-			}catch (NumberFormatException e){
-				fieldViscosity100="0.0";
-				errors.add("Поле \"Вязкозть (100)\" должно быть заполнено правильно");
-			};			
-			try{
-				Double param = new Double(fieldJudgement);
-			}catch (NumberFormatException e){
-				fieldJudgement="0.0";
-				errors.add("Поле \"Оценка пользователей\" должно быть заполнено правильно");
-			};
-		}
-		BrakingFluid brFluid = new BrakingFluid(id_BrakeFluid,fieldName, fieldManufacturer, fieldFluidClass, new Double(fieldBoilingTemperatureDry)
-				,new Double(fieldBoilingTemperatureWet), new Double(fieldValue), new Double(fieldPrice),fieldPhoto,fieldDescription
-				,new Double(fieldViscosity40),new Double(fieldViscosity100), fieldSpecification,new Double(fieldJudgement));
-		
-		if (errors.size()>0){ //Валидация не пройдена, вернёмся назад
-			formButton="Обновить";
-		}
-		
-	
-		if (formButton.compareTo("Сохранить")==0){
-			Manufacturer currentManufacturer=(Manufacturer)brFluid.getManufacturer();
-			FluidClass currentFluidClass=(FluidClass)brFluid.getFluidClass();
-			Country country=(Country)currentManufacturer.getCountry();
-			if (country.getId()==0){
-				country=countryDAO.createCountry(country.getName());
-				currentManufacturer.setCountry(country);
-			}
-			if (currentManufacturer.getId()==0){
-				currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
-					brFluid.setManufacturer(currentManufacturer);
-			}
-			if (currentFluidClass.getId()==0){
-				currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
-				brFluid.setFluidClass(currentFluidClass);
-			}			
-			brakingFluidDAO.createBrakingFluid(brFluid);
-			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-		}else if (formButton.compareTo("Обновить")==0){
-			if (formPhoto.getOriginalFilename().length()>0){
-				brFluid.setPhoto(Service.copyPhoto(Service.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
-			}
-			model.addAttribute("pageInfo", "Отредактируйте номенклатуру:");
-			model.addAttribute("currentBrakFluid", brFluid);
-			String photo="";
-			if (brFluid.hasPhoto()){
-				photo=brFluid.getPhoto();
-			}
-			model.addAttribute("Photo", photo);
-			model.addAttribute("photoBackUp", photo);
-			
-			model.addAttribute("errors", errors);
-			
-			model.addAttribute("buttonInto", "Сохранить");
-			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
-			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
-
-			result="InsertUpdate";
-		}else{
-			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-		}
-	
-		return result;
-	}	
-	
-
-	
-	@RequestMapping(value = "/selection", method = RequestMethod.POST)
-	public String update(@ModelAttribute User user
-			, @ModelAttribute LinkedList<BrakingFluid> basket
-			, @RequestParam(value = "selections", required=false ) int[] selections
-			, @RequestParam(value = "button") String formButton
-			,HttpServletRequest request
-			,Locale locale, Model model) {
-		String button="";
-		try {
-			button=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String result="home";
-		
-		if ("Добавить новую номенклатуру".equals(button)){
+		if ("New".equals(variant)){
 			model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
-			model.addAttribute("currentBrakFluid", new BrakingFluid());
-			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
-			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
-			model.addAttribute("errors", new HashMap<String,String>());
-			result="InsertUpdate";
+			model.addAttribute("errors", new ArrayList<String>());
+			result = "InsertUpdate";
 		}else{
-			if (("Назад к списку номенклатуры".equals(button)) || ("На главную".equals(button))){
-				model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-			}else{		
-				basket.clear();
-				if (selections!=null){
-					for (int i=0;i<selections.length; i++){
-						basket.add(brakingFluidDAO.getBrakingFluid(selections[i]));
+			String fieldName="", fieldManufacturer="", fieldFluidClass="", fieldBoilingTemperatureDry="", fieldBoilingTemperatureWet="",
+					fieldValue="", fieldPrice="", fieldPhoto="", fieldDescription="", fieldViscosity40="", fieldViscosity100="", fieldSpecification="", fieldJudgement="";
+			try {
+				fieldName=new String(name_BrakeFluid.getBytes("iso-8859-1"), "UTF-8");
+				fieldManufacturer= new String(manufacturer.getBytes("iso-8859-1"), "UTF-8");
+				fieldFluidClass = new String(fluidClass.getBytes("iso-8859-1"), "UTF-8");
+				fieldBoilingTemperatureDry = new String(boilingTemperatureDry.getBytes("iso-8859-1"), "UTF-8");
+				fieldBoilingTemperatureWet = new String(boilingTemperatureWet.getBytes("iso-8859-1"), "UTF-8");
+				fieldValue = new String(value.getBytes("iso-8859-1"), "UTF-8");
+				fieldPrice = new String(price.getBytes("iso-8859-1"), "UTF-8");
+				fieldPhoto = (formPhoto.getOriginalFilename().length()>0?formPhoto.getOriginalFilename():new String(photoBackUp.getBytes("iso-8859-1"), "UTF-8"));
+				fieldDescription = new String(description.getBytes("iso-8859-1"), "UTF-8"); 
+				fieldViscosity40 = new String(Viscosity40.getBytes("iso-8859-1"), "UTF-8");
+				fieldViscosity100 = new String(Viscosity100.getBytes("iso-8859-1"), "UTF-8");
+				fieldSpecification = new String(specification.getBytes("iso-8859-1"), "UTF-8");
+				fieldJudgement = new String(judgement.getBytes("iso-8859-1"), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+			
+			ArrayList<String> errors=new ArrayList<String>();
+			if (fieldName.length()==0){
+				errors.add("Поле \"Наименование\" должно быть заполнено");
+			}
+			{
+				try{
+					Double param = new Double(fieldBoilingTemperatureDry);
+				}catch (NumberFormatException e){
+					fieldBoilingTemperatureDry="0.0";
+					errors.add("Поле \"Температура кипения (сухая)\" должно быть заполнено правильно");
+				};
+				try{
+					Double param = new Double(fieldBoilingTemperatureWet);
+				}catch (NumberFormatException e){
+					fieldBoilingTemperatureWet="0.0";
+					errors.add("Поле \"Температура кипения (влажная)\" должно быть заполнено правильно");
+				};	
+				try{
+					Double param = new Double(fieldValue);
+				}catch (NumberFormatException e){
+					fieldValue="0.0";
+					errors.add("Поле \"Объём\" должно быть заполнено правильно");
+				};				
+				try{
+					Double param = new Double(fieldPrice);
+				}catch (NumberFormatException e){
+					fieldPrice="0.0";
+					errors.add("Поле \"Цена\" должно быть заполнено правильно");
+				};
+				try{
+					Double param = new Double(fieldViscosity40);
+				}catch (NumberFormatException e){
+					fieldViscosity40="0.0";
+					errors.add("Поле \"Вязкозть (40)\" должно быть заполнено правильно");
+				};
+				try{
+					Double param = new Double(fieldViscosity100);
+				}catch (NumberFormatException e){
+					fieldViscosity100="0.0";
+					errors.add("Поле \"Вязкозть (100)\" должно быть заполнено правильно");
+				};			
+				try{
+					Double param = new Double(fieldJudgement);
+				}catch (NumberFormatException e){
+					fieldJudgement="0.0";
+					errors.add("Поле \"Оценка пользователей\" должно быть заполнено правильно");
+				};
+			}
+			
+			BrakingFluid brFluid = new BrakingFluid(id_BrakeFluid,fieldName, fieldManufacturer, fieldFluidClass, new Double(fieldBoilingTemperatureDry)
+					,new Double(fieldBoilingTemperatureWet), new Double(fieldValue), new Double(fieldPrice),fieldPhoto,fieldDescription
+					,new Double(fieldViscosity40),new Double(fieldViscosity100), fieldSpecification,new Double(fieldJudgement));
+			
+			model.addAttribute("pageInfo", pageInfo);
+			if (("Refresh".equals(variant)) || (errors.size()>0)){
+				if (formPhoto.getOriginalFilename().length()>0){
+					brFluid.setPhoto(Service.copyPhoto(Service.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
+				}
+				String photo="";
+				if (brFluid.hasPhoto()){
+					photo=brFluid.getPhoto();
+				}
+				model.addAttribute("Photo", photo);
+				model.addAttribute("photoBackUp", photo);
+				
+				model.addAttribute("errors", errors);
+				model.addAttribute("currentBrakFluid", brFluid);
+				model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
+				model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
+				
+				result= "InsertUpdate";
+				
+			}else if(("Update".equals(variant)) || ("Save".equals(variant))){
+				LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+				if (manufacturersFilter==null){
+					manufacturersFilter = createManufacturersFilter();
+				}
+				double currentPriceFilter =0.0;
+				if (session.getAttribute("currentPriceFilter")!=null){
+					currentPriceFilter =(Double) session.getAttribute("currentPriceFilter");
+				}else{
+				}
+				int elementsInList = Service.ELEMENTS_IN_LIST;
+				if (session.getAttribute("elementsInList")!=null){
+					elementsInList = (Integer) session.getAttribute("elementsInList");
+				}
+				
+				
+				Manufacturer currentManufacturer=(Manufacturer)brFluid.getManufacturer();
+				FluidClass currentFluidClass=(FluidClass)brFluid.getFluidClass();
+				Country country=(Country)currentManufacturer.getCountry();
+				if (country.getId()==0){
+					country=countryDAO.createCountry(country.getName());
+					currentManufacturer.setCountry(country);
+				}
+				if (currentManufacturer.getId()==0){
+					currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
+						brFluid.setManufacturer(currentManufacturer);
+				}
+				if (currentFluidClass.getId()==0){
+					currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
+					brFluid.setFluidClass(currentFluidClass);
+				}			
+				brakingFluidDAO.createBrakingFluid(brFluid);
+				
+				elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
+				double currentMinPriceFilter=brakingFluidDAO.minPrice();
+				double currentMaxPriceFilter=brakingFluidDAO.maxPrice();
+				model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
+				model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);
+				
+				int count=0;												//восстановим существующий фильтр по производителю -->
+				for (ManufacturerSelected currentMan:manufacturersFilter){
+					if (currentMan.isSelected()){
+						count++;
 					}
 				}
-				if (("Распечатать коммерческое предложение".equals(button)) || ("Коммерческое приложение".equals(button))){
-					
-					model.addAttribute("listBrakFluids", basket);
-					model.addAttribute("listClients", clientDAO.getClients());
-					result="BussinessOffer";
-				}		
-				if ("Сравнить".equals(button)){
-					model.addAttribute("listBrakFluids", basket);
-					result="Comparison";
-				}
-				if ("В корзину".equals(button)){
-					model.addAttribute("listBrakFluids", basket);
-					result="Basket";
-				}	
-				if ("Заявка".equals(button)){
-					try {
-							Service.createPDF_Demand(basket, request.getSession().getServletContext().getRealPath("/"), user);
-						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (DocumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							
-						}
-					model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-				}
-				if ("Загрузить номенклатуру".equals(button)){
-					model.addAttribute("variant", Service.VARIANT_PRODUCT);
-					model.addAttribute("errors", new ArrayList<String>());
-					result="Download";
-				}
-				if ("Загрузить цены".equals(button)){
-					model.addAttribute("variant", Service.VARIANT_PRICES);
-					model.addAttribute("errors", new ArrayList<String>());
-					result="Download";
-				}	
+				
+				int manufacturerSelections[]=new int[count];
+				count=0;
+				for (ManufacturerSelected currentMan:manufacturersFilter){
+					if (currentMan.isSelected()){
+						manufacturerSelections[count]=currentMan.getId();
+						count++;
+					}
+				}															//восстановим существующий фильтр по производителю <--
+				
+				
+				ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections); 
+				model.addAttribute("listBrakFluids", listBakingFluids);
+				int totalProduct=brakingFluidDAO.getCountRows(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturerSelections);
+				int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
+				model.addAttribute("totalPages", totalPages);
+				model.addAttribute("currentPage", 1);
+				
+				model.addAttribute("manufacturersFilter", manufacturersFilter);
+				model.addAttribute("recommendedBrakFluids", brakingFluidDAO.getBrakingFluidsRecommended());
+				model.addAttribute("currentPriceFilter", (currentPriceFilter==0?currentMaxPriceFilter:currentPriceFilter)); //если текущая цена в фильтре не задана - возьмём максимум
+				
+				model.addAttribute("paginationString_part1", ""+(1)+"-"+elementsInList);
+				model.addAttribute("paginationString_part2", totalProduct);
+
+				model.addAttribute("user", user);
+				
+				model=createHeader(model, user, basket, wishlist,compare);		 //method
+				session.setAttribute("user", user);
+				session.setAttribute("basket", basket);
+				session.setAttribute("wishlist", wishlist);
+				session.setAttribute("compare", compare);
+				session.setAttribute("currentPriceFilter", currentPriceFilter);
+				session.setAttribute("manufacturersFilter", manufacturersFilter);
+				session.setAttribute("elementsInList", elementsInList);
+				
+				
+				result="home";
 			}
 		}
 		return result;
-	}
+	}			
+	
+	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})
+	public String login(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare, session);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		return "login";
+	}		
+		
+	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
+	 public String viewEdit(@PathVariable("name") final String name, Model model) {
+		 if ("Download".equals(name)){  
+			 return "Download";
+		 }
+          return "error404";
+     }
+
+	
+	@RequestMapping(value = "/error404", method = {RequestMethod.POST, RequestMethod.GET})
+	public String error404(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+		
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, variant, user, basket, wishlist, compare, session);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		return "error404";
+	}		
 	
 	@ModelAttribute("basket")
 	public LinkedList<BrakingFluid> createBasket(){
