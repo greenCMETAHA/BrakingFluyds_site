@@ -47,7 +47,7 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
-		                        <sec:authorize access="!isAnonymous()">
+		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
@@ -141,8 +141,12 @@
 					                <li class="dropdown">
 					
 					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="home">Все категории</a>
+					                    
 					
 					                    <ul class="dropdown-menu" role="menu" >
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
 					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
 					                    </ul>
 					                </li>
@@ -160,7 +164,7 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					        	<sec:authorize access="!isAnonymous()">
+					        	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
 					            </sec:authorize>
 					        </div>
@@ -253,6 +257,7 @@
             <div class="widget">
               <h1>Фильтр по товарам</h1>
               <div class="body bordered">
+              
                 <div class="category-filter">
                   <h2>Производители:</h2>
                   <hr>
@@ -262,31 +267,184 @@
                   			<c:if test="${currentManufacturer.isSelected()}">
                   				<input checked="checked" type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  />
                   			</c:if>
-                  			<c:if test="${!currentManufacturer.isSelected()}">
-                  				<input type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  />
-                  			</c:if>
-      						<label><c:out value="${currentManufacturer.getName()}"  />  
+<%--                   			<c:if test="${!currentManufacturer.isSelected()}"> --%>
+<%--                   				<input type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  /> --%>
+<%--                   			</c:if> --%>
+      						<label><c:out value="${currentManufacturer.getName()}"  /> </label> 
                   		</li>
                   	</c:forEach>
                   </ul>
+                  
+                  
+                  <!-- ================================== TOP NAVIGATION ================================== -->
+		            <div class="side-menu animate-dropdown">
+		              <nav class="yamm megamenu-horizontal" role="navigation">
+		                <ul class="nav">
+		                  <li class="dropdown menu-item">
+		                    <a href="" class="dropdown-toggle" data-toggle="dropdown">Всего: <c:out value="${requestScope.manufacturersFilter.size()}"/>  </a>
+		                    <ul class="dropdown-menu mega-menu">
+		                      <li class="yamm-content">
+		                      	<div class="row">
+		                            <div class="col-md-4">
+		                                <ul class="list-unstyled">
+		                                	<c:forEach var="currentManufacturer" items="${requestScope.manufacturersFilter}">
+		                                   		<li>
+													<c:if test="${!currentManufacturer.isSelected()}">
+                										<input type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  />
+                										<label><c:out value="${currentManufacturer.getName()}"  /> </label>
+						                   			</c:if>
+												</li>
+		                                   </c:forEach>
+		                                </ul>
+		                            </div>
+		                            
+		                        </div>
+		                      </li>
+		                    </ul>
+		                  </li>
+		                </ul>
+		                <!-- /.nav -->
+		              </nav>
+		              <!-- /.megamenu-horizontal -->
+		            </div>
+		            <!-- /.side-menu -->
+		            <!-- ================================== TOP NAVIGATION : END ================================== -->		
+                  
+                  
+                  
+                  
                 </div>
                 <!-- /.category-filter -->
-                <div class="price-filter">
-                  <h2>Цена</h2>
-                  <hr>
-                  <div class="price-range-holder">
-                    <input type="text" class="price-slider" value="${requestScope.currentPriceFilter}" name="currentPriceFilter">
-                    <span class="min-max">
-                    Цена: $<c:out value="${requestScope.currentMinPriceFilter}"/> - $<c:out value="${requestScope.currentMaxPriceFilter}"/>
-                    </span>
-                    <span class="filter-button">
-                    	<button class="le-button" type="submit" name="sss">Отбор</button>	
-                    </span>
-                  </div>
-                </div>
+                
+                
+                <div class="category-filter">
+	                  <h2>Класс жидкости:</h2>
+	                  <hr>
+	                  <ul>
+	                  	<c:forEach var="currentFluidClass" items="${requestScope.fluidClassFilter}">
+	                  		<li>
+	                  			<c:if test="${currentFluidClass.isSelected()}">
+	                  				<input checked="checked" type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  />
+	                  			</c:if>
+	                  			<c:if test="${!currentFluidClass.isSelected()}">
+	                  				<input type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  />
+	                  			</c:if>
+	      						<label><c:out value="${currentFluidClass.getName()}"  />  
+	                  		</li>
+	                  	</c:forEach>
+	                  </ul>
+                </div>                
+                
+                
+               <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					<div class="price-filter">
+	                  <h2>Цена</h2>
+	                  <hr>
+	                  <div class="price-range-holder">
+						<input id="ex2" type="text" class="price-slider" value="" name="currentPriceFilter"
+							data-slider-min="${requestScope.MinPrice}" data-slider-max="${requestScope.MaxPrice}" 
+							data-slider-step="100" data-slider-value="[${requestScope.currentMinPriceFilter},${requestScope.currentMaxPriceFilter}]"/>
+	                    <span class="min-max">
+	                    Цена: $<c:out value="${requestScope.MinPrice}"/> - $<c:out value="${requestScope.MaxPrice}"/>
+	                    </span>
+	                  </div>
+	                </div>                
                 <!-- /.price-filter -->
+                 </sec:authorize>
+                
+                 <div class="price-filter">
+	                  <h2>Температура кипения (сухая)</h2>
+	                  <hr>
+	                  <div class="price-range-holder">
+<%-- 	                  	<c:set  var="name" value="currentBoilingTemperatureDryFilter" /> --%>
+						<input id="ex3" type="text" class="price-slider" value="" name="currentBoilingTemperatureDryFilter"
+							data-slider-min="${requestScope.MinBoilingTemperatureDry}" data-slider-max="${requestScope.MaxBoilingTemperatureDry}" 
+							data-slider-step="100" data-slider-value="[${requestScope.currentMinBoilingTemperatureDryFilter},${requestScope.currentMaxBoilingTemperatureDryFilter}]"/>
+	                    <span class="min-max">
+	                    От <c:out value="${requestScope.MinBoilingTemperatureDry}"/> до <c:out value="${requestScope.MaxBoilingTemperatureDry}"/> градусов
+	                    </span>
+	                  </div>
+	                </div>
+	                
+	               <div class="price-filter">
+	                  <h2>Температура кипения (влажная)</h2>
+	                  <hr>
+	                  <div class="price-range-holder">
+<%-- 	                  	<c:set  var="name" value="currentBoilingTemperatureWetFilter" /> --%>
+						<input id="ex4" type="text" class="price-slider" value="" name="currentBoilingTemperatureWetFilter"
+							data-slider-min="${requestScope.MinBoilingTemperatureWet}" data-slider-max="${requestScope.MaxBoilingTemperatureWet}" 
+							data-slider-step="100" data-slider-value="[${requestScope.currentMinBoilingTemperatureWetFilter},${requestScope.currentMaxBoilingTemperatureWetFilter}]"/>
+	                    <span class="min-max">
+	                    От <c:out value="${requestScope.MinBoilingTemperatureWet}"/> до <c:out value="${requestScope.MaxBoilingTemperatureWet}"/> градусов
+	                    </span>
+	                  </div>
+	                </div>
+	                
+	                <div class="price-filter">
+	                  <h2>Объём</h2>
+	                  <hr>
+	                  <div class="price-range-holder">
+<%-- 	                  	<c:set  var="name" value="currentValueFilter" /> --%>
+						<input id="ex5" type="text" class="price-slider" value="" name="currentValueFilter" 
+							data-slider-min="${requestScope.MinValue}" data-slider-max="${requestScope.MaxValue}" 
+							data-slider-step="100" data-slider-value="[${requestScope.currentMinValueFilter},${requestScope.currentMaxValueFilter}]"/>
+	                    <span class="min-max">
+	                    От <c:out value="${requestScope.MinValue}"/> до <c:out value="${requestScope.MaxValue}"/> мл.
+	                    </span>
+	                  </div>
+	                </div>
+                
+                 <div class="price-filter">
+	                  <h2>Вязкость (при -40 градусах)</h2>
+	                  <hr>
+	                  <div class="price-range-holder">
+<%-- 	                  	<c:set  var="name" value="currentViscosity40Filter" /> --%>
+						<input id="ex6" type="text" class="price-slider" value="" name="currentViscosity40Filter"
+							data-slider-min="${requestScope.MinViscosity40}" data-slider-max="${requestScope.MaxViscosity40}" 
+							data-slider-step="50" data-slider-value="[${requestScope.currentMinViscosity40Filter},${requestScope.currentMaxViscosity40Filter}]"/>
+	                    <span class="min-max">
+	                    От <c:out value="${requestScope.MinViscosity40}"/> до <c:out value="${requestScope.MaxViscosity40}"/>
+	                    </span>
+	                  </div>
+	                </div>
+	                
+	                <div class="price-filter">
+	                  <h2>Вязкость (при 100 градусах)</h2>
+	                  <hr>
+	                  <div class="price-range-holder">
+	                  	<c:set  var="name" value="currentViscosity100Filter" />
+						<input id="ex7" type="text" class="price-slider" value="" name="currentViscosity100Filter"
+							data-slider-min="${requestScope.MinViscosity100}" data-slider-max="${requestScope.MaxViscosity100}" 
+							data-slider-step="50" data-slider-value="[${requestScope.currentMinViscosity100Filter},${requestScope.currentMaxViscosity100Filter}]"/>
+	                    <span class="min-max">
+	                    От <c:out value="${requestScope.MinViscosity100}"/> до <c:out value="${requestScope.MaxViscosity100}"/>
+	                    </span>
+	                  </div>
+	                </div>
+	                
+	                
+<!-- 	                 <div class="price-filter"> -->
+<!-- 	                  <h2>Оценка пользователей</h2> -->
+<!-- 	                  <hr> -->
+<%-- 	                  <c:out value="${requestScope.currentJudgementFilter}"></c:out> --%>
+<!-- 	                  <div class="price-range-holder"> -->
+<%-- 							<c:set  var="name" value="currentJudgementFilter" /> --%>
+<!-- 						<input id="ex8" type="text" class="price-slider" value="" name="currentJudgementFilter" -->
+<%-- 							data-slider-min="${requestScope.MinJudgement}" data-slider-max="${requestScope.MaxJudgement}"  --%>
+<%-- 							data-slider-step="1" data-slider-value="[${requestScope.currentMinJudgementFilter},${requestScope.currentMaxJudgementFilter}]"/> --%>
+<!-- 	                    <span class="min-max"> -->
+<%-- 	                    От <c:out value="${requestScope.MinJudgement}"/> до <c:out value="${requestScope.MaxJudgement}"/> --%>
+<!-- 	                    </span> -->
+<!-- 	                  </div> -->
+<!-- 	                </div> -->
+                
+                
               </div>
               <!-- /.body -->
+              <span class="filter-button">
+                   	<button class="le-button" type="submit" name="sss">Отбор</button>	
+               </span>
+              
             </div>
             <!-- /.widget -->
             </form>
@@ -348,7 +506,7 @@
 			                        <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
 			                      </div>
 			                      <div class="wish-compare">
-			                      	<sec:authorize access="!isAnonymous()">
+			                      	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 				                        <c:url value="home" var="UpdateBrakingFluid">
 											<c:param name="id" value="${currentBFluid.getId()}"/>
 											<c:param name="variant" value="inWishlist"/>
@@ -428,7 +586,7 @@
 			                    <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
                               </div>
                               <div class="wish-compare">
-                              	   <sec:authorize access="!isAnonymous()">
+                              	   <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 				                        <c:url value="home" var="UpdateBrakingFluid">
 											<c:param name="id" value="${currentBFluid.getId()}"/>
 											<c:param name="variant" value="inWishlist"/>
@@ -543,7 +701,7 @@
 									</c:url>
 				                    <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
 		                            <div class="wish-compare">
-			                            <sec:authorize access="!isAnonymous()">
+			                            <sec:authorize access="!isAnonymous()  and !hasRole('ROLE_ADMIN')">
 					                        <c:url value="home" var="UpdateBrakingFluid">
 												<c:param name="id" value="${currentBFluid.getId()}"/>
 												<c:param name="variant" value="inWishlist"/>

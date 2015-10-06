@@ -10,8 +10,8 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <title>ЭфТех ООО</title>   
-    <link href="resources/css/default.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
+    <link href="resources/Adminpanel/css/default.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
   
   </head>
 <body>
@@ -94,8 +94,8 @@
 
 
        <div class="btn-submit"><!-- Submit form -->
-       	 <input type="submit" name="button" value="Заявка"class="button" >
-       	 <input type="submit"  name="button" value="На главную" class="button" >
+       	 <input type="submit" name="variant" value="Заявка"class="button" >
+       	 <input type="submit"  name="variant" value="На главную" class="button" >
        </div>
      </fieldset>    
    </form>

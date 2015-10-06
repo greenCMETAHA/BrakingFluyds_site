@@ -78,6 +78,7 @@ import eftech.workingset.beans.Wishlist;
 import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
+import eftech.workingset.beans.FluidClassSelected;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.Review;
@@ -86,7 +87,9 @@ import eftech.workingset.beans.Review;
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes({"user", "basket", "wishlist", "compare", "currentPriceFilter", "manufacturersFilter", "elementsInList"})
+@SessionAttributes({"user", "basket", "wishlist", "compare", "manufacturersFilter", "fluidClassFilter", "elementsInList"
+	, "currentPriceFilter" , "currentBoilingTemperatureDryFilter" , "currentBoilingTemperatureWetFilter" , "currentValueFilter" 
+	, "currentViscosity40Filter" , "currentViscosity100Filter", "currentJudgementFilter"})
 public class HomeController{
 	
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
@@ -118,6 +121,10 @@ public class HomeController{
 	@Autowired
 	WishlistTemplate wishlistDAO;
 	
+	LinkedList<FluidClassSelected> globalFluidClassSelected = new LinkedList<FluidClassSelected>();
+	LinkedList<ManufacturerSelected> globalManufacturerSelected = new LinkedList<ManufacturerSelected>();
+
+	
 	private Model createHeader(Model model, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
 		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
 		model.addAttribute("email_part1", "");
@@ -140,34 +147,61 @@ public class HomeController{
 		return model;
 	}
 	
-	private LinkedList<ManufacturerSelected> fillSelectedManufacturers(int[] manufacturerSelections){
-		LinkedList<ManufacturerSelected> result=new LinkedList<ManufacturerSelected>();
-		
-		for (Manufacturer manufacturer:manufacturerDAO.getManufacturers()){
-			ManufacturerSelected manSelected=new ManufacturerSelected();
-			manSelected.setId(manufacturer.getId());
-			manSelected.setName(manufacturer.getName());
-			manSelected.setCountry(manufacturer.getCountry());
+	private LinkedList<ManufacturerSelected> fillSelectedManufacturers(int[] manufacturerSelections, LinkedList<ManufacturerSelected> listManufacturerSelected){
+		for (ManufacturerSelected manufacturer:globalManufacturerSelected){
 			if (manufacturerSelections!=null){
-				if (manufacturerSelections.length==0){
-					manSelected.setSelected(true); //если не было отбора - выберем по всем
-				}else{
+				manufacturer.setSelected(false);
+			}
+		}
+		if (manufacturerSelections!=null){
+			for (ManufacturerSelected manufacturer:globalManufacturerSelected){
+				if (manufacturerSelections!=null){
 					for (int j=0;j<manufacturerSelections.length; j++){
 						if (manufacturerSelections[j]==manufacturer.getId()){
-							manSelected.setSelected(true);
+							manufacturer.setSelected(true);
+							//break;
+						}else{
+							//manufacturer.setSelected(false);
 						}
 					}
 				}
-			}else{
-				manSelected.setSelected(true); //если не было отбора - выберем по всем
 			}
-			result.add(manSelected);
+			return globalManufacturerSelected;
+		}else{
+			globalManufacturerSelected=listManufacturerSelected;
+			return listManufacturerSelected;
 		}
-		
-		return result;
 	}
 	
-	private void creadeBussinessOffer(int id, int clientId, String variant, User user, LinkedList<BrakingFluid>  basket, HttpSession session){
+	private LinkedList<FluidClassSelected> fillSelectedFluidClasses(int[] fluidClassSelections, LinkedList<FluidClassSelected> listFluidClassSelected){
+		for (FluidClassSelected fluidClass:globalFluidClassSelected){
+			if (fluidClassSelections!=null){
+				fluidClass.setSelected(false);
+			}
+		}		
+		if (fluidClassSelections!=null){
+			for (FluidClassSelected fluidClass:globalFluidClassSelected){
+				if (fluidClassSelections!=null){
+					for (int j=0;j<fluidClassSelections.length; j++){
+						if (fluidClassSelections[j]==fluidClass.getId()){
+							//fluidClass.setSelected(!fluidClass.isSelected());
+							//break;
+							fluidClass.setSelected(true);
+						}else{
+							//fluidClass.setSelected(false);
+						}
+					}
+				}
+			}
+			return globalFluidClassSelected;
+		}else{
+			globalFluidClassSelected=listFluidClassSelected;
+			return listFluidClassSelected;
+		}
+		
+	}	
+	
+	private void createBussinessOffer(int id, int clientId, String variant, User user, LinkedList<BrakingFluid>  basket, HttpSession session){
 		if (variant.equals("Show")){
 			File pdfFile=null;
 			try {
@@ -393,7 +427,7 @@ public class HomeController{
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = {"/","/index",""}, method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/","/index","/adminpanel/index"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String index(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
@@ -427,19 +461,6 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
-		if (manufacturersFilter==null){
-			manufacturersFilter = createManufacturersFilter();
-		}
-		double currentPriceFilter =0.0;
-		if (session.getAttribute("currentPriceFilter")!=null){
-			currentPriceFilter =(Double) session.getAttribute("currentPriceFilter");
-		}else{
-		}
-		int elementsInList = Service.ELEMENTS_IN_LIST;
-		if (session.getAttribute("elementsInList")!=null){
-			elementsInList = (Integer) session.getAttribute("elementsInList");
-		}
 		
 		workWithList(id, variant, user, basket, wishlist, compare, session);
 		
@@ -447,9 +468,6 @@ public class HomeController{
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
-		session.setAttribute("currentPriceFilter", currentPriceFilter);
-		session.setAttribute("manufacturersFilter", manufacturersFilter);
-		session.setAttribute("elementsInList", elementsInList);
 			
 		//model.addAttribute("user", user);
 		model.addAttribute("user", user);
@@ -458,11 +476,19 @@ public class HomeController{
 		return "index";
 	}
 	
-	@RequestMapping(value = "/home", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/home","/adminpanel/home"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String home(
 			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
+			,@RequestParam(value = "fluidClassselections", required=false ) int[] fluidClassselections
 			,@RequestParam(value = "currentPage", defaultValue="1", required=false) int currentPage
 			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "currentPriceFilter", defaultValue="0,0", required=false) String currentPriceFilter
+			,@RequestParam(value = "currentBoilingTemperatureDryFilter", defaultValue="0,0", required=false) String currentBoilingTemperatureDryFilter
+			,@RequestParam(value = "currentBoilingTemperatureWetFilter", defaultValue="0,0", required=false) String currentBoilingTemperatureWetFilter
+			,@RequestParam(value = "currentValueFilter", defaultValue="0,0", required=false) String currentValueFilter
+			,@RequestParam(value = "currentViscosity40Filter", defaultValue="0,0", required=false) String currentViscosity40Filter
+			,@RequestParam(value = "currentViscosity100Filter", defaultValue="0,0", required=false) String currentViscosity100Filter
+			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request
 			,Locale locale, Model model) {
@@ -478,6 +504,16 @@ public class HomeController{
 			}
 		}
 		
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (variant.compareTo("Заявка")==0){
+			variant="Demand";
+		}
+		
 		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
@@ -498,10 +534,44 @@ public class HomeController{
 		if (manufacturersFilter==null){
 			manufacturersFilter = createManufacturersFilter();
 		}
-		double currentPriceFilter =0.0;
-		if (session.getAttribute("currentPriceFilter")!=null){
-			currentPriceFilter =(Double) session.getAttribute("currentPriceFilter");
-		}else{
+		LinkedList<FluidClassSelected>  fluidClassFilter = (LinkedList<FluidClassSelected>) session.getAttribute("fluidClassFilter");
+		if (fluidClassFilter==null){
+			fluidClassFilter = createFluidClassFilter();
+		}
+		if (currentPriceFilter.toString().equals("0,0")){
+			if (session.getAttribute("currentPriceFilter")!=null){
+				currentPriceFilter =(String) session.getAttribute("currentPriceFilter");
+			}
+		}
+		if (currentBoilingTemperatureDryFilter.toString().equals("0,0")){
+			if (session.getAttribute("currentBoilingTemperatureDryFilter")!=null){
+				currentBoilingTemperatureDryFilter =(String) session.getAttribute("currentBoilingTemperatureDryFilter");
+			}
+		}
+		if (currentBoilingTemperatureWetFilter.toString().equals("0,0")){
+			if (session.getAttribute("currentBoilingTemperatureWetFilter")!=null){
+				currentBoilingTemperatureWetFilter =(String) session.getAttribute("currentBoilingTemperatureWetFilter");
+			}
+		}
+		if (currentValueFilter.toString().equals("0,0")){	
+			if (session.getAttribute("currentValueFilter")!=null){
+				currentValueFilter =(String) session.getAttribute("currentValueFilter");
+			}
+		}
+		if (currentViscosity40Filter.toString().equals("0,0")){
+			if (session.getAttribute("currentViscosity40Filter")!=null){
+				currentViscosity40Filter =(String) session.getAttribute("currentViscosity40Filter");
+			}
+		}
+		if (currentViscosity100Filter.toString().equals("0,0")){
+			if (session.getAttribute("currentViscosity100Filter")!=null){
+				currentViscosity100Filter =(String) session.getAttribute("currentViscosity100Filter");
+			}
+		}
+		if (currentJudgementFilter.toString().equals("0,0")){
+			if (session.getAttribute("currentJudgementFilter")!=null){
+				currentJudgementFilter =(String) session.getAttribute("currentJudgementFilter");
+			}
 		}
 		int elementsInList = Service.ELEMENTS_IN_LIST;
 		if (session.getAttribute("elementsInList")!=null){
@@ -511,33 +581,205 @@ public class HomeController{
 		workWithList(id, variant, user, basket, wishlist, compare, session);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
-		double currentMinPriceFilter=brakingFluidDAO.minPrice();
-		double currentMaxPriceFilter=brakingFluidDAO.maxPrice();
-		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
-		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);
-		
-		LinkedList<ManufacturerSelected> manufacturersSelected=null;
-		if (manufacturerSelections==null){
-			if (manufacturersFilter.size()>0){
-				manufacturersSelected=manufacturersFilter;
-			}else{
-				manufacturersSelected=fillSelectedManufacturers(manufacturerSelections); //method
-			}
-		}else{
-			manufacturersSelected=fillSelectedManufacturers(manufacturerSelections); //method
+	
+		//--1
+		int minPrice=new Double(brakingFluidDAO.minData("Price")).intValue();
+		int currentMinPriceFilter = new Double(minPrice).intValue();
+		double maxPriceDouble=brakingFluidDAO.maxData("Price");
+		int maxPrice=new Double(maxPriceDouble).intValue();
+		if (maxPrice<maxPriceDouble){
+			maxPrice++;
 		}
+		int currentMaxPriceFilter=maxPrice;
+		
+		currentMinPriceFilter = Math.max(new Integer(currentPriceFilter.substring(0, currentPriceFilter.indexOf(","))), minPrice);
+		int oldValue=new Integer(currentPriceFilter.substring(currentPriceFilter.indexOf(",")+1, currentPriceFilter.length()));
+		currentMaxPriceFilter = Math.min((oldValue==0?maxPrice:currentMaxPriceFilter),maxPrice);  //нужно взять минимум из верхнего интервала. Но может быть 0, его надо убрать.
+			
+		currentPriceFilter=currentMinPriceFilter+","+currentMaxPriceFilter;
 
-		ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter); 
+		model.addAttribute("MinPrice", minPrice);
+		model.addAttribute("MaxPrice", maxPrice);	
+		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
+		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);		
+
+			
+		session.setAttribute("currentPriceFilter", currentPriceFilter);
+		model.addAttribute("currentPriceFilter",currentPriceFilter);
+
+
+		//--2
+		int minBoilingTemperatureDry=new Double(brakingFluidDAO.minData("BoilingTemperatureDry")).intValue();
+		int currentMinBoilingTemperatureDryFilter = new Double(minBoilingTemperatureDry).intValue();
+		double maxBoilingTemperatureDryDouble=brakingFluidDAO.maxData("BoilingTemperatureDry");
+		int maxBoilingTemperatureDry=new Double(maxBoilingTemperatureDryDouble).intValue();
+		if (maxBoilingTemperatureDry<maxBoilingTemperatureDryDouble){
+			maxBoilingTemperatureDry++;
+		}
+		int currentMaxBoilingTemperatureDryFilter=maxBoilingTemperatureDry;
+		
+		currentMinBoilingTemperatureDryFilter = Math.max(new Integer(currentBoilingTemperatureDryFilter.substring(0, currentBoilingTemperatureDryFilter.indexOf(","))), minBoilingTemperatureDry);
+		oldValue=new Integer(currentBoilingTemperatureDryFilter.substring(currentBoilingTemperatureDryFilter.indexOf(",")+1, currentBoilingTemperatureDryFilter.length()));
+		currentMaxBoilingTemperatureDryFilter = Math.min((oldValue==0?maxBoilingTemperatureDry:currentMaxBoilingTemperatureDryFilter),maxBoilingTemperatureDry);
+		
+		model.addAttribute("MinBoilingTemperatureDry", minBoilingTemperatureDry);
+		model.addAttribute("MaxBoilingTemperatureDry", maxBoilingTemperatureDry);
+		model.addAttribute("currentMinBoilingTemperatureDryFilter", currentMinBoilingTemperatureDryFilter);
+		model.addAttribute("currentMaxBoilingTemperatureDryFilter", currentMaxBoilingTemperatureDryFilter);		
+		
+		
+		currentBoilingTemperatureDryFilter=currentMinBoilingTemperatureDryFilter+","+currentMaxBoilingTemperatureDryFilter;
+		session.setAttribute("currentBoilingTemperatureDryFilter", currentBoilingTemperatureDryFilter);
+		model.addAttribute("currentBoilingTemperatureDryFilter",currentBoilingTemperatureDryFilter);
+		
+		//--3
+		int minBoilingTemperatureWet=new Double(brakingFluidDAO.minData("BoilingTemperatureWet")).intValue();
+		int currentMinBoilingTemperatureWetFilter = new Double(minBoilingTemperatureWet).intValue();
+		double maxBoilingTemperatureWetDouble=brakingFluidDAO.maxData("BoilingTemperatureWet");
+		int maxBoilingTemperatureWet=new Double(maxBoilingTemperatureWetDouble).intValue();
+		if (maxBoilingTemperatureWet<maxBoilingTemperatureWetDouble){
+			maxBoilingTemperatureWet++;
+		}
+		int currentMaxBoilingTemperatureWetFilter=maxBoilingTemperatureWet;
+		
+		currentMinBoilingTemperatureWetFilter = Math.max(new Integer(currentBoilingTemperatureWetFilter.substring(0, currentBoilingTemperatureWetFilter.indexOf(",")))
+				, minBoilingTemperatureWet);
+		oldValue=new Integer(currentBoilingTemperatureWetFilter.substring(currentBoilingTemperatureWetFilter.indexOf(",")+1, currentBoilingTemperatureWetFilter.length()));
+		currentMaxBoilingTemperatureWetFilter = Math.min((oldValue==0?maxBoilingTemperatureWet:currentMaxBoilingTemperatureWetFilter),maxBoilingTemperatureWet);
+		model.addAttribute("MinBoilingTemperatureWet", minBoilingTemperatureWet);
+		model.addAttribute("MaxBoilingTemperatureWet", maxBoilingTemperatureWet);
+		model.addAttribute("currentMinBoilingTemperatureWetFilter", currentMinBoilingTemperatureWetFilter);
+		model.addAttribute("currentMaxBoilingTemperatureWetFilter", currentMaxBoilingTemperatureWetFilter);		
+		
+			
+		currentBoilingTemperatureWetFilter=currentMinBoilingTemperatureWetFilter+","+currentMaxBoilingTemperatureWetFilter;
+		session.setAttribute("currentBoilingTemperatureWetFilter", currentBoilingTemperatureWetFilter);	
+		model.addAttribute("currentBoilingTemperatureWetFilter",currentBoilingTemperatureWetFilter);
+						
+		//--4
+		int minValue=new Double(brakingFluidDAO.minData("Value")*1000).intValue();
+		int currentMinValueFilter = new Double(minValue).intValue();
+		double maxValueDouble=brakingFluidDAO.maxData("Value")*1000;
+		int maxValue=new Double(maxValueDouble).intValue();
+		if (maxValue<maxValueDouble){
+			maxValue++;
+		}
+		int currentMaxValueFilter=maxValue;
+		
+		currentMinValueFilter = Math.max(new Integer(currentValueFilter.substring(0, currentValueFilter.indexOf(","))), minValue);
+		oldValue=new Integer(currentValueFilter.substring(currentValueFilter.indexOf(",")+1, currentValueFilter.length()));
+		currentMaxValueFilter = Math.min((oldValue==0?maxValue:currentMaxValueFilter),maxValue);
+		model.addAttribute("MinValue", minValue);
+		model.addAttribute("MaxValue", maxValue);		
+		model.addAttribute("currentMinValueFilter", currentMinValueFilter);
+		model.addAttribute("currentMaxValueFilter", currentMaxValueFilter);		
+			
+		currentValueFilter=currentMinValueFilter+","+currentMaxValueFilter;
+		session.setAttribute("currentValueFilter", currentValueFilter);	
+		model.addAttribute("currentValueFilter",currentValueFilter);
+		
+		//--5
+		int minViscosity40=new Double(brakingFluidDAO.minData("Viscosity40")).intValue();
+		int currentMinViscosity40Filter = new Double(minViscosity40).intValue();
+		double maxViscosity40Double=brakingFluidDAO.maxData("Viscosity40");
+		int maxViscosity40=new Double(maxViscosity40Double).intValue();
+		if (maxViscosity40<maxViscosity40Double){
+			maxViscosity40++;
+		}
+		int currentMaxViscosity40Filter=maxViscosity40;
+		
+		currentMinViscosity40Filter = Math.max(new Integer(currentViscosity40Filter.substring(0, currentViscosity40Filter.indexOf(","))), minViscosity40);
+		oldValue=new Integer(currentViscosity40Filter.substring(currentViscosity40Filter.indexOf(",")+1, currentViscosity40Filter.length()));
+		currentMaxViscosity40Filter = Math.min((oldValue==0?maxViscosity40:currentMaxViscosity40Filter),maxViscosity40);
+		model.addAttribute("MinViscosity40", minViscosity40);
+		model.addAttribute("MaxViscosity40", maxViscosity40);	
+		model.addAttribute("currentMinViscosity40Filter", currentMinViscosity40Filter);
+		model.addAttribute("currentMaxViscosity40Filter", currentMaxViscosity40Filter);		
+		
+			
+		currentViscosity40Filter=currentMinViscosity40Filter+","+currentMaxViscosity40Filter;
+		session.setAttribute("currentViscosity40Filter", currentViscosity40Filter);	
+		model.addAttribute("currentViscosity40Filter",currentViscosity40Filter);
+		
+		//--6
+		int minViscosity100=new Double(brakingFluidDAO.minData("Viscosity100")).intValue();
+		int currentMinViscosity100Filter = new Double(minViscosity100).intValue();
+		double maxViscosity100Double=brakingFluidDAO.maxData("Viscosity100");
+		int maxViscosity100=new Double(maxViscosity100Double).intValue();
+		if (maxViscosity100<maxViscosity100Double){
+			maxViscosity100++;
+		}
+		int currentMaxViscosity100Filter=maxViscosity100;
+		
+		currentMinViscosity100Filter = Math.max(new Integer(currentViscosity100Filter.substring(0, currentViscosity100Filter.indexOf(","))), minViscosity100);
+		oldValue=new Integer(currentViscosity100Filter.substring(currentViscosity100Filter.indexOf(",")+1, currentViscosity100Filter.length()));
+		currentMaxViscosity100Filter = Math.min((oldValue==0?maxViscosity100:currentMaxViscosity100Filter),maxViscosity100);
+		model.addAttribute("MinViscosity100", minViscosity100);
+		model.addAttribute("MaxViscosity100", maxViscosity100);	
+		model.addAttribute("currentMinViscosity100Filter", currentMinViscosity100Filter);
+		model.addAttribute("currentMaxViscosity100Filter", currentMaxViscosity100Filter);		
+		
+			
+		currentViscosity100Filter=currentMinViscosity100Filter+","+currentMaxViscosity100Filter;
+		session.setAttribute("currentViscosity100Filter", currentViscosity100Filter);
+		model.addAttribute("currentViscosity100Filter",currentViscosity100Filter);
+
+		//--7
+		int minJudgement=new Double(brakingFluidDAO.minData("Judgement")).intValue();  //пока отключим. Бо не получается позиционировать на [0:5], вываливает на [100:0]
+		int currentMinJudgementFilter = new Double(minJudgement).intValue();
+		double maxJudgementDouble=brakingFluidDAO.maxData("Judgement");
+		int maxJudgement=new Double(maxJudgementDouble).intValue();
+		if (maxJudgement<maxJudgementDouble){
+			maxJudgement++;
+		}
+		int currentMaxJudgementFilter=maxJudgement;
+		
+		currentMinJudgementFilter = Math.max(new Integer(currentJudgementFilter.substring(0, currentJudgementFilter.indexOf(","))), minJudgement);
+		oldValue=new Integer(currentJudgementFilter.substring(currentJudgementFilter.indexOf(",")+1, currentJudgementFilter.length()));
+		currentMaxJudgementFilter = Math.min((oldValue==0?maxJudgement:currentMaxJudgementFilter),maxJudgement);
+		model.addAttribute("MinJudgement", minJudgement);
+		model.addAttribute("MaxJudgement", maxJudgement);
+		model.addAttribute("currentMinJudgementFilter", currentMinJudgementFilter);
+		model.addAttribute("currentMaxJudgementFilter", currentMaxJudgementFilter);		
+			
+		currentJudgementFilter=currentMinJudgementFilter+","+currentMaxJudgementFilter;
+		session.setAttribute("currentJudgementFilter", currentJudgementFilter);
+		model.addAttribute("currentJudgementFilter",currentJudgementFilter);
+		
+		manufacturersFilter=fillSelectedManufacturers(manufacturerSelections,manufacturersFilter); //method
+		fluidClassFilter=fillSelectedFluidClasses(fluidClassselections,fluidClassFilter); //method
+//		System.out.println(manufacturerSelections);
+//		System.out.println(fluidClassselections);
+	
+		ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(currentPage,elementsInList,manufacturersFilter,fluidClassFilter
+				,currentMinPriceFilter,currentMaxPriceFilter
+				,currentMinBoilingTemperatureDryFilter,currentMaxBoilingTemperatureDryFilter
+				,currentMinBoilingTemperatureWetFilter,currentMaxBoilingTemperatureWetFilter
+				,currentMinValueFilter/1000,currentMaxValueFilter/1000
+				,currentMinViscosity40Filter,currentMaxViscosity40Filter
+				,currentMinViscosity100Filter,currentMaxViscosity100Filter
+				,currentMinJudgementFilter,currentMaxJudgementFilter); 
+		
+
+		
 		model.addAttribute("listBrakFluids", listBakingFluids);
-		int totalProduct=brakingFluidDAO.getCountRows(currentPage,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter);
+		int totalProduct=brakingFluidDAO.getCountRows(currentPage,elementsInList,manufacturersFilter,fluidClassFilter
+				,currentMinPriceFilter,currentMaxPriceFilter
+				,currentMinBoilingTemperatureDryFilter,currentMaxBoilingTemperatureDryFilter
+				,currentMinBoilingTemperatureWetFilter,currentMaxBoilingTemperatureWetFilter
+				,currentMinValueFilter/1000,currentMaxValueFilter/1000
+				,currentMinViscosity40Filter,currentMaxViscosity40Filter
+				,currentMinViscosity100Filter,currentMaxViscosity100Filter
+				,currentMinJudgementFilter,currentMaxJudgementFilter);
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("currentPage", currentPage);
 		
-		model.addAttribute("manufacturersFilter", manufacturersSelected);
+		model.addAttribute("manufacturersFilter", manufacturersFilter);
+		model.addAttribute("fluidClassFilter", fluidClassFilter);
 		model.addAttribute("recommendedBrakFluids", brakingFluidDAO.getBrakingFluidsRecommended());
-		model.addAttribute("currentPriceFilter", (currentPriceFilter==0?currentMaxPriceFilter:currentPriceFilter)); //если текущая цена в фильтре не задана - возьмём максимум
-		
+		model.addAttribute("currentPriceFilter", currentMinPriceFilter+","+currentMaxPriceFilter); 
+		 
 		model.addAttribute("paginationString_part1", ""+((currentPage-1)*elementsInList+1)+"-"+(((currentPage-1)*elementsInList)+elementsInList));
 		model.addAttribute("paginationString_part2", totalProduct);
 
@@ -548,18 +790,27 @@ public class HomeController{
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
-		session.setAttribute("currentPriceFilter", currentPriceFilter);
 		session.setAttribute("manufacturersFilter", manufacturersFilter);
+		session.setAttribute("fluidClassFilter", fluidClassFilter);
 		session.setAttribute("elementsInList", elementsInList);
 		
-		return "home";
+		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
 	}
 	
-	@RequestMapping(value = "/Comparison", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/Comparison","/adminpanel/Comparison"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String compare(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "selections", required=false ) int[] fluidsSelection
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request,Locale locale, Model model) {
+
+		
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		HttpSession session=request.getSession();
 		User user=(User) session.getAttribute("user");
@@ -572,6 +823,24 @@ public class HomeController{
 		if (basket==null){
 			basket=createBasket();
 		}
+		
+		if (variant.compareTo("Сравнить")==0){
+			if (fluidsSelection!=null){
+				basket.clear();
+				for (int i=0;i<fluidsSelection.length; i++){
+					basket.add(brakingFluidDAO.getBrakingFluid(fluidsSelection[i]));
+				}
+				session.setAttribute("basket", basket);
+			}
+		
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Comparison";
+		}
+		if (variant.compareTo("На главную")==0){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+		}
+		
+		
 		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
 		if (wishlist==null){
 			wishlist=createWishlist();
@@ -591,7 +860,7 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return "Comparison";
+		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Comparison";
 	}	
 	
 	@RequestMapping(value = "/Wishlist", method = {RequestMethod.POST, RequestMethod.GET})
@@ -634,12 +903,26 @@ public class HomeController{
 	}	
 	
 	
-	@RequestMapping(value = "/Basket", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/Basket","/adminpanel/Basket"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String basket(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "client", defaultValue="0", required=false) int client
 			,HttpServletRequest request,Locale locale, Model model) {
+
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (variant.compareTo("Заявка")==0){
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"makeDemand";
+		}
+		if (variant.compareTo("На главную")==0){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+		}		
 		
 		HttpSession session=request.getSession();
 		User user=(User) session.getAttribute("user");
@@ -666,7 +949,7 @@ public class HomeController{
 		}
 		workWithList(id, variant, user, basket, wishlist, compare, session);
 		
-		creadeBussinessOffer(id, client, variant, user, basket, session);
+		createBussinessOffer(id, client, variant, user, basket, session);
 
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
@@ -676,7 +959,7 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return "Basket";
+		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Basket";
 	}	
 	
 	
@@ -742,12 +1025,30 @@ public class HomeController{
 		return errors;
 	}
 	
-	@RequestMapping(value = "/Download", headers = "content-type=multipart/*", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/Download","/adminpanel/Download"}, headers = "content-type=multipart/*", method = {RequestMethod.POST, RequestMethod.GET})
 	public String download(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
-			,@RequestParam(value="fileEcxel", defaultValue="", required=false) MultipartFile fileEcxel
+			,@RequestParam(value="fileEcxel", defaultValue="", required=false) MultipartFile fileExcel
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request,Locale locale, Model model) {
+
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (variant.compareTo("На главную")==0){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+		}
+		if (variant.compareTo("Загрузка")==0){
+			variant="Download";
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+		}
+		
+		
+		
 		
 		HttpSession session=request.getSession();
 		User user=(User) session.getAttribute("user");
@@ -777,7 +1078,7 @@ public class HomeController{
 		
 		ArrayList<String> errors=new ArrayList<String>();
 		if (variant!=""){
-			errors=downloadExcel(variant,fileEcxel,session);
+			errors=downloadExcel(variant,fileExcel,session);
 		}
 		
 		model.addAttribute("errors", errors);
@@ -785,17 +1086,17 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return "Download";
+		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Download";
 	}		
 		
-	@RequestMapping(value = "/ShowOne", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/ShowOne","/adminpanel/ShowOne"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String showOne(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "userLogin", defaultValue="", required=false) String userLogin
 			,@RequestParam(value = "userEmail", defaultValue="", required=false) String userEmail
 			,@RequestParam(value = "userReviw", defaultValue="", required=false) String userReviw
-			,@RequestParam(value = "judgement", defaultValue="0", required=false) double judgement
+			,@RequestParam(value = "score", defaultValue="0", required=false) double judgement
 
 			,HttpServletRequest request,Locale locale, Model model) {
 		
@@ -873,7 +1174,7 @@ public class HomeController{
 			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
 			model.addAttribute("errors", new ArrayList<String>());
 			
-			return "InsertUpdate";
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"InsertUpdate";
 		}else{
 			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
 			model.addAttribute("reviews", reviewDAO.getReviews(id));
@@ -883,7 +1184,7 @@ public class HomeController{
 		
 	}	
 	
-	@RequestMapping(value = "/InsertUpdate", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/InsertUpdate","/adminpanel/InsertUpdate"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String insertUpdate(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
@@ -905,6 +1206,23 @@ public class HomeController{
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		//double
 
 			,HttpServletRequest request,Locale locale, Model model) {
+		
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (variant.compareTo("Сохранить")==0){
+			variant="Save";
+		}
+		if (variant.compareTo("Обновить")==0){
+			variant="Refresh";
+		}
+		if (variant.compareTo("На главную")==0){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+		}				
 		
 		System.out.println(judgement);
 		
@@ -1051,9 +1369,13 @@ public class HomeController{
 				if (manufacturersFilter==null){
 					manufacturersFilter = createManufacturersFilter();
 				}
-				double currentPriceFilter =0.0;
+				LinkedList<FluidClassSelected>  fluidClassFilter = (LinkedList<FluidClassSelected>) session.getAttribute("fluidClassFilter");
+				if (fluidClassFilter==null){
+					fluidClassFilter = createFluidClassFilter();
+				}
+				String currentPriceFilter = createCurrentPriceFilter();
 				if (session.getAttribute("currentPriceFilter")!=null){
-					currentPriceFilter =(Double) session.getAttribute("currentPriceFilter");
+					currentPriceFilter =(String) session.getAttribute("currentPriceFilter");
 				}else{
 				}
 				int elementsInList = Service.ELEMENTS_IN_LIST;
@@ -1080,10 +1402,61 @@ public class HomeController{
 				brakingFluidDAO.createBrakingFluid(brFluid);
 				
 				elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
-				double currentMinPriceFilter=brakingFluidDAO.minPrice();
-				double currentMaxPriceFilter=brakingFluidDAO.maxPrice();
+				double currentMinPriceFilter=brakingFluidDAO.minData("Price");
+				double currentMaxPriceFilter=brakingFluidDAO.maxData("Price");
+				model.addAttribute("MinPrice", currentMinPriceFilter);
+				model.addAttribute("MaxPrice", currentMaxPriceFilter);
 				model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
-				model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);
+				model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);		
+
+				
+				double currentMinBoilingTemperatureDryFilter=brakingFluidDAO.minData("BoilingTemperatureDry");
+				double currentMaxBoilingTemperatureDryFilter=brakingFluidDAO.maxData("BoilingTemperatureDry");
+				model.addAttribute("MinBoilingTemperatureDry", currentMinBoilingTemperatureDryFilter);
+				model.addAttribute("MaxBoilingTemperatureDry", currentMaxBoilingTemperatureDryFilter);
+				model.addAttribute("currentMinBoilingTemperatureDryFilter", currentMinBoilingTemperatureDryFilter);
+				model.addAttribute("currentMaxBoilingTemperatureDryFilter", currentMaxBoilingTemperatureDryFilter);		
+
+				
+				double currentMinBoilingTemperatureWetFilter=brakingFluidDAO.minData("BoilingTemperatureWet");
+				double currentMaxBoilingTemperatureWetFilter=brakingFluidDAO.maxData("BoilingTemperatureWet");
+				model.addAttribute("MinBoilingTemperatureWet", currentMinBoilingTemperatureWetFilter);
+				model.addAttribute("MaxBoilingTemperatureWet", currentMaxBoilingTemperatureWetFilter);
+				model.addAttribute("currentMinBoilingTemperatureWetFilter", currentMinBoilingTemperatureWetFilter);
+				model.addAttribute("currentMaxBoilingTemperatureWetFilter", currentMaxBoilingTemperatureWetFilter);		
+
+				
+				double currentMinValueFilter=brakingFluidDAO.minData("Value")*1000;
+				double currentMaxValueFilter=brakingFluidDAO.maxData("Value")*1000;
+				model.addAttribute("MinValue", currentMinValueFilter);
+				model.addAttribute("MaxValue", currentMaxValueFilter);
+				model.addAttribute("currentMinValueFilter", currentMinValueFilter);
+				model.addAttribute("currentMaxValueFilter", currentMaxValueFilter);		
+				
+				
+				double currentMinViscosity40Filter=brakingFluidDAO.minData("Viscosity40");
+				double currentMaxViscosity40Filter=brakingFluidDAO.maxData("Viscosity40");
+				model.addAttribute("MinViscosity40", currentMinViscosity40Filter);
+				model.addAttribute("MaxViscosity40", currentMaxViscosity40Filter);
+				model.addAttribute("currentMinViscosity40Filter", currentMinViscosity40Filter);
+				model.addAttribute("currentMaxViscosity40Filter", currentMaxViscosity40Filter);		
+				
+				
+				double currentMinViscosity100Filter=brakingFluidDAO.minData("Viscosity100");
+				double currentMaxViscosity100Filter=brakingFluidDAO.maxData("Viscosity100");
+				model.addAttribute("MinViscosity100", currentMinViscosity100Filter);
+				model.addAttribute("MaxViscosity100", currentMaxViscosity100Filter);
+				model.addAttribute("currentMinViscosity100Filter", currentMinViscosity100Filter);
+				model.addAttribute("currentMaxViscosity100Filter", currentMaxViscosity100Filter);		
+
+				
+				double currentMinJudgementFilter=brakingFluidDAO.minData("Judgement");
+				double currentMaxJudgementFilter=brakingFluidDAO.maxData("Judgement");
+				model.addAttribute("MinJudgement", currentMinJudgementFilter);
+				model.addAttribute("MaxJudgement", currentMaxJudgementFilter);
+				model.addAttribute("currentMinJudgementFilter", currentMinJudgementFilter);
+				model.addAttribute("currentMaxJudgementFilter", currentMaxJudgementFilter);		
+
 				
 				int count=0;												//восстановим существующий фильтр по производителю -->
 				for (ManufacturerSelected currentMan:manufacturersFilter){
@@ -1101,17 +1474,52 @@ public class HomeController{
 					}
 				}															//восстановим существующий фильтр по производителю <--
 				
+				count=0;												//восстановим существующий фильтр по классу жидкости -->
+				for (FluidClassSelected currentFC:fluidClassFilter){
+					if (currentFC.isSelected()){
+						count++;
+					}
+				}
 				
-				ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter); 
+				int fluidClassSelections[]=new int[count];
+				count=0;
+				for (FluidClassSelected currentFC:fluidClassFilter){
+					if (currentFC.isSelected()){
+						manufacturerSelections[count]=currentFC.getId();
+						count++;
+					}
+				}															//восстановим существующий фильтр по  классу жидкости  <--
+				
+				
+				
+				ArrayList<BrakingFluid> listBakingFluids=brakingFluidDAO.getBrakingFluids(1,elementsInList
+						,manufacturersFilter, fluidClassFilter
+						,currentMinPriceFilter,currentMaxPriceFilter
+						,currentMinBoilingTemperatureDryFilter,currentMaxBoilingTemperatureDryFilter
+						,currentMinBoilingTemperatureWetFilter,currentMaxBoilingTemperatureWetFilter
+						,currentMinValueFilter/1000,currentMaxValueFilter/1000
+						,currentMinViscosity40Filter,currentMaxViscosity40Filter
+						,currentMinViscosity100Filter,currentMaxViscosity100Filter
+						,currentMinJudgementFilter,currentMaxJudgementFilter); 
+ 
 				model.addAttribute("listBrakFluids", listBakingFluids);
-				int totalProduct=brakingFluidDAO.getCountRows(1,elementsInList,currentMinPriceFilter,currentMaxPriceFilter,manufacturersFilter);
+				int totalProduct=brakingFluidDAO.getCountRows(1,elementsInList
+						,manufacturersFilter, fluidClassFilter
+						,currentMinPriceFilter,currentMaxPriceFilter
+						,currentMinBoilingTemperatureDryFilter,currentMaxBoilingTemperatureDryFilter
+						,currentMinBoilingTemperatureWetFilter,currentMaxBoilingTemperatureWetFilter
+						,currentMinValueFilter/1000,currentMaxValueFilter/1000
+						,currentMinViscosity40Filter,currentMaxViscosity40Filter
+						,currentMinViscosity100Filter,currentMaxViscosity100Filter
+						,currentMinJudgementFilter,currentMaxJudgementFilter); 
+
 				int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 				model.addAttribute("totalPages", totalPages);
 				model.addAttribute("currentPage", 1);
 				
 				model.addAttribute("manufacturersFilter", manufacturersFilter);
 				model.addAttribute("recommendedBrakFluids", brakingFluidDAO.getBrakingFluidsRecommended());
-				model.addAttribute("currentPriceFilter", (currentPriceFilter==0?currentMaxPriceFilter:currentPriceFilter)); //если текущая цена в фильтре не задана - возьмём максимум
+				model.addAttribute("currentPriceFilter", currentPriceFilter);
 				
 				model.addAttribute("paginationString_part1", ""+(1)+"-"+elementsInList);
 				model.addAttribute("paginationString_part2", totalProduct);
@@ -1131,7 +1539,7 @@ public class HomeController{
 				result="home";
 			}
 		}
-		return result;
+		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+result;
 	}			
 	
 	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})
@@ -1172,6 +1580,71 @@ public class HomeController{
 		
 		return "login";
 	}		
+	
+	@RequestMapping(value = "/menu", method = {RequestMethod.POST, RequestMethod.GET})
+	public String menuAdmin(
+			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
+			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,HttpServletRequest request
+			,Locale locale, Model model) {
+		
+		String result="home";
+				
+		HttpSession session=request.getSession();
+		User user=(User) session.getAttribute("user");
+		Principal userPrincipal = request.getUserPrincipal();
+		if (user==null){
+			user=createUser();
+		}
+
+		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+							
+				
+		basket.clear();
+		if (manufacturerSelections!=null){
+			for (int i=0;i<manufacturerSelections.length; i++){
+				basket.add(brakingFluidDAO.getBrakingFluid(manufacturerSelections[i]));
+			}
+		}
+		session.setAttribute("basket", basket);
+				
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		if (variant.compareTo("Сравнить")==0){
+			result="adminpanel/Comparison";
+		}
+		if (variant.compareTo("В корзину")==0){
+			result="adminpanel/Basket";
+		}
+		if (variant.compareTo("Загрузить номенклатуру")==0){
+			model.addAttribute("variantDownload", Service.VARIANT_PRODUCT);
+			model.addAttribute("errors", new ArrayList<String>());
+			result="adminpanel/Download";
+		}						
+		if (variant.compareTo("Загрузить цены")==0){
+			model.addAttribute("variantDownload", Service.VARIANT_PRICES);
+			model.addAttribute("errors", new ArrayList<String>());
+			result="adminpanel/Download";
+		}						
+		if (variant.compareTo("Коммерческое приложение")==0){
+			model.addAttribute("listBrakFluids", basket);
+			model.addAttribute("listClients", clientDAO.getClients());
+			result="adminpanel/BussinessOffer";
+		}						
+	
+		return result;
+	}
+	
+	
+	
 		
 	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	 public String viewEdit(@PathVariable("name") final String name, Model model) {
@@ -1242,15 +1715,100 @@ public class HomeController{
 		return new User();
 	}
 	
-	@ModelAttribute("currentPriceFilter")
-	public double createCurrentPriceFilter(){
-		return 0.0;
+	private String createFilterValue(String param){
+		double minPrice=brakingFluidDAO.minData(param);  //если текущая цена в фильтре не задана - возьмём максимум
+		int i=new Double(minPrice).intValue();
+		double maxPrice=brakingFluidDAO.maxData(param);
+		int j=new Double(maxPrice).intValue();
+		if (j<maxPrice){
+			j++;
+		}
+		return i+","+j;
 	}
+	
+	@ModelAttribute("currentPriceFilter")
+	public String createCurrentPriceFilter(){
+		return createFilterValue("price");
+	}
+	
+	@ModelAttribute("currentBoilingTemperatureDryFilter")
+	public String createCurrentTemperatureDryFilter(){
+		return createFilterValue("boilingTemperatureDry");
+	}
+	
+	@ModelAttribute("currentBoilingTemperatureWetFilter")
+	public String createCurrentTemperatureWetFilter(){
+		return createFilterValue("boilingTemperatureWet");
+	}	
+	
+	@ModelAttribute("currentValueFilter")
+	public String createCurrentValueFilter(){
+		double minPrice=brakingFluidDAO.minData("Value")*1000;  //если текущая цена в фильтре не задана - возьмём максимум
+		int i=new Double(minPrice).intValue();
+		double maxPrice=brakingFluidDAO.maxData("Value")*1000;
+		int j=new Double(maxPrice).intValue();
+		if (j<maxPrice){
+			j++;
+		}
+		return i+","+j;
+	}	
+	
+	@ModelAttribute("currentViscosity40Filter")
+	public String createCurrentViscosity40Filter(){
+		return createFilterValue("Viscosity40");
+	}			
+	
+	@ModelAttribute("currentViscosity100Filter")
+	public String createCurrentViscosity100Filter(){
+		return createFilterValue("Viscosity100");
+	}
+	
+	@ModelAttribute("currentJudgementFilter")
+	public String createCurrentJudgementFilter(){
+		return createFilterValue("Judgement");
+	}		
 	
 	@ModelAttribute("manufacturersFilter")
 	public LinkedList<ManufacturerSelected> createManufacturersFilter(){
-		return new LinkedList<ManufacturerSelected>();
-	}	
+		LinkedList<ManufacturerSelected> listManufacturerSelected = new LinkedList<ManufacturerSelected>();
+		globalManufacturerSelected.clear();
+		for (Manufacturer currentManufacturer:manufacturerDAO.getManufacturers()){
+			ManufacturerSelected man=new ManufacturerSelected();
+			man.setId(currentManufacturer.getId());
+			man.setName(currentManufacturer.getName());
+			man.setCountry(currentManufacturer.getCountry());
+			man.setSelected(false);
+			listManufacturerSelected.add(man);
+			man=new ManufacturerSelected();
+			man.setId(currentManufacturer.getId());
+			man.setName(currentManufacturer.getName());
+			man.setCountry(currentManufacturer.getCountry());
+			man.setSelected(false);
+			globalManufacturerSelected.add(man);
+		}
+		
+		return listManufacturerSelected;
+	}
+	
+	@ModelAttribute("fluidClassFilter")
+	public LinkedList<FluidClassSelected> createFluidClassFilter(){
+		LinkedList<FluidClassSelected> listFluidClassSelected = new LinkedList<FluidClassSelected>();
+		globalFluidClassSelected.clear();
+		for (FluidClass currentFluidClass:fluidClassDAO.getFluidClassis()){
+			FluidClassSelected fc=new FluidClassSelected();
+			fc.setId(currentFluidClass.getId());
+			fc.setName(currentFluidClass.getName());
+			fc.setSelected(false);
+			listFluidClassSelected.add(fc);
+			fc=new FluidClassSelected();
+			fc.setId(currentFluidClass.getId());
+			fc.setName(currentFluidClass.getName());
+			fc.setSelected(false);			
+			globalFluidClassSelected.add(fc);
+		}
+		
+		return listFluidClassSelected;
+	}		
 	
 	@ModelAttribute("elementsInList")  //количество элементов, выводимых одновременно в списке. Используется в педжинации
 	public int createElementsInList(){

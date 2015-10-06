@@ -10,25 +10,25 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <title>ЭфТех ООО</title>   
-    <link href="resources/css/default.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
-    <link href="resources/css/fancybox-1.3.1.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/default.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
+    <link href="resources/Adminpanel/css/fancybox-1.3.1.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
     
-    <script type="text/javascript" src="resources/js/jquery-1.4.2.min.js"></script>   
-    <script type="text/javascript" src="resources/js/jquery.dimensions.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery-1.4.2.min.js"></script>   
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.dimensions.min.js"></script>
     
     <!-- // Tabs // -->
-    <script type="text/javascript" src="resources/js/ui.core.js"></script>
-    <script type="text/javascript" src="resources/js/jquery.ui.tabs.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/ui.core.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.ui.tabs.min.js"></script>
 
     <!-- // Table drag and drop rows // -->
-    <script type="text/javascript" src="resources/js/tablednd.js"></script>
-    <script type="text/javascript" src="resources/js/init.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/tablednd.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
 	
 </head>
 <body>
-	<form action="selection" method="POST" class="formBox">
+	<form action="home" method="POST" class="formBox">
     
         <!-- box -->
         <div class="box">
@@ -64,7 +64,8 @@
 			  <th>Спецификация</th>
 			  <th>Оценка покупателей</th>
             </tr>
-		 	<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+            <c:set var="name" value="basket" />
+		 	<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 		      <tr>
           	    <td class="dragHandle">&nbsp;</td>
 			 	<td class="checkbox"><input type="checkbox" name="selections" checked="checked" value="${currentBFluid.getId()}" /></td>
@@ -93,8 +94,8 @@
          <!-- /table -->
 	  </div>
       <div class="btn-submit"><!-- Submit form -->
-       	 <input type="submit" name="button" value="Заявка" class="button" >
-       	 <input type="submit"  name="button" value="На главную" class="button" >
+       	 <input type="submit" name="variant" value="Заявка" class="button" >
+       	 <input type="submit"  name="variant" value="На главную" class="button" >
       </div>
 	</form>
 </body>

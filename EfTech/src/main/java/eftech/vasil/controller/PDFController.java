@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -46,7 +45,7 @@ import eftech.workingset.beans.Client;
 import eftech.workingset.beans.User;
 
 @Controller
-@SessionAttributes({"user", "basket"})
+@SessionAttributes({"user", "Basket"})
 public class PDFController {
 	@Autowired
 	BrakingFluidTemplate brakingFluidDAO;
@@ -54,39 +53,195 @@ public class PDFController {
 	@Autowired
 	ClientTemplate clientDAO;
 
-//	
-//	@RequestMapping(value = "/makeDemand", method = {RequestMethod.POST,RequestMethod.GET})
-//	public String makeDemand(@ModelAttribute User user
-//			,@RequestParam(value="backPage", defaultValue="home", required=false) String backPage
-//			,@RequestParam(value="id", defaultValue="0", required=false) int id //может прийти со страницы номенклатуры, а может - из корзины.
-//			,HttpServletRequest request
-//			, Locale locale, Model model) {
-//			
-//			
+
+	@RequestMapping(value = "/makeDemand", method = RequestMethod.GET)
+	public String home(@ModelAttribute User user
+			,@RequestParam("variant") String formButton
+			,@RequestParam("id") int id
+			,HttpServletRequest request
+			, Locale locale, Model model) {
+			
+		try {
+			formButton=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
+			if (formButton.compareTo("Заявка")==0){
+				LinkedList<BrakingFluid> basket = new LinkedList<BrakingFluid>();
+				basket.add(brakingFluidDAO.getBrakingFluid(id));
+				try {
+					Service.createPDF_Demand(basket, request.getSession().getServletContext().getRealPath("/"), user);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DocumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+		
+		return "adminpanel/home";
+	}
+	
+	@RequestMapping(value = "/BussinessOffer", method = RequestMethod.POST)
+	public String bussinessOffer(@ModelAttribute User user
+			, @ModelAttribute LinkedList<BrakingFluid> basket
+			, @RequestParam(value = "selections", required=false ) int[] selections
+			, @RequestParam(value = "variant") String variant
+			, @RequestParam(value = "client") int clientId
+			,HttpServletRequest request
+			,Locale locale, Model model) {
+		try {
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String result="home";
+		
+		if (("Назад к списку номенклатуры".equals(variant)) || ("На главную".equals(variant))){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+		}else{		
+			basket.clear();
+			if (selections!=null){
+				for (int i=0;i<selections.length; i++){
+					basket.add(brakingFluidDAO.getBrakingFluid(selections[i]));
+				}
+			}
+			if (("Распечатать коммерческое предложение".equals(variant)) || ("Печать".equals(variant))){
+				File pdfFile=null;
+				try {
+					pdfFile=Service.createPDF_BussinessOffer(basket, request.getSession().getServletContext().getRealPath("/"), user);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DocumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (pdfFile!=null){
+					if (Desktop.isDesktopSupported()) {
+						try {
+							Desktop.getDesktop().open(pdfFile);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} else {
+						System.out.println("Awt Desktop is not supported!");
+					}
+				}
+				
+				model.addAttribute("listBrakFluids", basket);
+				model.addAttribute("listClients", clientDAO.getClients());
+				result="BussinessOffer";
+			}		
+			if ("Отослать".equals(variant)){
+				File pdfFile=null;
+				try {
+					pdfFile=Service.createPDF_BussinessOffer(basket, request.getSession().getServletContext().getRealPath("/"), user);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DocumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				//отошлем по электронной почте
+				if (pdfFile!=null){
+					if (clientId>0){
+						Client currentClient=(Client)clientDAO.getClient(clientId);
+						if (currentClient.getEmail().length()>0){
+						 	Properties props = new Properties();			//ssl для яндекса
+						 	props.put("mail.smtp.auth", "true");
+						 	props.put("mail.transport.protocol", "smtp");
+
+//						 	props.put("mail.smtp.host", "smtp.beget.ru");
+//						 	props.put("mail.smtp.port", "25");
+						 	
+						 	
+						 	props.put("mail.smtp.host", "smtp.mail.ru");
+					 	props.put("mail.smtp.port", "465");
+//					 	props.put("mail.user", "test@locomotions.ru");
+//						 	props.put("mail.password" , "12345678qa");					 	
+					        
+//						 		props.put("mail.smtp.auth", "true");
+						        props.put("mail.smtp.starttls.enable", "true");
+//						        props.put("mail.smtp.host", "smtp.gmail.com");
+//						        props.put("mail.smtp.port", "587");
+//				        
+//					        
+//					     //   Session session = Session.getInstance(props,null);
+						        Session session = Session.getInstance(props, new Authenticator() {
+						            protected PasswordAuthentication getPasswordAuthentication() {
+						                return new PasswordAuthentication("phylife@mail.ru", "cbcmrb2000"); //phylife@mail.ru
+						            }
+						        });
+					 
+					        try {
+					            Message message = new MimeMessage(session);
+					            //от кого
+					            message.setFrom(new InternetAddress("glebas@tut.by","Васильченко"));
+					            //кому
+					            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(currentClient.getEmail()));
+					            //Заголовок письма
+					            message.setSubject("Тестовое письмо");
+					            //Содержимое
+					            
+//					            // Create the message part
+//					            BodyPart messageBodyPart = new MimeBodyPart();
 //
-//		model.addAttribute("id", id);
-//		
-//		return backPage;
-//	}
-//	
-//	
+//					            // Now set the actual message
+//					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
 //
-//	
-//	@RequestMapping(value = "/BussinessOffer", method = {RequestMethod.POST,RequestMethod.GET})
-//	public String bussinessOffer(
-//			 @RequestParam(value = "variant", defaultValue="Show", required = false) String variant
-//			, @RequestParam(value = "client", required = false) int clientId
-//			,HttpServletRequest request
-//			,Locale locale, Model model) {
+//					            // Create a multipar message
+//					            Multipart multipart = new MimeMultipart();
 //
-//		String result="Basket";
-//		
-//		HttpSession session=request.getSession();
-//		LinkedList<BrakingFluid> listBrakingFluid = (LinkedList<BrakingFluid>) session.getAttribute("basket");
-//		User user = (User) session.getAttribute("user");
-//		
+//					            // Set text message part
+//					            multipart.addBodyPart(messageBodyPart);
 //
-//		return result;
-//	}
+//					            // Part two is attachment
+//					            messageBodyPart = new MimeBodyPart();
+//					            DataSource source = new FileDataSource(pdfFile);
+//					            messageBodyPart.setDataHandler(new DataHandler(source));
+//					            messageBodyPart.setFileName(pdfFile.getName());
+//					            multipart.addBodyPart(messageBodyPart);
+
+					            // Send the complete message parts
+					            // Session mailSession = Session.getDefaultInstance(props, null);
+					            //Transport = mailSession.getTransport();
+					            //Отправляем сообщение
+					            Transport.send(message);
+					        } catch (MessagingException e) {
+					            throw new RuntimeException(e);
+					        } catch (UnsupportedEncodingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}	
+						}
+				        
+					}
+				}
+				
+				model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+			}
+		}
+		return "adminpanel/"+result;
+	}
 	
 }

@@ -10,16 +10,16 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <title>ЭфТех ООО</title>   
-    <link href="resources/css/default.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
-    <link href="resources/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/default.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
+    <link href="resources/Adminpanel/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
     
-    <script type="text/javascript" src="resources/js/jquery-1.4.2.min.js"></script>   
-    <script type="text/javascript" src="resources/js/jquery.dimensions.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery-1.4.2.min.js"></script>   
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.dimensions.min.js"></script>
 
     <!-- // Table drag and drop rows // -->
-    <script type="text/javascript" src="resources/js/tablednd.js"></script>
-    <script type="text/javascript" src="resources/js/init.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/tablednd.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
 	
 </head>
 <body>
@@ -42,6 +42,7 @@
           <!-- /filter -->
 
           <!-- table -->
+          <c:set var="name" value="basket" />
           <table class="tab tab-drag">
             <tr class="top nodrop nodrag">
               <th class="dragHandle">&nbsp;</th>
@@ -60,7 +61,7 @@
 			  <th>Спецификация</th>
 			  <th>Оценка покупателей</th>
             </tr>
-		 	<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+		 	<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 		      <tr>
           	    <td class="dragHandle">&nbsp;</td>
 			 	<td class="checkbox"><input type="checkbox" name="selections" checked="checked" value="${currentBFluid.getId()}" /></td>
@@ -93,7 +94,7 @@
 		  <div class="col1">
               <div class="clearfix">
                 <div class="lab"><label for="input-one">Создать коммерческое предложение:</label></div>
-                <div class="btn-submit"><input type="submit" class="button" value="Печать" name="button" id="input-one" /></div>
+                <div class="btn-submit"><input type="submit" class="button" value="Печать" name="variant" id="input-one" /></div>
               </div>
               <div class="clearfix">
                 <div class="lab"><label for="input-one">Отослать по электронной почте:</label></div>
@@ -104,14 +105,14 @@
 						<option value="${punct.getId()}"><c:out value="${punct.getName()}" />(<c:out value="${punct.getEmail()}" />)</option>
 					</c:forEach>
                   </select>
-                  <input type="submit" name="button" value="Отослать" class="button">
+                  <input type="submit" name="variant" value="Отослать" class="button">
                  </div>
               </div>		  
 		  </div>
 		</div>
 	  	  <p>	
 	      <div class="btn-submit"><!-- Submit form -->
-	       	 <input type="submit"  name="button" value="На главную" class="button" >
+	       	 <input type="submit"  name="variant" value="На главную" class="button" >
 	      </div>
 	  </div>
 	</form>

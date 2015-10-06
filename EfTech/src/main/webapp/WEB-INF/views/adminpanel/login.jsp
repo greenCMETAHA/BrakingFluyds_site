@@ -10,8 +10,8 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <title>ЭфТех ООО</title>   
-  <link href="resources/css/login.css" rel="stylesheet" type="text/css" />
-    <link href="resources/css/login-gray.css" rel="stylesheet" type="text/css" />  <!-- color skin: blue / red / green / dark -->
+  <link href="resources/Adminpanel/css/login.css" rel="stylesheet" type="text/css" />
+    <link href="resources/Adminpanel/css/login-gray.css" rel="stylesheet" type="text/css" />  <!-- color skin: blue / red / green / dark -->
 
 </head>
 <body>
@@ -34,8 +34,8 @@
             		  <label><input type="checkbox" name="remeber_me" class="checkbox" />Запомнить меня</label> 
             	</div>
 	            <div class="form-col form-col-right"> 
-	              <input type="submit" name="authorButton" value="Авторизация" class="submit" />
-	              <input type="submit" name="authorButton" value="На главную" class="submit" />
+	              <input type="submit" name="variant" value="Авторизация" class="submit" />
+	              <input type="submit" name="variant" value="На главную" class="submit" />
 	            </div> 
 	          </fieldset>
 	        </form>        

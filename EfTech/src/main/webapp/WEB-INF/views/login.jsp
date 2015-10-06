@@ -48,7 +48,7 @@
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
-		                        <sec:authorize access="!isAnonymous()">
+		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
@@ -135,7 +135,7 @@
 					<div class="top-cart-row-container">
 					    <div class="wishlist-compare-holder">
 					        <div class="wishlist ">
-					        	<sec:authorize access="!isAnonymous()">
+					        	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 					            	<a href="Wishlist"><i class="fa fa-heart"></i> Избранное <span class="value">(<c:out value="${requestScope.wishlist.size()}"/>)</span> </a>
 					            </sec:authorize>
 					        </div>

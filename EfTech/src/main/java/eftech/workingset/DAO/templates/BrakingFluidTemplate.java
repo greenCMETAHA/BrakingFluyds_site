@@ -20,6 +20,7 @@ import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
+import eftech.workingset.beans.FluidClassSelected;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.Role;
@@ -173,10 +174,10 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
-	public double minPrice(){
+	public double minData(String param){
 		double result = 0;
 		
-		String sqlQuery="select MIN(price) as price from brakingfluids";
+		String sqlQuery="select MIN("+param+") as "+param+" from brakingfluids";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
 		try{
@@ -188,10 +189,10 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
-	public  double maxPrice(){
+	public  double maxData(String param){
 		double result = 0;
 		
-		String sqlQuery="select MAX(price) as price from brakingfluids";
+		String sqlQuery="select MAX("+param+") as "+param+" from brakingfluids";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
 		try{
@@ -204,7 +205,15 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
-	public  int getCountRows(int currentPage, int elementsInList, double minPrice, double maxPrice, LinkedList<ManufacturerSelected> manufacturersSelected){
+	public  int getCountRows(int currentPage, int elementsInList
+			, LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<FluidClassSelected>fluidClassFilter
+			,double minPrice, double maxPrice
+			,double currentMinBoilingTemperatureDryFilter,double currentMaxBoilingTemperatureDryFilter
+			,double currentMinBoilingTemperatureWetFilter,double currentMaxBoilingTemperatureWetFilter
+			,double currentMinValueFilter,double currentMaxValueFilter
+			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
+			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
 		int result = 0;
 		
 		StringBuilder strManufacturerFilter=new StringBuilder();
@@ -226,20 +235,64 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 						strManufacturerFilter.append(currentMan.getId());
 					}
 				}
-				strManufacturerFilter.insert(0, "and (man.id IN (");
+				strManufacturerFilter.insert(0, " and (man.id IN (");
 				strManufacturerFilter.append("))");
 			}
 		
 		}
+		
+		StringBuilder strFluidClassFilter=new StringBuilder();
+		if (fluidClassFilter.size()>0){
+			boolean bFind=false;
+			for (FluidClassSelected currentFC:fluidClassFilter){
+				if (currentFC.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (FluidClassSelected currentFC:fluidClassFilter){
+					if (currentFC.isSelected()){
+						if (strFluidClassFilter.length()!=0){
+							strFluidClassFilter.append(", ");
+						}
+
+						strFluidClassFilter.append(currentFC.getId());
+					}
+				}
+				strFluidClassFilter.insert(0, " and (fc.id IN (");
+				strFluidClassFilter.append("))");
+			}
+		
+		}	
 		String sqlQuery="select count(*) from"
 				+ "(select bf.id as id from brakingfluids  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ "		left join manufacturer as man on bf.manufacturer=man.id "
-				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "+strManufacturerFilter+"ORDER BY bf.name ) as rez";
+				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice)"
+				+ "				 and  (bf.BoilingTemperatureDry>=:currentMinBoilingTemperatureDryFilter) and (bf.BoilingTemperatureDry<=:currentMaxBoilingTemperatureDryFilter)"
+				+ "				 and  (bf.BoilingTemperatureWet>=:currentMinBoilingTemperatureWetFilter) and (bf.BoilingTemperatureWet<=:currentMaxBoilingTemperatureWetFilter)"				
+				+ "				 and  (bf.Value>=:currentMinValueFilter) and (bf.Value<=:currentMaxValueFilter)"
+				+ "				 and  (bf.Viscosity40>=:currentMinViscosity40Filter) and (bf.Viscosity40<=:currentMaxViscosity40Filter)"
+				+ "				 and  (bf.Viscosity100>=:currentMinViscosity100Filter) and (bf.Viscosity100<=:currentMaxViscosity100Filter)"
+				+ "				 and  (bf.Judgement>=:currentMinJudgementFilter) and (bf.Judgement<=:currentMaxJudgementFilter)"
+				+ " "+strFluidClassFilter+strManufacturerFilter+" ORDER BY bf.name ) as rez";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("minPrice", minPrice);
 		params.addValue("maxPrice", maxPrice);		
+		params.addValue("currentMinBoilingTemperatureDryFilter", currentMinBoilingTemperatureDryFilter);
+		params.addValue("currentMaxBoilingTemperatureDryFilter", currentMaxBoilingTemperatureDryFilter);		
+		params.addValue("currentMinBoilingTemperatureWetFilter", currentMinBoilingTemperatureWetFilter);
+		params.addValue("currentMaxBoilingTemperatureWetFilter", currentMaxBoilingTemperatureWetFilter);		
+		params.addValue("currentMinValueFilter", currentMinValueFilter);
+		params.addValue("currentMaxValueFilter", currentMaxValueFilter);
+		params.addValue("currentMinViscosity40Filter", currentMinViscosity40Filter);
+		params.addValue("currentMaxViscosity40Filter", currentMaxViscosity40Filter);		
+		params.addValue("currentMinViscosity100Filter", currentMinViscosity100Filter);		
+		params.addValue("currentMaxViscosity100Filter", currentMaxViscosity100Filter);
+		params.addValue("currentMinJudgementFilter", currentMinJudgementFilter);		
+		params.addValue("currentMaxJudgementFilter", currentMaxJudgementFilter);
 		
 		try{
 			result=jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
@@ -251,7 +304,15 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}	
 	
 	@Override
-	public ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList, double minPrice, double maxPrice, LinkedList<ManufacturerSelected> manufacturersSelected){
+	public ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList
+			,LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<FluidClassSelected>fluidClassFilter
+			,double minPrice, double maxPrice
+			,double currentMinBoilingTemperatureDryFilter,double currentMaxBoilingTemperatureDryFilter
+			,double currentMinBoilingTemperatureWetFilter,double currentMaxBoilingTemperatureWetFilter
+			,double currentMinValueFilter,double currentMaxValueFilter
+			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
+			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
 		StringBuilder strManufacturerFilter=new StringBuilder();
 		if (manufacturersSelected.size()>0){
 			boolean bFind=false;
@@ -276,6 +337,32 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			}
 		
 		}
+		
+		StringBuilder strFluidClassFilter=new StringBuilder();
+		if (fluidClassFilter.size()>0){
+			boolean bFind=false;
+			for (FluidClassSelected currentFC:fluidClassFilter){
+				if (currentFC.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (FluidClassSelected currentFC:fluidClassFilter){
+					if (currentFC.isSelected()){
+						if (strFluidClassFilter.length()!=0){
+							strFluidClassFilter.append(", ");
+						}
+
+						strFluidClassFilter.append(currentFC.getId());
+					}
+				}
+				strFluidClassFilter.insert(0, " and (fc.id IN (");
+				strFluidClassFilter.append("))");
+			}
+		
+		}
+		
 		String sqlQuery="select * from"
 				+ "(select bf.id as id, bf.name as name, bf.price as price, bf.boilingTemperatureDry AS boilingTemperatureDry"
 				+ ", bf.boilingTemperatureWet AS boilingTemperatureWet, bf.description AS description, bf.judgement AS judgement"
@@ -284,14 +371,32 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 				+ ", fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ "		left join manufacturer as man on bf.manufacturer=man.id "
-				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "+strManufacturerFilter+" ORDER BY bf.name ) as rez"
+				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "
+				+ ""
+				+ ""
+				+ ""
+				+ ""
+				+ ""+strFluidClassFilter+strManufacturerFilter+" ORDER BY bf.name ) as rez"
 				+ " LIMIT :firstRow, :number";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("firstRow", (currentPage-1)*elementsInList);
 		params.addValue("number", elementsInList);		
 		params.addValue("minPrice", minPrice);
-		params.addValue("maxPrice", maxPrice);		
+		params.addValue("maxPrice", maxPrice);	
+		params.addValue("currentMinBoilingTemperatureDryFilter", currentMinBoilingTemperatureDryFilter);
+		params.addValue("currentMaxBoilingTemperatureDryFilter", currentMaxBoilingTemperatureDryFilter);		
+		params.addValue("currentMinBoilingTemperatureWetFilter", currentMinBoilingTemperatureWetFilter);
+		params.addValue("currentMaxBoilingTemperatureWetFilter", currentMaxBoilingTemperatureWetFilter);		
+		params.addValue("currentMinValueFilter", currentMinValueFilter);
+		params.addValue("currentMaxValueFilter", currentMaxValueFilter);
+		params.addValue("currentMinViscosity40Filter", currentMinViscosity40Filter);
+		params.addValue("currentMaxViscosity40Filter", currentMaxViscosity40Filter);		
+		params.addValue("currentMinViscosity100Filter", currentMinViscosity100Filter);		
+		params.addValue("currentMaxViscosity100Filter", currentMaxViscosity100Filter);
+		params.addValue("currentMinJudgementFilter", currentMinJudgementFilter);		
+		params.addValue("currentMaxJudgementFilter", currentMaxJudgementFilter);
+		
 		
 		try{ 
 			return (ArrayList<BrakingFluid>)jdbcTemplate.query(sqlQuery,params,new BrakingFluidRowMapper());

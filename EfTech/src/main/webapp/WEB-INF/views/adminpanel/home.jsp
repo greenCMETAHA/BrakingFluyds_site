@@ -9,42 +9,42 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <title>ЭфТех ООО</title>   
-    <link href="resources/css/default.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
-    <link href="resources/css/datePicker.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/wysiwyg.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/fancybox-1.3.1.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/default.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
+    <link href="resources/Adminpanel/css/datePicker.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/wysiwyg.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/fancybox-1.3.1.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
     
-    <script type="text/javascript" src="resources/js/jquery-1.4.2.min.js"></script>   
-    <script type="text/javascript" src="resources/js/jquery.dimensions.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery-1.4.2.min.js"></script>   
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.dimensions.min.js"></script>
     
     <!-- // Tabs // -->
-    <script type="text/javascript" src="resources/js/ui.core.js"></script>
-    <script type="text/javascript" src="resources/js/jquery.ui.tabs.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/ui.core.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.ui.tabs.min.js"></script>
 
     <!-- // Table drag and drop rows // -->
-    <script type="text/javascript" src="resources/js/tablednd.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/tablednd.js"></script>
 
     <!-- // Date Picker // -->
-    <script type="text/javascript" src="resources/js/date.js"></script>
-    <!--[if IE]><script type="text/javascript" src="resources/js/jquery.bgiframe.js"></script><![endif]-->
-    <script type="text/javascript" src="resources/js/jquery.datePicker.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/date.js"></script>
+    <!--[if IE]><script type="text/javascript" src="resources/Adminpanel/js/jquery.bgiframe.js"></script><![endif]-->
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.datePicker.js"></script>
 
     <!-- // Wysiwyg // -->
-    <script type="text/javascript" src="resources/js/jquery.wysiwyg.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.wysiwyg.js"></script>
 
     <!-- // Graphs // -->
-    <script type="text/javascript" src="resources/js/excanvas.js"></script>
-    <script type="text/javascript" src="resources/js/jquery.visualize.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/excanvas.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.visualize.js"></script>
 
     <!-- // Fancybox // -->
-  	<script type="text/javascript" src="resources/js/jquery.fancybox-1.3.1.js"></script>
+  	<script type="text/javascript" src="resources/Adminpanel/js/jquery.fancybox-1.3.1.js"></script>
 
     <!-- // File upload // --> 
-    <script type="text/javascript" src="resources/js/jquery.filestyle.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.filestyle.js"></script>
     
-    <script type="text/javascript" src="resources/js/init.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
 	
 </head>
 <body>
@@ -80,8 +80,7 @@
  			</c:choose> 
      </div> 
  
-	<form action="selection" method="POST"> 
-	    
+	<form action="menu" method="POST"> 
 	<style> 
  			input[type="submit"]{ 
  				border:0; 
@@ -103,24 +102,24 @@
  			} 
  		</style>  
  	    <div id="sidebar"> 
- 	    	<input name="variant" type="hidden" value="0" > 
+  	    	<input name="result" type="hidden" value="0" > 
 <!--	        mainmenu -->
 	        
  	        <ul id="floatMenu" class="mainmenu"> 
- 	          <li class="first" ><input type="submit" name="button" value="Сравнить"></li>	
+ 	          <li class="first" ><input type="submit" name="variant" value="Сравнить"></li>	
 	     	  <sec:authorize access="isAnonymous() or hasAnyRole('ROLE_ADMIN,ROLE_OFFER,ROLE_OFFERPRICE,ROLE_PRICE')"> 
 		          <!-- <li class="first"><input type="submit" name="button" value="Сравнить"></li> 
 		           --> 
- 		          <li><input type="submit" name="button" value="В корзину"></li>
+ 		          <li><input type="submit" name="variant" value="В корзину"></li>
  		      </sec:authorize>
  	          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">	 
-	          		<li><input type="submit" name="button" value="Загрузить номенклатуру"></li>
+	          		<li><input type="submit" name="variant" value="Загрузить номенклатуру"></li>
 	          </sec:authorize> 
 	          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
- 	          		<li><input type="submit" name="button" value="Загрузить цены"></li>
+ 	          		<li><input type="submit" name="variant" value="Загрузить цены"></li>
 			  </sec:authorize>
 			  <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR')">	 	          		 
- 	          		<li><input type="submit" name="button" value="Коммерческое приложение"></li>
+ 	          		<li><input type="submit" name="variant" value="Коммерческое приложение"></li>
  	          </sec:authorize>	
  	          </ul>	
 
@@ -161,10 +160,9 @@
           	    <td class="dragHandle">&nbsp;</td>
 			 	<td class="checkbox"><input type="checkbox" name="selections" value="${currentBFluid.getId()}" /></td>
 		 		<td align="left">
-					<form action="update" method="GET">
-						<c:url value="update" var="UpdateBrakingFluid">
+					<form action=ShowOne method="GET">
+						<c:url value="ShowOne" var="UpdateBrakingFluid">
 							<c:param name="id" value="${currentBFluid.getId()}"/>
-							<c:param name="variant" value="update"/>
 						</c:url>
 						<a href="${UpdateBrakingFluid}"  title="Редактировать тормозную жидкость."> <c:out value="${currentBFluid.getName()}"  /> </a>
 					</form>

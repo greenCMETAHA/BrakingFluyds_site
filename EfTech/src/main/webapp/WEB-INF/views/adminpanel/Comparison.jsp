@@ -10,46 +10,46 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <title>ЭфТех ООО</title>   
-    <link href="resources/css/default.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
-    <link href="resources/css/datePicker.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/wysiwyg.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/fancybox-1.3.1.css" rel="stylesheet" type="text/css" media="screen" />
-    <link href="resources/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/default.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
+    <link href="resources/Adminpanel/css/datePicker.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/wysiwyg.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/fancybox-1.3.1.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="resources/Adminpanel/css/visualize.css" rel="stylesheet" type="text/css" media="screen" />
     
-    <script type="text/javascript" src="resources/js/jquery-1.4.2.min.js"></script>   
-    <script type="text/javascript" src="resources/js/jquery.dimensions.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery-1.4.2.min.js"></script>   
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.dimensions.min.js"></script>
     
     <!-- // Tabs // -->
-    <script type="text/javascript" src="resources/js/ui.core.js"></script>
-    <script type="text/javascript" src="resources/js/jquery.ui.tabs.min.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/ui.core.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.ui.tabs.min.js"></script>
 
     <!-- // Table drag and drop rows // -->
-    <script type="text/javascript" src="resources/js/tablednd.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/tablednd.js"></script>
 
     <!-- // Date Picker // -->
-    <script type="text/javascript" src="resources/js/date.js"></script>
-    <!--[if IE]><script type="text/javascript" src="resources/js/jquery.bgiframe.js"></script><![endif]-->
-    <script type="text/javascript" src="resources/js/jquery.datePicker.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/date.js"></script>
+    <!--[if IE]><script type="text/javascript" src="resources/Adminpanel/js/jquery.bgiframe.js"></script><![endif]-->
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.datePicker.js"></script>
 
     <!-- // Wysiwyg // -->
-    <script type="text/javascript" src="resources/js/jquery.wysiwyg.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.wysiwyg.js"></script>
 
     <!-- // Graphs // -->
-    <script type="text/javascript" src="resources/js/excanvas.js"></script>
-    <script type="text/javascript" src="resources/js/jquery.visualize.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/excanvas.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.visualize.js"></script>
 
     <!-- // Fancybox // -->
-  	<script type="text/javascript" src="resources/js/jquery.fancybox-1.3.1.js"></script>
+  	<script type="text/javascript" src="resources/Adminpanel/js/jquery.fancybox-1.3.1.js"></script>
 
     <!-- // File upload // --> 
-    <script type="text/javascript" src="resources/js/jquery.filestyle.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/jquery.filestyle.js"></script>
     
-    <script type="text/javascript" src="resources/js/init.js"></script>
+    <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
 	
 </head>
 <body>
-	<form action="selection" method="POST" class="formBox">
+	<form action="Comparison" method="POST" class="formBox">
         <!-- box -->
         <div class="box">
           <div class="headlines">
@@ -66,11 +66,12 @@
           <!-- /filter -->
 
           <!-- table -->
+          <c:set var="name" value="basket" />
           <table class="tab tab-drag">
   	   	  <tr>
 			<th width="300" bgcolor="#eeeeee" valign="top" >Наименование
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<th align="center" class="checkbox" valign="middle">
 					<c:out value="${currentBFluid.getName()}"  /><br>
 					<input type="checkbox" name="selections" checked="checked" value="${currentBFluid.getId()}"/>
@@ -80,7 +81,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Производитель
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getManufacturer().getName()}"  /><p>
 				</td>	
@@ -89,7 +90,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Класс жидкости
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getFluidClass().getName()}"  />
 				</td>	
@@ -98,7 +99,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Температура кипения (сух.)
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getBoilingTemperatureDry()}"  />
 				</td>	
@@ -107,7 +108,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Температура кипения (вл.)
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getBoilingTemperatureWet()}"  />
 				</td>	
@@ -117,7 +118,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Объём
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getValue()}"  />
 				</td>	
@@ -126,7 +127,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Цена
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getPrice()}"  />
 				</td>	
@@ -135,7 +136,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Изображение
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:choose>
 					<c:when test="${currentBFluid.hasPhoto()}">
@@ -148,7 +149,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Описание
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getDescription()}"  />
 				</td>	
@@ -157,7 +158,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Вязкость (-40)
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getViscosity40()}"  />
 				</td>	
@@ -166,7 +167,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Вязкость (100)
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getViscosity100()}"  />
 				</td>	
@@ -175,7 +176,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Спецификация
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getSpecification()}"  />
 				</td>	
@@ -184,7 +185,7 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Оценка покупателей
 			</th>
-			<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
+			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
 				<td align="center" valign="middle">
 					<c:out value="${currentBFluid.getJudgement()}"  />
 				</td>	
@@ -193,8 +194,8 @@
 	  </table>          
 	  <p>
   	  <div class="btn-submit"><!-- Submit form -->
-       	 <input type="submit" name="button" value="Сравнить"class="button" >
-       	 <input type="submit"  name="button" value="На главную" class="button" >
+       	 <input type="submit" name="variant" value="Сравнить"class="button" >
+       	 <input type="submit"  name="variant" value="На главную" class="button" >
       </div>	
    </form>
 </body>

@@ -48,35 +48,34 @@ public class ExcelController {
 	
 	@RequestMapping(value = "/action", method = RequestMethod.POST)
 	public String compare(@ModelAttribute User user
-			, @RequestParam("button") String formButton
-			, @RequestParam("pathFluidsPrices") MultipartFile pathFluidsPrices
-			, @RequestParam("variant") byte variant
+			, @RequestParam("variant") String variant
+			, @RequestParam("fileEcxel") MultipartFile fileEcxel
+			, @RequestParam("variantDownload") byte variantDownload
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
 		String result="home";
 		
-		String button="";
 		try {
-			button=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
+			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		ArrayList<String> errors=new ArrayList<String>();
 		
-		if ("На главную".equals(button)){
+		if ("На главную".equals(variant)){
 			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-		}else if (("Загрузить номернклатуру".equals(button)) || (variant==Service.VARIANT_PRODUCT)){
-			variant=Service.VARIANT_PRODUCT;
-			String productFile=pathFluidsPrices.getOriginalFilename().trim();
+		}else if (("Загрузить номернклатуру".equals(variant)) || (variantDownload==Service.VARIANT_PRODUCT)){
+			variantDownload=Service.VARIANT_PRODUCT;
+			String productFile=fileEcxel.getOriginalFilename().trim();
 			if (!Service.isFileExist(productFile)){
 				errors.add("Указанный Вами файл с номенклатурой не существует");
     		}else{
     			if (!productFile.contains(".xlsx")){
     				errors.add("Указанный Вами файл с номенклатурой не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
     			}else{
-    				ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelProduct(Service.convertMultipartFile(pathFluidsPrices), request.getSession().getServletContext().getRealPath("/"));
+    				ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelProduct(Service.convertMultipartFile(fileEcxel), request.getSession().getServletContext().getRealPath("/"));
     				
     			    synchronized (listBrakingFluids){
     		        	for (BrakingFluid currentBF:listBrakingFluids){
@@ -105,16 +104,16 @@ public class ExcelController {
 					
 	        	}
 			}
-		}else if (("Загрузить цены".equals(button)) || (variant==Service.VARIANT_PRICES)){
-			variant=Service.VARIANT_PRICES;
-			String priceFile=pathFluidsPrices.getOriginalFilename().trim();
+		}else if (("Загрузить цены".equals(variant)) || (variantDownload==Service.VARIANT_PRICES)){
+			variantDownload=Service.VARIANT_PRICES;
+			String priceFile=fileEcxel.getOriginalFilename().trim();
 			if (!Service.isFileExist(priceFile)){
 				errors.add("Указанный Вами файл с ценами не существует");
     		}else{
     			if (!priceFile.contains(".xlsx")){
     				errors.add("Указанный Вами файл с ценами не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
     			}else{
-					ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelPrices(Service.convertMultipartFile(pathFluidsPrices));
+					ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelPrices(Service.convertMultipartFile(fileEcxel));
 		 	        synchronized (listBrakingFluids){
 			         	for (BrakingFluid currentBF:listBrakingFluids){
 			        		BrakingFluid value = brakingFluidDAO.fillPrices(currentBF);
@@ -125,11 +124,13 @@ public class ExcelController {
 		}
 		if (errors.size()>0){ 
 			model.addAttribute("errors",errors);
-			model.addAttribute("variant",variant);
+			model.addAttribute("variantDownload",variantDownload);
 			result="Download";
+		}else{
+			model.addAttribute("listBrakFluids",brakingFluidDAO.getBrakingFluids());
 		}
 		
-		return result;
+		return "adminpanel/"+result;
 	}
 
 }
