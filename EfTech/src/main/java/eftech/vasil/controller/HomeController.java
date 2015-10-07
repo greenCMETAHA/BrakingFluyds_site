@@ -1630,51 +1630,10 @@ public class HomeController{
 			model.addAttribute("listClients", clientDAO.getClients());
 			result="adminpanel/BussinessOffer";
 		}else{
-			result="adminpanel/AddEditElement";
-			int totalRows=0;
-			int totalPages=0;
-			int elementsInList=Service.LOG_ELEMENTS_IN_LIST;
-			if (variant.compareTo("Производители")==0){
-				totalRows=manufacturerDAO.getCountRows();
-				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-				model.addAttribute("list",logDAO.getLog(1, elementsInList));
-				model.addAttribute("variant", "manufacturer");
-			}else if (variant.compareTo("Классы жидкости")==0){
-				totalRows=fluidClassDAO.getCountRows();
-				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-				model.addAttribute("list",logDAO.getLog(1, elementsInList));
-				model.addAttribute("variant", "fluidClass");
-			}else if (variant.compareTo("Страны")==0){
-				totalRows=countryDAO.getCountRows();
-				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-				model.addAttribute("list",logDAO.getLog(1, elementsInList));
-				model.addAttribute("variant", "country");
-			}else if (variant.compareTo("Клиенты")==0){
-				totalRows=clientDAO.getCountRows();
-				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-				model.addAttribute("list",logDAO.getLog(1, elementsInList));
-				model.addAttribute("variant", "client");
-			}else if (variant.compareTo("Пользователи")==0){
-				totalRows=userDAO.getCountRows();
-				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-				model.addAttribute("list",logDAO.getLog(1, elementsInList));
-				model.addAttribute("variant", "user");
-			}else if (variant.compareTo("Логирование")==0){
-				totalRows=logDAO.getCountRows();
-				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-				model.addAttribute("list",logDAO.getLog(1, elementsInList));
-				model.addAttribute("variant", "log");
-			}
-			
-			model.addAttribute("totalPages", totalPages);
-			model.addAttribute("currentPage", 1);
-			model.addAttribute("id", 0);
+			result=Service.createAdminEdit(model,variant, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO, new LinkedList<String>());
 		}
 		return result;
 	}
-	
-	
-	
 		
 	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	 public String viewEdit(@PathVariable("name") final String name, Model model) {

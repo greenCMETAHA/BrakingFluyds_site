@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
+import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
@@ -231,6 +232,10 @@ public class Service {
 
 	public static synchronized String copyPhoto(String oldPhoto, String globalPath){
 		String result="";
+		
+		if ((!"http".equals(oldPhoto.substring(0,4))) & (!":\\".equals(oldPhoto.substring(1,2)))){ //значит, он уже лежит на серваке
+			result=oldPhoto;
+		}
 		
 		File oldFile=new File(oldPhoto);
 		File newFile=new File(globalPath+PATH_TO_JPG+oldFile.getName());
@@ -477,6 +482,65 @@ public class Service {
 		return result;
 	}
 	
+	public static String createAdminEdit(Model model, String variant, int currentPage
+			, ManufacturerTemplate manufacturerDAO, FluidClassTemplate fluidClassDAO, CountryTemplate countryDAO
+			,ClientTemplate clientDAO, UserTemplate userDAO,LogTemplate logDAO, LinkedList<String> errors){
+		
+		String result="adminpanel/ShowList";
+		int totalRows=0;
+		int totalPages=0;
+		int elementsInList=Service.LOG_ELEMENTS_IN_LIST;
+		model.addAttribute("tablehead", variant);
+		if (variant.compareTo("Производители")==0){
+			totalRows=manufacturerDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",manufacturerDAO.getManufacturers(1, elementsInList));
+			model.addAttribute("variant", "manufacturer");
+			
+		}else if (variant.compareTo("Классы жидкости")==0){
+			totalRows=fluidClassDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",fluidClassDAO.getFluidClassis(1, elementsInList));
+			model.addAttribute("variant", "fluidClass");
+
+		}else if (variant.compareTo("Страны")==0){
+			totalRows=countryDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",countryDAO.getCountries(1, elementsInList));
+			model.addAttribute("variant", "country");
+			
+		}else if (variant.compareTo("Клиенты")==0){
+			totalRows=clientDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",clientDAO.getClients(1, elementsInList));
+			model.addAttribute("variant", "client");
+			
+		}else if (variant.compareTo("Пользователи")==0){
+			totalRows=userDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",userDAO.getUsers(1, elementsInList));
+			model.addAttribute("variant", "user");
+			
+		}else if (variant.compareTo("Логирование")==0){
+			totalRows=logDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",logDAO.getLog(1, elementsInList));
+			model.addAttribute("variant", "log");
+			model.addAttribute("tablehead", "Лог изменений");
+		}
+		if (totalPages<currentPage){
+			currentPage=totalPages;
+		}
+		
+		model.addAttribute("errors", errors);
+		model.addAttribute("totalPages", totalPages);
+		model.addAttribute("currentPage", currentPage);
+		model.addAttribute("id", -1);		
+		
+		return result;
+		
+	
+	}
 	
 	
 }

@@ -12,8 +12,15 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import eftech.workingset.DAO.interfaces.InterfaceUserDAO;
+import eftech.workingset.Services.Service;
+import eftech.workingset.beans.BrakingFluid;
+import eftech.workingset.beans.Country;
+import eftech.workingset.beans.FluidClass;
+import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.Role;
 import eftech.workingset.beans.User;
 
@@ -24,6 +31,20 @@ public class UserTemplate implements InterfaceUserDAO  {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
+	
+	public  int getCountRows(){
+		String sqlQuery="select count(distinct login) from user";
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		
+		try{
+			return jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
+		}catch (EmptyResultDataAccessException e){
+			return 0;
+		}				
+		
+		
+	}	
 
 	public User getUser(String login, String password) {
 		String sqlQuery="select us.id, us.name, us.login, us.email, us.role, rol.name as rol_name "
@@ -73,15 +94,93 @@ public class UserTemplate implements InterfaceUserDAO  {
 	
 	@Override
 	public ArrayList<User> getUsers() {
-		String sqlQuery="select us.id, us.name, us.login, us.email, us.role, rol.name as rol_name "
-				+ "from users as us, roles as rol where us.role=rol.id";
+		return getUsers(0,0);
+	}	
+
+	@Override
+	public ArrayList<User> getUsers(int num, int nextRows) {
+		String sqlQuery="select us.id, us.name, us.login, us.email	from users as us group by us.login"
+				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 
 		try{
 			return (ArrayList<User>) jdbcTemplate.query(sqlQuery, new UserRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<User>();
 		}		
-	}	
+	}
+
+	@Override
+	public void deleteUser(User user) {
+		deleteUser(user.getId());
+		
+	}
+
+	@Override
+	public void deleteUser(User user, Role role) {
+		deleteUser(user.getId(), role.getId());
+		
+	}
+
+	@Override
+	public void deleteUser(int id) {
+		String sqlUpdate="delete from user where id=:id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id",  id);
+		
+		jdbcTemplate.update(sqlUpdate, params);
+	}
+
+	@Override
+	public void deleteUser(int user_id, int role_id) {  //удалим только конкретную роль
+		String sqlUpdate="delete from user where user_id=:user_id and role_id=:role_id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("user_id",  user_id);
+		params.addValue("role_id",  role_id);
+		
+		jdbcTemplate.update(sqlUpdate, params);
+		
+	}
+	
+	@Override
+	public User createUserWithRole(User user, Role roles) {
+			String sqlUpdate="INSERT INTO User (name, email, login, password, role) VALUES (:name, :email, :login, :password, :role)";
+			
+			MapSqlParameterSource params = new MapSqlParameterSource();
+			params.addValue("name", user.getName());
+			params.addValue("email", user.getEmail());
+			params.addValue("login", user.getLogin());
+			params.addValue("password", user.getPassword());
+			params.addValue("role", ((Role)user.getRole()).getId());
+			
+			
+			KeyHolder keyHolder = new GeneratedKeyHolder();
+
+			jdbcTemplate.update(sqlUpdate, params, keyHolder);
+		
+			try{
+				return (User)getUser(keyHolder.getKey().intValue());
+			}catch (EmptyResultDataAccessException e){
+				return new User();
+			}		
+	}
+	
+	@Override
+	public void updateUsers(User user) {
+		String sqlUpdate="update users set name=:name, email=:email, password=:password where login=:login";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("name", user.getName());
+		params.addValue("email", user.getEmail());
+		params.addValue("password", user.getPassword());
+		params.addValue("login", user.getLogin());
+		
+		KeyHolder keyHolder=new GeneratedKeyHolder(); 
+		
+		jdbcTemplate.update(sqlUpdate, params, keyHolder);
+	}
+
 
 	private static final class UserRowMapper implements RowMapper<User> {
 
@@ -99,5 +198,5 @@ public class UserTemplate implements InterfaceUserDAO  {
 		}
 
 	}
-	
+
 }

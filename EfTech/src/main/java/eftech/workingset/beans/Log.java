@@ -77,6 +77,17 @@ public class Log implements InterfaceLog{
 	public Object getObject() {
 		return object;
 	}
+	
+	public String getObjectName(){
+		String result="<не определен>";
+		
+		if (object!=null){
+			Class c=object.getClass();
+			result=c.getName();
+		}
+		
+		return result;
+	}
 
 	/**
 	 * @param object the object to set

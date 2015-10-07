@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import eftech.workingset.DAO.interfaces.InterfaceReviewDAO;
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Info;
@@ -29,20 +30,18 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
 
-
 	@Override
-	public ArrayList<Review> getReviews(int id) { //id brakingFluid
-		String sqlQuery="select * from review where brakingfluid=:id";
-
+	public  int getCountRows(){
+		String sqlQuery="select count(*) from review";
+		
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("id", id);
-
-		try{ 
-			return (ArrayList<Review>)jdbcTemplate.query(sqlQuery,params,new ReviewRowMapper());
+		
+		try{
+			return jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
 		}catch (EmptyResultDataAccessException e){
-			return new ArrayList<Review>();
-		}
-	}
+			return 0;
+		}				
+	}	
 	
 	@Override
 	public Review getReviewById(int id) {  //id review
@@ -95,23 +94,64 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 		return result;	
 	}
 
-	private static final class ReviewRowMapper implements RowMapper<Review> {
 
 	@Override
-	public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
-		Review result=new Review();
+	public ArrayList<Review> getReviews(int id) { //id brakingFluid
+		return getReviews(id,0,0);
+	}
+	
+	@Override
+	public ArrayList<Review> getReviews(int id, int num, int nextRows) {
+		String sqlQuery="select *, bf.name AS Bf_name  from review "
+				+ "left join brakingfluids as bf on  (bf.id=review.brakingfluid) "
+				+ (id==0?" where brakingfluid=:id ":"")
+				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 
-		result.setId(rs.getInt("id"));
-		result.setName(rs.getString("name"));
-		result.setReview(rs.getString("review"));
-		result.setEmail(rs.getString("email"));
-		result.setJudgement(rs.getDouble("judgement"));
-		BrakingFluid brFluid=new BrakingFluid();
-		brFluid.setId(rs.getInt("brakingFluid"));
-		
-		return result;
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id", id);
+
+		try{ 
+			return (ArrayList<Review>)jdbcTemplate.query(sqlQuery,params,new ReviewRowMapper());
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<Review>();
+		}
 	}
 
-}	
+	@Override
+	public void deleteReview(Review review) {
+		deleteReview(review.getId());
+	}
+
+	@Override
+	public void deleteReview(int id) {
+		String sqlUpdate="delete from Review where id=:id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id",  id);
+		
+		jdbcTemplate.update(sqlUpdate, params);
+	}	
+	
+	
+	private static final class ReviewRowMapper implements RowMapper<Review> {
+	
+		@Override
+		public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Review result=new Review();
+	
+			result.setId(rs.getInt("id"));
+			result.setName(rs.getString("name"));
+			result.setEmail(rs.getString("email"));
+			result.setReview(rs.getString("review"));
+			result.setJudgement(rs.getDouble("judgement"));
+			BrakingFluid brFluid=new BrakingFluid();
+			brFluid.setId(rs.getInt("brakingFluid"));
+			brFluid.setName(rs.getString("bf_name"));
+			result.setBrakingFluid(brFluid);
+			
+			return result;
+		}
+	
+	}
 
 }

@@ -99,7 +99,7 @@
 				<div class="clearfix">
 		         <div class="lab"><label for="input-three">Класс жидкости:</label></div>
 		     	 <div class="con">
-                   	<select size="1" name="FluidClass"  <c:out value="${disabledValue}"/>  class="le-select">
+                   	<select size="1" name="FluidClass"  class="le-select">
 	                    <option >Выберите класс жидкости</option>	
 							<c:forEach var="punct" items="${requestScope.combobox_FluidClasses}">
 							<c:if test="${currentBrakFluid.getFluidClass().getName() != punct.getName()}">

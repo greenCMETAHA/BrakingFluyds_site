@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import eftech.workingset.DAO.interfaces.InterfaceManufacturerDAO;
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Manufacturer;
@@ -31,17 +32,18 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}	
 	
-	@Override
-	public ArrayList<Manufacturer> getManufacturers() {
-		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c where (man.country=c.id) order by man.name";
+	public  int getCountRows(){
+		String sqlQuery="select count(*) from Manufacturer";
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
 		
 		try{
-			return (ArrayList<Manufacturer>)jdbcTemplate.query(sqlQuery, new ManufacturerRowMapper());
+			return jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
 		}catch (EmptyResultDataAccessException e){
-			return new ArrayList<Manufacturer>();
-		}	
-	}
-
+			return 0;
+		}				
+	}	
+	
 	@Override
 	public Manufacturer getManufacturer(int id) {
 		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c "
@@ -118,7 +120,41 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 		return result;	
 		
 	}
+	
+	@Override
+	public ArrayList<Manufacturer> getManufacturers() {
+		return getManufacturers(0,0);
+	}	
 
+	@Override
+	public ArrayList<Manufacturer> getManufacturers(int num, int nextRows) {
+		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c where (man.country=c.id) order by man.name"
+				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+		
+		try{
+			return (ArrayList<Manufacturer>)jdbcTemplate.query(sqlQuery, new ManufacturerRowMapper());
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<Manufacturer>();
+		}	
+	}
+	
+	@Override
+	public void deleteManufacturer(Manufacturer manufacturer) {
+		deleteManufacturer(manufacturer.getId());
+	}
+
+	@Override
+	public void deleteManufacturer(int id) {
+		String sqlUpdate="delete from Manufacturer where id=:id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id",  id);
+		
+		jdbcTemplate.update(sqlUpdate, params);
+		
+	}
+	
+	
 	private static final class ManufacturerRowMapper implements RowMapper<Manufacturer> {
 
 		@Override
@@ -134,4 +170,5 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 		}
 
 	}	
+	
 }

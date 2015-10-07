@@ -17,6 +17,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import eftech.workingset.DAO.interfaces.InterfaceWishlistDAO;
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Manufacturer;
@@ -34,37 +35,19 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
-
-	public LinkedList<Wishlist> getWishList(int id){
-		if (id==0){
-			return new LinkedList<Wishlist>();
-		} else{
-			String sqlQuery="select w.id AS wish_id"
-					+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
-					+ ", fc.id AS fluidclass, fc.name AS fc_name"
-					+ ", m.id AS man_id, m.name AS man_name"
-					+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
-					+ " from wishlist w"
-					+ " left join users AS u ON (w.user=u.id)"
-					+ " left join BrakingFluids AS bf ON (w.brakingFluid=bf.id)"
-					+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
-					+ " left join manufacturer as m on (bf.manufacturer=m.id) where u.id=:id";
-			
-			
-			MapSqlParameterSource params = new MapSqlParameterSource();
-			params.addValue("id", id);
+	
+	@Override
+	public  int getCountRows(){
+		String sqlQuery="select count(*) from wishlist";
 		
-			try{ 
-				ArrayList<Wishlist> result=(ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()); 
-				return new LinkedList<Wishlist>(result);
-			}catch (EmptyResultDataAccessException e){
-				return new LinkedList<Wishlist>();
-			}catch (InvalidDataAccessApiUsageException e){
-				return new LinkedList<Wishlist>();				
-			}
-			
-		}
-	}
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		
+		try{
+			return jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
+		}catch (EmptyResultDataAccessException e){
+			return 0;
+		}				
+	}		
 	
 	@Override
 	public Wishlist getWishById(int id){
@@ -157,15 +140,74 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 	
 	@Override
 	public void deleteFromWishlist(Wishlist wish) {
+		deleteFromWishlist(wish.getId());
+	}
+	
+	@Override
+	public void deleteFromWishlist(int id) {
 		String sqlUpdate="delete from Wishlist where id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("id",  wish.getId());
+		params.addValue("id", id);
 		
 		jdbcTemplate.update(sqlUpdate, params);
 		
+	}	
+	
+	public LinkedList<Wishlist> getWishList(int id){
+		return getWishList(id,0,0);
+	}	
+
+	@Override
+	public LinkedList<Wishlist> getWishList(int id, int num, int nextRows) {
+		String sqlQuery="select w.id AS wish_id"
+				+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+				+ ", fc.id AS fluidclass, fc.name AS fc_name"
+				+ ", m.id AS man_id, m.name AS man_name"
+				+ ", bf.id AS bf_id, bf.name AS bf_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
+				+ " from wishlist w"
+				+ " left join users AS u ON (w.user=u.id)"
+				+ " left join BrakingFluids AS bf ON (w.brakingFluid=bf.id)"
+				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
+				+ " left join manufacturer as m on (bf.manufacturer=m.id) "
+				+ (id==0?"where u.id=:id":"")
+				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+		
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id", id);
+	
+		try{ 
+			ArrayList<Wishlist> result=(ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()); 
+			return new LinkedList<Wishlist>(result);
+		}catch (EmptyResultDataAccessException e){
+			return new LinkedList<Wishlist>();
+		}catch (InvalidDataAccessApiUsageException e){
+			return new LinkedList<Wishlist>();				
+		}
+	
 	}
 
+			
+	
+	private static final class WishRowMapper implements RowMapper<Wishlist> {
+
+		@Override
+		public Wishlist mapRow(ResultSet rs, int rowNum) throws SQLException { //некоторые пол€ не описаны. »х в общем списке выводить не будем. ≈сли юзер захочет посмотреть - откроет карточку жидкости
+			Wishlist result=new Wishlist();
+
+			result.setId(rs.getInt("id"));
+			
+			User user=new User();
+			user.setId(rs.getInt("user"));
+			
+			BrakingFluid brFluid=new BrakingFluid();
+			brFluid.setId(rs.getInt("brakingFluid"));
+			result.setBrakingFluid(brFluid);
+
+			return result;
+		}	
+	}
 
 	private static final class WishlistRowMapper implements RowMapper<Wishlist> {
 
@@ -199,26 +241,5 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 	
 			return result;
 		}
-	}
-	
-	private static final class WishRowMapper implements RowMapper<Wishlist> {
-
-		@Override
-		public Wishlist mapRow(ResultSet rs, int rowNum) throws SQLException { //некоторые пол€ не описаны. »х в общем списке выводить не будем. ≈сли юзер захочет посмотреть - откроет карточку жидкости
-			Wishlist result=new Wishlist();
-
-			result.setId(rs.getInt("id"));
-			
-			User user=new User();
-			user.setId(rs.getInt("user"));
-			
-			BrakingFluid brFluid=new BrakingFluid();
-			brFluid.setId(rs.getInt("brakingFluid"));
-			result.setBrakingFluid(brFluid);
-
-			return result;
-		}	
-	}
-
-		
+	}	
 }

@@ -204,6 +204,7 @@
 		 	</c:forEach>
 		 </table>
        </div>
+       </div>
      </form>
    </div>
 	

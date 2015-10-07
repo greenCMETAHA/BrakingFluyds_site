@@ -50,6 +50,21 @@ public class RoleTemplate implements InterfaceRoleDAO {
 		}		
 	}
 	
+	@Override
+	public ArrayList<Role> getRolesForUser(String user_login) {
+		String sqlQuery="select roles.name, roles.id from roles"
+				+" left join users on (roles.id=users.role) where users.login=:login group by roles.name";
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id", user_login);
+
+		try{
+			return (ArrayList<Role>)jdbcTemplate.query(sqlQuery, params, new RoleRowMapper());
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<Role>();
+		}		
+	}
+	
 	private static final class RoleRowMapper implements RowMapper<Role> {
 
 		@Override
@@ -63,4 +78,6 @@ public class RoleTemplate implements InterfaceRoleDAO {
 		}
 
 	}
+
+
 }

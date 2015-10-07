@@ -12,4 +12,7 @@ public interface InterfaceLogDAO {
 	int getCountRows();
 	
 	Log createLog(Log log);
+	void deleteLog(Log log);
+	void deleteLog(int id);
+	
 }

@@ -99,34 +99,39 @@ public class LogTemplate implements InterfaceLogDAO {
 		}
 		String sqlUpdate="insert into Log (user, time, object, object_id, object_name, info) Values (:user, :time, :object, :object_id, :object_name, :info)";
 		if (currentLog.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update review set user=:user, time=:time, object=:object, object_id=:object_id, object_name=:object_name, info=:info where id=:id";
+			if (log.getObject()==null){
+				sqlUpdate="update review set user=:user, info=:info where id=:id";
+			}else{
+				sqlUpdate="update review set user=:user, time=:time, object=:object, object_id=:object_id, object_name=:object_name, info=:info where id=:id";
+			}
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("user", ((User)log.getUser()).getId());
-		params.addValue("time", log.getTime());
 		params.addValue("info", log.getInfo());
-		Object obj=log.getObject();
-		Class c = obj.getClass(); 
-		
-		params.addValue("object", c.getName());
-		try {
-			params.addValue("object_id", c.getField("id").get(obj));
-			params.addValue("object_name", c.getField("name").get(obj));
-		} catch (IllegalArgumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NoSuchFieldException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if (log.getObject()!=null){
+			params.addValue("time", log.getTime());
+			Object obj=log.getObject();
+			Class c = obj.getClass(); 
+			
+			params.addValue("object", c.getName());
+			try {
+				params.addValue("object_id", c.getField("id").get(obj));
+				params.addValue("object_name", c.getField("name").get(obj));
+			} catch (IllegalArgumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IllegalAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (NoSuchFieldException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SecurityException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
-		
 		
 		if (currentLog.getId()>0){ 
 			params.addValue("id", log.getId());
@@ -148,6 +153,22 @@ public class LogTemplate implements InterfaceLogDAO {
 		return result;	
 	}
 	
+	@Override
+	public void deleteLog(Log log) {
+		deleteLog(log.getId());
+		
+	}
+
+	@Override
+	public void deleteLog(int id) {
+		String sqlUpdate="delete from Log where id=:id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("id",  id);
+		
+		jdbcTemplate.update(sqlUpdate, params);
+	}
+
 	private static final class LogRowMapper implements RowMapper<Log> {
 
 		@Override
@@ -209,7 +230,5 @@ public class LogTemplate implements InterfaceLogDAO {
 			
 			return log;
 		}
-
-	}
-	
+	}	
 }
