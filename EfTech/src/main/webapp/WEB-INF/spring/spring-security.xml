@@ -13,7 +13,9 @@
          <intercept-url pattern="/Comparison" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_OFFER', 'ROLE_OFFERPRICE')"/>
          <intercept-url pattern="/Download" access="hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/>
          <intercept-url pattern="/InsertUpdate" access="hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/> 
-        <intercept-url pattern="/login" access="isAnonymous()"/>
+         <intercept-url pattern="/login" access="isAnonymous()"/>
+         <intercept-url pattern="/AddEditElement" access="hasRole('ROLE_ADMIN')"/>
+
 				<form-login
 					login-page="/login"
 				/>

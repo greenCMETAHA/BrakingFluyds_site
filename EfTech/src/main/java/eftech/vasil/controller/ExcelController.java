@@ -2,6 +2,7 @@ package eftech.vasil.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -22,11 +23,13 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
+import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.User;
 
@@ -45,6 +48,10 @@ public class ExcelController {
 
 	@Autowired
 	CountryTemplate countryDAO;	
+	
+	@Autowired
+	LogTemplate logDAO;
+
 	
 	@RequestMapping(value = "/action", method = RequestMethod.POST)
 	public String compare(@ModelAttribute User user
@@ -88,17 +95,21 @@ public class ExcelController {
     		    			Country country=(Country)currentManufacturer.getCountry();
     		    			if (country.getId()==0){
     		    				country=countryDAO.createCountry(country.getName());
+    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),country, "Загрузили из Excel"));
     		    				currentManufacturer.setCountry(country);
     		    			}
     		    			if (currentManufacturer.getId()==0){
     		    				currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
+    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentManufacturer, "Загрузили из Excel"));
     		    				currentBF.setManufacturer(currentManufacturer);
     		    			}
     		    			if (currentFluidClass.getId()==0){
     		    				currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
+    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentFluidClass, "Загрузили из Excel"));
     		    				currentBF.setFluidClass(currentFluidClass);
     		    			}		    			
     		        		BrakingFluid value = brakingFluidDAO.createBrakingFluid(currentBF); //breakingFluidDAO			
+    		        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),value, "Загрузили из Excel"));
 		    			}
 		    		}
 					
@@ -117,6 +128,7 @@ public class ExcelController {
 		 	        synchronized (listBrakingFluids){
 			         	for (BrakingFluid currentBF:listBrakingFluids){
 			        		BrakingFluid value = brakingFluidDAO.fillPrices(currentBF);
+			        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), value, "Загрузили из Excel, изменение цен"));
 			        	}
 					}			
     			}

@@ -10,7 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
+import java.security.Principal;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,12 +24,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.beans.*;
@@ -50,6 +54,7 @@ public class Service {
 	public static String WEBSITE="website";
 	public static String EMAIL="email";
 	public static int ELEMENTS_IN_LIST = 4;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
+	public static int LOG_ELEMENTS_IN_LIST = 50;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
 	public static int ELEMENTS_IN_RECOMMENDED = 7; //количество номенклатуры в "Рекомендуемом"
  	
 	
@@ -330,16 +335,16 @@ public class Service {
 	}
 	
 	
-	private static PdfPTable createTableOffer(LinkedList<BrakingFluid> basket,BaseFont times, String globalPath, User user) throws DocumentException, MalformedURLException, IOException {
+	private static PdfPTable createTableOffer(LinkedList<Basket> basket,BaseFont times, String globalPath, User user) throws DocumentException, MalformedURLException, IOException {
         PdfPTable table = null;
-        float[] columnWidths			 = {60, 30, 20, 15, 15, 15, 15, 40, 30, 15, 15, 30};
-        float[] columnWidthsWithoutPrice = {60, 30, 20, 15, 15, 15, 40, 30, 15, 15, 30};
+        float[] columnWidths			 = {60, 30, 20, 15, 15, 15, 15, 15, 40, 30, 15, 15, 30};
+        float[] columnWidthsWithoutPrice = {60, 30, 20, 15, 15, 15, 15, 40, 30, 15, 15, 30};
         //table.setWidths ((user.canChangePrice()?columnWidths:columnWidthsWithoutPrice));
         if (user.canChangePrice()){
-        	table = new PdfPTable(12);
+        	table = new PdfPTable(13);
         	table.setWidths(columnWidths);
         }else{
-        	table = new PdfPTable(11);
+        	table = new PdfPTable(12);
         	table.setWidths(columnWidthsWithoutPrice);
         }
         
@@ -356,6 +361,8 @@ public class Service {
         table.addCell(cell);
         cell.setPhrase(new Phrase("Объём",new Font(times,8)));
         table.addCell(cell);
+        cell.setPhrase(new Phrase("Количество",new Font(times,8)));
+        table.addCell(cell);
         if (user.canChangePrice()){
         	cell.setPhrase(new Phrase("Цена",new Font(times,8)));
         	table.addCell(cell);
@@ -371,13 +378,15 @@ public class Service {
         cell.setPhrase(new Phrase("Спецификация",new Font(times,8)));
         table.addCell(cell);
         
-        for (BrakingFluid currentBR:basket) {
+        for (Basket currentBasket:basket) {
+        	BrakingFluid currentBR=currentBasket.getBrakingFluid();
             table.addCell(new Phrase(currentBR.getName(),new Font(times,8)));
             table.addCell(new Phrase(((Manufacturer)currentBR.getManufacturer()).getName(),new Font(times,8)));
             table.addCell(new Phrase(((FluidClass)currentBR.getFluidClass()).getName(),new Font(times,8)));
             table.addCell(new Phrase(""+currentBR.getBoilingTemperatureDry(),new Font(times,8)));
             table.addCell(new Phrase(""+currentBR.getBoilingTemperatureWet(),new Font(times,8)));
             table.addCell(new Phrase(""+currentBR.getValue(),new Font(times,8)));
+            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
             if (user.canChangePrice()){
             	table.addCell(new Phrase(""+currentBR.getPrice(),new Font(times,8)));
             }
@@ -401,7 +410,7 @@ public class Service {
        return table;
     }
 	
-	public static File createPDF_BussinessOffer(LinkedList<BrakingFluid> basket, String globalPath, User user) throws DocumentException, IOException, MalformedURLException{
+	public static File createPDF_BussinessOffer(LinkedList<Basket> basket, String globalPath, User user) throws DocumentException, IOException, MalformedURLException{
 		File result=null;
 
 		String filename="bussinessOffer.pdf";
@@ -427,7 +436,7 @@ public class Service {
         return result;
 	}
 
-	public static boolean createPDF_Demand(LinkedList<BrakingFluid> basket, String globalPath,User user) throws DocumentException, IOException, MalformedURLException{
+	public static boolean createPDF_Demand(LinkedList<Basket> basket, String globalPath,User user) throws DocumentException, IOException, MalformedURLException{
 		boolean result=false;
 
 		String filename="bussinessDemand.pdf";
@@ -456,5 +465,18 @@ public class Service {
 		
 		return result;
 	}	
+	
+	
+	public static User getUser(Principal userPrincipal, LogTemplate logDAO, UserTemplate userDAO){
+		User result=new User();
+		if (userPrincipal!=null){
+			result=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
+			Log log=logDAO.createLog(new Log(0, result, new GregorianCalendar().getTime(), result, "Пользователь зашел в систему"));
+		}
+		
+		return result;
+	}
+	
+	
 	
 }

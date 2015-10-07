@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -67,11 +68,13 @@ import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
+import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.Services.Service;
+import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
@@ -79,6 +82,7 @@ import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.FluidClassSelected;
+import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.Review;
@@ -120,12 +124,16 @@ public class HomeController{
 
 	@Autowired
 	WishlistTemplate wishlistDAO;
+
+	@Autowired
+	LogTemplate logDAO;
+	
 	
 	LinkedList<FluidClassSelected> globalFluidClassSelected = new LinkedList<FluidClassSelected>();
 	LinkedList<ManufacturerSelected> globalManufacturerSelected = new LinkedList<ManufacturerSelected>();
 
 	
-	private Model createHeader(Model model, User user, LinkedList<BrakingFluid>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
+	private Model createHeader(Model model, User user, LinkedList<Basket>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
 		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
 		model.addAttribute("email_part1", "");
 		model.addAttribute("email_part2", "");
@@ -140,8 +148,9 @@ public class HomeController{
 		wishlist = wishlistDAO.getWishList(user.getId());
 		model.addAttribute("wishlist", wishlist);
 		double totalBasket=0;	
-		for (BrakingFluid brFluid:basket){
-			totalBasket+=brFluid.getPrice();
+		for (Basket current:basket){
+			BrakingFluid brFluid=current.getBrakingFluid();
+			totalBasket+=(brFluid.getPrice()*current.getQauntity());
 		}
 		model.addAttribute("totalBasket", totalBasket);  //ограничить 2 знаками после запятой.
 		return model;
@@ -201,11 +210,12 @@ public class HomeController{
 		
 	}	
 	
-	private void createBussinessOffer(int id, int clientId, String variant, User user, LinkedList<BrakingFluid>  basket, HttpSession session){
+	private void createBussinessOffer(int id, int clientId, String variant, User user, LinkedList<Basket>  basket, HttpSession session){
 		if (variant.equals("Show")){
 			File pdfFile=null;
 			try {
 				pdfFile=Service.createPDF_BussinessOffer(basket, session.getServletContext().getRealPath("/"), user);
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -235,6 +245,7 @@ public class HomeController{
 			File pdfFile=null;
 			try {
 				pdfFile=Service.createPDF_BussinessOffer(basket, session.getServletContext().getRealPath("/"), user);
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -311,6 +322,8 @@ public class HomeController{
 				            //Transport = mailSession.getTransport();
 				            //Отправляем сообщение
 				            Transport.send(message);
+				            Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime()
+				            			, null, "Создано бизнес-предложение, отослали на email: "+currentClient.getEmail()));
 				        } catch (MessagingException e) {
 				            throw new RuntimeException(e);
 				        } catch (UnsupportedEncodingException e) {
@@ -325,20 +338,22 @@ public class HomeController{
 		}
 	}
 	
-	private void workWithList(int id, String variant, User user, LinkedList<BrakingFluid>  basket
-			, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare, HttpSession session){
+	//isChanging - это для Корзины. если = false - просто устанавливаем quantity. Если нет - смещаем на +/-1. если <=0 - удалим из корзины
+	private void workWithList(int id, int quantity, boolean isChanging, String variant, User user, LinkedList<Basket>  basket
+			, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare, HttpSession session){  
 	
 		if (variant.compareTo("Demand")==0){
-			LinkedList<BrakingFluid>  listBrakingFluid = null; 
+			LinkedList<Basket>  listBrakingFluid = null; 
 			if (id==0){ 
-				listBrakingFluid = (LinkedList<BrakingFluid>) session.getAttribute("basket");
+				listBrakingFluid = (LinkedList<Basket>) session.getAttribute("basket");
 			}else{
-				listBrakingFluid=new LinkedList<BrakingFluid>();
-				listBrakingFluid.add(brakingFluidDAO.getBrakingFluid(id));
+				listBrakingFluid=new LinkedList<Basket>();
+				listBrakingFluid.add(new Basket(brakingFluidDAO.getBrakingFluid(id)));
 			} 
 		
 			try {
 				Service.createPDF_Demand(listBrakingFluid, session.getServletContext().getRealPath("/"), user);
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -354,24 +369,39 @@ public class HomeController{
 		}
 		
 		if (variant.compareTo("deleteFromBasket")==0){  
-			for(BrakingFluid current: basket){
-				if (current.getId()==id){
+			for(Basket current: basket){
+				if (current.getBrakingFluid().getId()==id){
 					basket.remove(current);
 					break;
 				}
 			}
 		}
+		if (variant.compareTo("deleteQuantityFromBasket")==0){  
+			for(Basket current: basket){
+				if (current.getBrakingFluid().getId()==id){
+					current.setQauntity((isChanging?current.getQauntity():0)+quantity);
+					if (current.getQauntity()<=0){
+						basket.remove(current);
+					}
+					break;
+				}
+			}
+		}
 		if (variant.compareTo("inBasket")==0){
-//			boolean bFind=false;                   //в корзине может быть несколько товаров одного вида 
-//			for(BrakingFluid current: basket){
-//				if (current.getId()==id){
-//					bFind=true;
-//					break;
-//				}
-//			}
-//			if (!bFind){
-				basket.add(brakingFluidDAO.getBrakingFluid(id));
-//			}
+			boolean bFind=false;                   //в корзине может быть несколько товаров одного вида 
+			for(Basket current: basket){
+				if (current.getBrakingFluid().getId()==id){
+					bFind=true;
+					current.setQauntity((isChanging?current.getQauntity():0)+quantity);
+					if (current.getQauntity()<=0){
+						basket.remove(current);
+					}
+					break;
+				}
+			}
+			if (!bFind){
+				basket.add(new Basket(brakingFluidDAO.getBrakingFluid(id),(quantity==0?1:quantity)));
+			}
 		}
 		if (variant.compareTo("checkout")==0){
 			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование закаха на склад 
@@ -386,8 +416,11 @@ public class HomeController{
 					}
 				}
 				if (!bFind){
-					Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id));
-					wishlist.add(currentWish);
+					synchronized (this) {
+						Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id));
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentWish, "Добавили в избранное"));
+						wishlist.add(currentWish);
+					}
 				}
 			}  
 		}
@@ -395,7 +428,10 @@ public class HomeController{
 			for(Wishlist current: wishlist){
 				if (((BrakingFluid)current.getBrakingFluid()).getId()==id){
 					wishlist.remove(current);
-					wishlistDAO.deleteFromWishlist(current);
+					synchronized (this) {
+						wishlistDAO.deleteFromWishlist(current);
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), wishlist, "Удалили из избранного"));
+					}
 					break;
 				}
 			}
@@ -435,17 +471,9 @@ public class HomeController{
 
 		HttpSession session=request.getSession();
 
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (userPrincipal!=null){
-			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
-		}else{
-			if (user==null){
-				user=createUser();
-			}
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -462,7 +490,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		
 		session.setAttribute("user", user);
 		session.setAttribute("basket", basket);
@@ -494,15 +522,7 @@ public class HomeController{
 			,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (userPrincipal!=null){
-			user=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
-		}else{
-			if (user==null){
-				user=createUser();
-			}
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
 		try {
 			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
@@ -514,7 +534,7 @@ public class HomeController{
 			variant="Demand";
 		}
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -578,7 +598,7 @@ public class HomeController{
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
  
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
@@ -813,13 +833,9 @@ public class HomeController{
 		}
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -828,7 +844,7 @@ public class HomeController{
 			if (fluidsSelection!=null){
 				basket.clear();
 				for (int i=0;i<fluidsSelection.length; i++){
-					basket.add(brakingFluidDAO.getBrakingFluid(fluidsSelection[i]));
+					basket.add(new Basket(brakingFluidDAO.getBrakingFluid(fluidsSelection[i])));
 				}
 				session.setAttribute("basket", basket);
 			}
@@ -853,7 +869,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -870,13 +886,9 @@ public class HomeController{
 			,HttpServletRequest request,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -892,7 +904,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -908,6 +920,7 @@ public class HomeController{
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "client", defaultValue="0", required=false) int client
+			,@RequestParam(value = "quantity", defaultValue="0", required=false) int quantity
 			,HttpServletRequest request,Locale locale, Model model) {
 
 		try {
@@ -925,13 +938,9 @@ public class HomeController{
 		}		
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -947,7 +956,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, quantity, true, variant, user, basket, wishlist, compare, session);
 		
 		createBussinessOffer(id, client, variant, user, basket, session);
 
@@ -963,7 +972,7 @@ public class HomeController{
 	}	
 	
 	
-	public ArrayList<String> downloadExcel(String variant, MultipartFile fileEcxel, HttpSession session) {
+	public ArrayList<String> downloadExcel(String variant,User user, MultipartFile fileEcxel, HttpSession session) {
 		ArrayList<String> errors=new ArrayList<String>();
 		
 		 if ("Product".equals(variant)){
@@ -988,17 +997,21 @@ public class HomeController{
     		    			Country country=(Country)currentManufacturer.getCountry();
     		    			if (country.getId()==0){
     		    				country=countryDAO.createCountry(country.getName());
+    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),country, "Загрузили из Excel"));
     		    				currentManufacturer.setCountry(country);
     		    			}
     		    			if (currentManufacturer.getId()==0){
     		    				currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
+    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentManufacturer, "Загрузили из Excel"));
     		    				currentBF.setManufacturer(currentManufacturer);
     		    			}
     		    			if (currentFluidClass.getId()==0){
     		    				currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
+    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentFluidClass, "Загрузили из Excel"));
     		    				currentBF.setFluidClass(currentFluidClass);
     		    			}		    			
-    		        		BrakingFluid value = brakingFluidDAO.createBrakingFluid(currentBF); //breakingFluidDAO			
+    		        		BrakingFluid value = brakingFluidDAO.createBrakingFluid(currentBF); //breakingFluidDAO		
+    		        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),value, "Загрузили из Excel"));
 		    			}
 		    		}
 					
@@ -1016,6 +1029,7 @@ public class HomeController{
 		 	        synchronized (listBrakingFluids){
 			         	for (BrakingFluid currentBF:listBrakingFluids){
 			        		BrakingFluid value = brakingFluidDAO.fillPrices(currentBF);
+			        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), value, "Загрузили из Excel, изменение цен"));
 			        	}
 					}			
     			}
@@ -1051,13 +1065,9 @@ public class HomeController{
 		
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -1073,12 +1083,12 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		ArrayList<String> errors=new ArrayList<String>();
 		if (variant!=""){
-			errors=downloadExcel(variant,fileExcel,session);
+			errors=downloadExcel(variant,user,fileExcel,session);
 		}
 		
 		model.addAttribute("errors", errors);
@@ -1101,13 +1111,9 @@ public class HomeController{
 			,HttpServletRequest request,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -1145,7 +1151,7 @@ public class HomeController{
 			reviewDAO.createReview(review);
 		}		
 		
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1227,13 +1233,9 @@ public class HomeController{
 		System.out.println(judgement);
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -1251,7 +1253,7 @@ public class HomeController{
 		}
 		
 		
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1399,7 +1401,8 @@ public class HomeController{
 					currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
 					brFluid.setFluidClass(currentFluidClass);
 				}			
-				brakingFluidDAO.createBrakingFluid(brFluid);
+				BrakingFluid currentBrakingFluid = brakingFluidDAO.createBrakingFluid(brFluid);
+  
 				
 				elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 				double currentMinPriceFilter=brakingFluidDAO.minData("Price");
@@ -1549,13 +1552,9 @@ public class HomeController{
 			,HttpServletRequest request,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -1571,7 +1570,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1591,13 +1590,9 @@ public class HomeController{
 		String result="home";
 				
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -1606,7 +1601,7 @@ public class HomeController{
 		basket.clear();
 		if (manufacturerSelections!=null){
 			for (int i=0;i<manufacturerSelections.length; i++){
-				basket.add(brakingFluidDAO.getBrakingFluid(manufacturerSelections[i]));
+				basket.add(new Basket(brakingFluidDAO.getBrakingFluid(manufacturerSelections[i])));
 			}
 		}
 		session.setAttribute("basket", basket);
@@ -1620,26 +1615,61 @@ public class HomeController{
 		
 		if (variant.compareTo("Сравнить")==0){
 			result="adminpanel/Comparison";
-		}
-		if (variant.compareTo("В корзину")==0){
+		}else if(variant.compareTo("В корзину")==0){
 			result="adminpanel/Basket";
-		}
-		if (variant.compareTo("Загрузить номенклатуру")==0){
+		}else if (variant.compareTo("Загрузить номенклатуру")==0){
 			model.addAttribute("variantDownload", Service.VARIANT_PRODUCT);
 			model.addAttribute("errors", new ArrayList<String>());
 			result="adminpanel/Download";
-		}						
-		if (variant.compareTo("Загрузить цены")==0){
+		}else if (variant.compareTo("Загрузить цены")==0){
 			model.addAttribute("variantDownload", Service.VARIANT_PRICES);
 			model.addAttribute("errors", new ArrayList<String>());
 			result="adminpanel/Download";
-		}						
-		if (variant.compareTo("Коммерческое приложение")==0){
+		}else if(variant.compareTo("Коммерческое приложение")==0){
 			model.addAttribute("listBrakFluids", basket);
 			model.addAttribute("listClients", clientDAO.getClients());
 			result="adminpanel/BussinessOffer";
-		}						
-	
+		}else{
+			result="adminpanel/AddEditElement";
+			int totalRows=0;
+			int totalPages=0;
+			int elementsInList=Service.LOG_ELEMENTS_IN_LIST;
+			if (variant.compareTo("Производители")==0){
+				totalRows=manufacturerDAO.getCountRows();
+				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+				model.addAttribute("list",logDAO.getLog(1, elementsInList));
+				model.addAttribute("variant", "manufacturer");
+			}else if (variant.compareTo("Классы жидкости")==0){
+				totalRows=fluidClassDAO.getCountRows();
+				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+				model.addAttribute("list",logDAO.getLog(1, elementsInList));
+				model.addAttribute("variant", "fluidClass");
+			}else if (variant.compareTo("Страны")==0){
+				totalRows=countryDAO.getCountRows();
+				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+				model.addAttribute("list",logDAO.getLog(1, elementsInList));
+				model.addAttribute("variant", "country");
+			}else if (variant.compareTo("Клиенты")==0){
+				totalRows=clientDAO.getCountRows();
+				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+				model.addAttribute("list",logDAO.getLog(1, elementsInList));
+				model.addAttribute("variant", "client");
+			}else if (variant.compareTo("Пользователи")==0){
+				totalRows=userDAO.getCountRows();
+				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+				model.addAttribute("list",logDAO.getLog(1, elementsInList));
+				model.addAttribute("variant", "user");
+			}else if (variant.compareTo("Логирование")==0){
+				totalRows=logDAO.getCountRows();
+				totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+				model.addAttribute("list",logDAO.getLog(1, elementsInList));
+				model.addAttribute("variant", "log");
+			}
+			
+			model.addAttribute("totalPages", totalPages);
+			model.addAttribute("currentPage", 1);
+			model.addAttribute("id", 0);
+		}
 		return result;
 	}
 	
@@ -1662,13 +1692,9 @@ public class HomeController{
 			,HttpServletRequest request,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
-		User user=(User) session.getAttribute("user");
-		Principal userPrincipal = request.getUserPrincipal();
-		if (user==null){
-			user=createUser();
-		}
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
-		LinkedList<BrakingFluid>  basket =  (LinkedList<BrakingFluid>) session.getAttribute("basket");
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
 			basket=createBasket();
 		}
@@ -1684,7 +1710,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1695,8 +1721,8 @@ public class HomeController{
 	}		
 	
 	@ModelAttribute("basket")
-	public LinkedList<BrakingFluid> createBasket(){
-		return new LinkedList<BrakingFluid>();
+	public LinkedList<Basket> createBasket(){
+		return new LinkedList<Basket>();
 	}
 	
 	@ModelAttribute("compare")

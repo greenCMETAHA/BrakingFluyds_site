@@ -43,5 +43,9 @@
    <bean id="wishlistDAO" class="eftech.workingset.DAO.templates.WishlistTemplate">
       <property name="dataSource"  ref="dataSource" />    
    </bean>
+
+   <bean id="logDAO" class="eftech.workingset.DAO.templates.LogTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
 	
 </beans>

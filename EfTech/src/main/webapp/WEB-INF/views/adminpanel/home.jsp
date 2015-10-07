@@ -121,6 +121,19 @@
 			  <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR')">	 	          		 
  	          		<li><input type="submit" name="variant" value="Коммерческое приложение"></li>
  	          </sec:authorize>	
+			  <sec:authorize access="hasRole('ROLE_ADMIN')">	 	          		 
+ 	          		<li><input type="submit" name="variant" value="Редактировать">
+				            <ul class="submenu">
+				              <li><input type="submit" name="variant" value="Производители"></a></li>          
+				              <li><input type="submit" name="variant" value="Классы жидкости"></li>
+				              <li><input type="submit" name="variant" value="Страны"></li>
+				              <li><input type="submit" name="variant" value="Клиенты"></li>
+				              <li><input type="submit" name="variant" value="Пользователи"></li>
+				              <li><input type="submit" name="variant" value="Логирование"></li>
+				            </ul>
+				          </li>
+ 	          		</li>
+ 	          </sec:authorize>	
  	          </ul>	
 
  	    </div> 

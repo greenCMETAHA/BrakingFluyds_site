@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Properties;
@@ -37,11 +38,14 @@ import com.itextpdf.text.DocumentException;
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.Services.Service;
+import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Client;
+import eftech.workingset.beans.Log;
 import eftech.workingset.beans.User;
 
 @Controller
@@ -53,6 +57,9 @@ public class PDFController {
 	@Autowired
 	ClientTemplate clientDAO;
 
+	@Autowired
+	LogTemplate logDAO;
+	
 
 	@RequestMapping(value = "/makeDemand", method = RequestMethod.GET)
 	public String home(@ModelAttribute User user
@@ -64,10 +71,11 @@ public class PDFController {
 		try {
 			formButton=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
 			if (formButton.compareTo("Заявка")==0){
-				LinkedList<BrakingFluid> basket = new LinkedList<BrakingFluid>();
-				basket.add(brakingFluidDAO.getBrakingFluid(id));
+				LinkedList<Basket> basket = new LinkedList<Basket>();
+				basket.add(new Basket(brakingFluidDAO.getBrakingFluid(id)));
 				try {
 					Service.createPDF_Demand(basket, request.getSession().getServletContext().getRealPath("/"), user);
+					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка"));
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -92,7 +100,7 @@ public class PDFController {
 	
 	@RequestMapping(value = "/BussinessOffer", method = RequestMethod.POST)
 	public String bussinessOffer(@ModelAttribute User user
-			, @ModelAttribute LinkedList<BrakingFluid> basket
+			, @ModelAttribute LinkedList<Basket> basket
 			, @RequestParam(value = "selections", required=false ) int[] selections
 			, @RequestParam(value = "variant") String variant
 			, @RequestParam(value = "client") int clientId
@@ -112,13 +120,14 @@ public class PDFController {
 			basket.clear();
 			if (selections!=null){
 				for (int i=0;i<selections.length; i++){
-					basket.add(brakingFluidDAO.getBrakingFluid(selections[i]));
+					basket.add(new Basket(brakingFluidDAO.getBrakingFluid(selections[i])));
 				}
 			}
 			if (("Распечатать коммерческое предложение".equals(variant)) || ("Печать".equals(variant))){
 				File pdfFile=null;
 				try {
 					pdfFile=Service.createPDF_BussinessOffer(basket, request.getSession().getServletContext().getRealPath("/"), user);
+					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -151,6 +160,7 @@ public class PDFController {
 				File pdfFile=null;
 				try {
 					pdfFile=Service.createPDF_BussinessOffer(basket, request.getSession().getServletContext().getRealPath("/"), user);
+					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -227,6 +237,8 @@ public class PDFController {
 					            //Transport = mailSession.getTransport();
 					            //Отправляем сообщение
 					            Transport.send(message);
+					            Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime()
+					            			, null, "Создано бизнес-предложение, отправлено на e-mail: "+currentClient.getEmail()));
 					        } catch (MessagingException e) {
 					            throw new RuntimeException(e);
 					        } catch (UnsupportedEncodingException e) {

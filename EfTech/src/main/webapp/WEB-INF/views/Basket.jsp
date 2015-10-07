@@ -261,9 +261,21 @@
 	                <div class="quantity">
 	                  <div class="le-quantity">
 	                    <form>
-	                      <a class="minus" href="#reduce"></a>
-	                      <input name="quantity" readonly="readonly" type="text" value="1" />
-	                      <a class="plus" href="#add"></a>
+	                      <c:url value="Basket" var="deleteFromBasket">
+							<c:param name="id" value="${currentBFluid.getId()}"/>
+							<c:param name="variant" value="deleteQuantityFromBasket"/>
+							<c:param name="quantity" value="-1"/>
+						  </c:url>
+	                      <a class="minus" href="${deleteFromBasket}"></a>
+	                      
+	                      <input name="quantity" readonly="readonly" type="text" value="1" />   <!-- отображаем количество -->
+	                      
+	                      <c:url value="Basket" var="deleteFromBasket">
+							<c:param name="id" value="${currentBFluid.getId()}"/>
+							<c:param name="variant" value="deleteQuantityFromBasket"/>
+							<c:param name="quantity" value="1"/>
+						  </c:url>
+	                      <a class="plus" href="${deleteFromBasket}"></a>
 	                    </form>
 	                  </div>
 	                </div>
