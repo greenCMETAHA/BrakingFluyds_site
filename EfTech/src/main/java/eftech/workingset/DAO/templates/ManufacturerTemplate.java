@@ -122,6 +122,44 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	}
 	
 	@Override
+	public Manufacturer createManufacturer(Manufacturer manufacturer) {
+		Manufacturer result=new Manufacturer();
+		Manufacturer currentManufacturer = null;
+		if (manufacturer.getId()>0){
+			currentManufacturer=getManufacturer(manufacturer.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
+		}else{
+			currentManufacturer=manufacturer;
+		}
+		String sqlUpdate="insert into manufacturer (name, country) Values (:name, :country)";
+		if (currentManufacturer.getId()>0){ // В БД есть такой элемент
+			 sqlUpdate="update manufacturer set name=:name, country=:country where id=:id";
+		}
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("name", manufacturer.getName());
+		params.addValue("country", ((Country)manufacturer.getCountry()).getId());
+	
+		if (currentManufacturer.getId()>0){ // В БД есть элемент
+			params.addValue("id", currentManufacturer.getId());
+		}
+		
+		KeyHolder keyHolder=new GeneratedKeyHolder(); 
+		
+		jdbcTemplate.update(sqlUpdate, params, keyHolder);
+		
+		try{
+			if (keyHolder.getKey()!=null) {
+				result=getManufacturer(keyHolder.getKey().intValue());
+			}
+					
+		}catch (EmptyResultDataAccessException e){
+			result = new Manufacturer();
+		}		
+		
+		return result;
+	}	
+	
+	@Override
 	public ArrayList<Manufacturer> getManufacturers() {
 		return getManufacturers(0,0);
 	}	

@@ -94,6 +94,43 @@ public class FluidClassTemplate implements InterfaceFluidClassDAO{
 	}
 	
 	@Override
+	public FluidClass createFluidClass(FluidClass fluidClass) {
+		FluidClass result=new FluidClass();
+		FluidClass currentFluidClass = null;
+		if (fluidClass.getId()>0){
+			currentFluidClass=getFluidClass(fluidClass.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
+		}else{
+			currentFluidClass=fluidClass;
+		}
+		String sqlUpdate="insert into FluidClass (name) Values (:name)";
+		if (currentFluidClass.getId()>0){ // В БД есть такой элемент
+			 sqlUpdate="update FluidClass set name=:name where id=:id";
+		}
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("name", fluidClass.getName());
+	
+		if (currentFluidClass.getId()>0){ // В БД есть элемент
+			params.addValue("id", currentFluidClass.getId());
+		}
+		
+		KeyHolder keyHolder=new GeneratedKeyHolder(); 
+		
+		jdbcTemplate.update(sqlUpdate, params, keyHolder);
+		
+		try{
+			if (keyHolder.getKey()!=null) {
+				result=getFluidClass(keyHolder.getKey().intValue());
+			}
+					
+		}catch (EmptyResultDataAccessException e){
+			result = new FluidClass();
+		}		
+		
+		return result;
+	}	
+	
+	@Override
 	public ArrayList<FluidClass> getFluidClassis() {
 		return getFluidClassis(0,0);
 	}
@@ -118,7 +155,7 @@ public class FluidClassTemplate implements InterfaceFluidClassDAO{
 
 	@Override
 	public void deleteFluidClass(int id) {
-		String sqlUpdate="delete from Client where id=:id";
+		String sqlUpdate="delete from FluidClass where id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id",  id);

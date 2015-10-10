@@ -191,7 +191,8 @@
 					            </a>
 					
 					            <ul class="dropdown-menu">
-					            	<c:forEach var="currentBFluid" items="${requestScope.basket}">
+					            	<c:forEach var="currentBasket" items="${requestScope.basket}">
+					            		<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
 					            		<div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
@@ -200,7 +201,12 @@
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
-					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
+					                                <div class="title">
+					                                	<c:out value="${currentBFluid.getName()}"/>
+					                                	<c:if test="${currentBasket.getQauntity()>1}">
+					                                		(<c:out value="${currentBasket.getQauntity()}"/> шт.)
+					                                	</c:if>
+					                                </div>
 					                                <div class="price">
 					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                                		$<c:out value="${currentBFluid.getPrice()}"/>
@@ -208,7 +214,7 @@
 					                                </div>
 					                            </div>
 					                        </div>
-											<c:url value="Comparison" var="deleteFromBasket">
+											<c:url value="Basket" var="deleteFromBasket">
 												<c:param name="id" value="${currentBFluid.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>

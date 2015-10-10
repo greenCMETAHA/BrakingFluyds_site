@@ -49,6 +49,35 @@
 	
 </head>
 <body>
+<div id="main"> 
+<!--      #header  -->
+    <div id="header">  
+<!--     #logo   -->
+      <div id="logo"> 
+         <h1><font size="6" color="white" face="Arial">ЭфТех ООО</font></h1> 
+      </div> 
+<!--        #user    -->
+ 	     	<c:choose> 
+			<c:when test="${currentUser.isEmpty()}"> 
+			    <form action="login" method="POST">                      
+	     				<div id="user">
+						<input type="submit" name="authorButton" value="Авторизируйтесь"  class="button"/>
+					</div>
+				</form>
+ 			</c:when> 
+			
+			<c:when test="${!currentUser.isEmpty()}"> 
+
+			    <form action="/controller/j_spring_security_logout" method="POST">                      
+	     				<div id="user">
+						<font color="white">Здравствуйте, <c:out value="${currentUser.getName()}"  />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    </font>
+						<input type="submit" name="authorButton" value="Выйти"  class="button">
+					</div>
+				</form>
+					  <br/>
+ 			</c:when> 
+ 			</c:choose> 
+     </div> 
 	<form action="menu" method="POST"> 
 	<style> 
 		input[type="submit"]{ 
@@ -71,22 +100,22 @@
 		} 
 	</style>  
     <div id="sidebar"> 
+    	<input type="text" name="variant" value="${requestScope.variant}">
     	<input name="result" type="hidden" value="0" > 
 			<!--	        mainmenu -->
 	        <ul id="floatMenu" class="mainmenu"> 
-	          <li class="first" ><input type="submit" name="variant" value="Сравнить"></li>	
-	          <li><input type="submit" name="variant" value="В корзину"></li>
-        		  <li><input type="submit" name="variant" value="Загрузить номенклатуру"></li>
-	          <li><input type="submit" name="variant" value="Загрузить цены"></li>
-		  	  <li><input type="submit" name="variant" value="Коммерческое приложение"></li>
-	          <li><input type="submit" name="variant" value="Редактировать">
+	          <li class="first" ><input type="submit" name="task" value="На главную"></li>
+				          <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
+	          <li><input type="submit" name="task" value="Загрузить цены"></li>
+	          <li><input type="submit" name="task" value="Создать новый"></li>
+	          <li><a href="#">Редактировать</a>
 		            <ul class="submenu">
-		              <li><input type="submit" name="variant" value="Производители"></a></li>          
-		              <li><input type="submit" name="variant" value="Классы жидкости"></li>
-		              <li><input type="submit" name="variant" value="Страны"></li>
-		              <li><input type="submit" name="variant" value="Клиенты"></li>
-		              <li><input type="submit" name="variant" value="Пользователи"></li>
-		              <li><input type="submit" name="variant" value="Логирование"></li>
+		              <li><input type="submit" name="task" value="Производители"></a></li>          
+		              <li><input type="submit" name="task" value="Классы жидкости"></li>
+		              <li><input type="submit" name="task" value="Страны"></li>
+		              <li><input type="submit" name="task" value="Клиенты"></li>
+		              <li><input type="submit" name="task" value="Пользователи"></li>
+		              <li><input type="submit" name="task" value="Логирование"></li>
 		            </ul>
 		          </li>
           	  </li>
@@ -95,7 +124,7 @@
     </form>
 
 
-   <div class="box">
+   <div id="content"  class="box">
      <div class="headlines">
        <h2><span><c:out value="${requestScope.pageInfo}"  /></span></h2>
        <!-- <a href="#help" class="help"></a> --> 
@@ -103,7 +132,7 @@
      <div class="box-content">
 	     <form action="AddEdit" class="formBox" method="POST" >
 	     	<input name="insert" type="hidden" value="${requestScope.variant}" >
-			<c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"></c:set>
+			<c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"/>
 			<input name="id_BrakeFluid" type="hidden" value="${currentBrakFluid.getId()}" >
 	     	<c:choose>
 			<c:when test="${requestScope.errors.size()>0}">
@@ -118,14 +147,94 @@
 		         </div>
 			</c:when>
 			</c:choose>
-			<c:set />
-			
 			<c:set var="current" value="${requestScope.current}"/>
-			<input type="text" class="input" hidden value="${current.getName()}" name="id_current" id="input-three" />
+			<input type="text" class="input" hidden value="${current.getId()}" name="id_current" id="input-three" />
 			<input type="text" class="input" hidden value="${requestScope.variant}" name="variant" id="input-three" />
 			
  			 <fieldset>
- 			  <c:if test="${requestScope.variant}='User'">
+ 			 <c:if test="${requestScope.variant=='country'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              </c:if>
+              
+              
+              <c:if test="${requestScope.variant=='fluidClass'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              </c:if>
+              
+              
+		      <c:if test="${requestScope.variant=='client'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">E-mail:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getEmail()}" name="email" id="input-three" /></div>
+		     	</div>
+		     	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Адрес:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getAddress()}" name="address" id="input-three" /></div>
+		     	</div>
+              	<div class="clearfix">
+			         <div class="lab"><label for="input-three">Страна происхождения:</label></div>
+			     	 <div class="con">
+	                   	<select size="1" name="country"   class="le-select">
+		                    <option >Выберите страну происхождения...</option>	
+								<c:forEach var="punct" items="${requestScope.combobox_countris}">
+								<c:if test="${current.getCountry().getName() != punct.getName()}">
+									<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
+								</c:if>
+								<c:if test="${current.getCountry().getName() == punct.getName()}">
+									<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
+								</c:if>
+							</c:forEach>
+		                </select>
+					</div>
+				</div>
+              </c:if> 
+		     	
+		     	
+              
+              <c:if test="${requestScope.variant=='log'}">
+                <div class="clearfix">
+		         <div class="lab"><label for="input-three">Пользователь:</label></div>
+		     	 <div class="con"><input disabled type="text" class="input" value="${current.getUser().getName()}" name="login_current" id="input-three" />
+		     	 				  <input type="text" hidden value="${current.getUser().getLogin()}" name="login"/>
+		     	 </div>
+		     	</div>
+		     	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Дата и время:</label></div>
+		     	 <div class="con"><input disabled type="text" class="input" value="${current.getTime()}" name="time" id="input-three" /></div>
+		     	</div>
+		     	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Вид объекта:</label></div>
+		     	 <div class="con"><input disabled type="text" class="input" value="${current.getObjectName()}" name="object_name" id="input-three" /></div>
+		     	</div>
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Объект:</label></div>
+		     	 <div class="con"><input disabled type="text" class="input" 
+		     	 	value="${current.getObject().getId()}.${current.getObject().getName()}" name="object" id="input-three" /></div>
+		     	</div>
+		     	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Дополнительная информация:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getInfo()}" name="info" id="input-three" /></div>
+		     	</div>
+              </c:if>
+              
+              
+ 			  <c:if test="${requestScope.variant=='user'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Логин:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getLogin()}" name="login_current" id="input-three" />
+		     	 				  <input type="text" hidden value="${current.getLogin()}" name="login"/>
+		     	 </div>
+		     	</div>
               	<div class="clearfix">
 		         <div class="lab"><label for="input-three">Наименование:</label></div>
 		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
@@ -135,37 +244,35 @@
 		     	 <div class="con"><input type="text" class="input" value="${current.getEmail()}" name="email" id="input-three" /></div>
 		     	</div>
               	<div class="clearfix">
-		         <div class="lab"><label for="input-three">Логин:</label></div>
-		     	 <div class="con"><input type="text" class="input" value="${current.getLogin()}" name="login" id="input-three" /></div>
-		     	</div>
-              	<div class="clearfix">
 		         <div class="lab"><label for="input-three">Пароль:</label></div>
-		     	 <div class="con"><input type="text" class="input" value="${current.getPassword)}" name="password" id="input-three" /></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getPassword()}" name="password_current" id="input-three" /></div>
 		     	</div>
 		     	<div class="clearfix">
 		     		<div class="lab"><label for="input-three">Список ролей:</label></div>
 		     		<div class="container">
-		     			<c:forEach var="punct" begin="1" end="${requestScope.roles.size()}">
+		     			<div class="box-content">
+		     			<c:forEach var="punct" items="${requestScope.roles}">
 		     				<c:set var="bFasRole" value="${false}"/>
-		     				<c:forEach var="currentPunct" begin="1" end="${requestScope.currentRoles.size()}">  <!-- Это уже существующие в наличии роли -->
-		     					<c:if test="${punct=currentPunct}">
+		     				<c:forEach var="currentPunct" items="${requestScope.currentRoles}">				<!-- Это уже существующие в наличии роли -->
+		     					<c:if test="${punct.getId()==currentPunct.getId()}">
 		     						<c:set var="bFasRole" value="${true}"/>
 		     					</c:if>
 		     				</c:forEach>
 		     				<c:if test="${bFasRole}">
-		     					<input type="checkbox"  checked  name="selections" value="${currentBFluid.getId()}" /><c:out value="${role.getName()}"/>
+		     					<input type="checkbox"  checked  name="selections" value="${punct.getId()}" /><c:out value="${punct.getName()}"/><br>
 		     				</c:if>
 		     				<c:if test="${!bFasRole}">
-		     					<input type="checkbox"  name="selections" value="${currentBFluid.getId()}" /><c:out value="${role.getName()}"/>
+		     					<input type="checkbox"  name="selections" value="${punct.getId()}" /><c:out value="${punct.getName()}"/><br>
 		     				</c:if>
 		     			</c:forEach>
+		     			</div>
 		     		</div>
 		     	</div>
               </c:if>
               
               
                
-              <c:if test="${requestScope.variant}='Manufacturer'">
+              <c:if test="${requestScope.variant=='manufacturer'}">
               	<div class="clearfix">
 		         <div class="lab"><label for="input-three">Наименование:</label></div>
 		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
@@ -190,16 +297,13 @@
 		     </fieldset>
 		     
            <div class="btn-submit"><!-- Submit form -->
-	       	 <input type="submit" name="variant" value="Сохранить"class="button" >
-	       	 <input type="submit"  name="variant" value="К списку" class="button" >
-	       	 <input type="submit"  name="variant" value="На главную" class="button" >
+	       	 <input type="submit" name="task" value="Сохранить" class="button" >&nbsp;&nbsp;&nbsp;&nbsp;
+	       	 <input type="submit" name="task" value="К списку" class="button" >
 	       </div>
 	   </form>
 	   
    </div><!-- /box-content -->
-   </div>
-   <!-- /box -->
+   </div><!-- /box -->
 </div>
-
 </body>
 </html>

@@ -32,6 +32,7 @@
     <script src="resources/Ecommerce/assets/js/html5shiv.js"></script>
     <script src="resources/Ecommerce/assets/js/respond.min.js"></script>
     <![endif]-->
+    <link href="style.css" rel="resources/greenCMETAHA.css">
   </head>
   <body>
     <div class="wrapper">
@@ -195,27 +196,32 @@
 					            </a>
 					
 					            <ul class="dropdown-menu">
-					            	<c:forEach var="currentBFluid" items="${requestScope.basket}">
+					            	<c:forEach var="currentBasket" items="${requestScope.basket}">
+					            		<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
 					            		<div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img height="73" width="50" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
+					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
-					                                <div class="title"><c:out value="${currentBFluid.getName()}"/></div>
+					                                <div class="title">
+					                                	<c:out value="${currentBFluid.getName()}"/>
+					                                	<c:if test="${currentBasket.getQauntity()>1}">
+					                                		(<c:out value="${currentBasket.getQauntity()}"/> шт.)
+					                                	</c:if>
+					                                </div>
 					                                <div class="price">
 					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 					                                		$<c:out value="${currentBFluid.getPrice()}"/>
-					                                	</sec:authorize>
+					                                	</sec:authorize>		
 					                                </div>
 					                            </div>
 					                        </div>
-											<c:url value="home" var="deleteFromBasket">
+											<c:url value="Basket" var="deleteFromBasket">
 												<c:param name="id" value="${currentBFluid.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
-												<c:param name="currentPage" value="${requestScope.currentPage}"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
 					                    </div>
@@ -262,6 +268,7 @@
                   <h2>Производители:</h2>
                   <hr>
                   <ul>
+                  	
                   	<c:forEach var="currentManufacturer" items="${requestScope.manufacturersFilter}">
                   		<li>
                   			<c:if test="${currentManufacturer.isSelected()}">
@@ -275,13 +282,15 @@
                   	</c:forEach>
                   </ul>
                   
-                  
                   <!-- ================================== TOP NAVIGATION ================================== -->
 		            <div class="side-menu animate-dropdown">
 		              <nav class="yamm megamenu-horizontal" role="navigation">
 		                <ul class="nav">
 		                  <li class="dropdown menu-item">
 		                    <a href="" class="dropdown-toggle" data-toggle="dropdown">Всего: <c:out value="${requestScope.manufacturersFilter.size()}"/>  </a>
+<!-- 		                    <div  class="hidden-wrapper"> -->
+<!--                   			<div class="hidden-list"> -->
+		                    
 		                    <ul class="dropdown-menu mega-menu">
 		                      <li class="yamm-content">
 		                      	<div class="row">
@@ -301,6 +310,8 @@
 		                        </div>
 		                      </li>
 		                    </ul>
+<!-- 		                    </div> -->
+<!-- 		                    </div> -->
 		                  </li>
 		                </ul>
 		                <!-- /.nav -->

@@ -52,11 +52,11 @@
 
  <div id="main"> 
 <!--      #header  -->
-          <div id="header">  
+    <div id="header">  
 <!--     #logo   -->
       <div id="logo"> 
          <h1><font size="6" color="white" face="Arial">ЭфТех ООО</font></h1> 
-     </div> 
+      </div> 
 <!--        #user    -->
  	     	<c:choose> 
 			<c:when test="${currentUser.isEmpty()}"> 
@@ -106,35 +106,22 @@
 <!--	        mainmenu -->
 	        
  	        <ul id="floatMenu" class="mainmenu"> 
- 	          <li class="first" ><input type="submit" name="variant" value="Сравнить"></li>	
-	     	  <sec:authorize access="isAnonymous() or hasAnyRole('ROLE_ADMIN,ROLE_OFFER,ROLE_OFFERPRICE,ROLE_PRICE')"> 
-		          <!-- <li class="first"><input type="submit" name="button" value="Сравнить"></li> 
-		           --> 
- 		          <li><input type="submit" name="variant" value="В корзину"></li>
- 		      </sec:authorize>
- 	          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">	 
-	          		<li><input type="submit" name="variant" value="Загрузить номенклатуру"></li>
-	          </sec:authorize> 
-	          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
- 	          		<li><input type="submit" name="variant" value="Загрузить цены"></li>
-			  </sec:authorize>
-			  <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR')">	 	          		 
- 	          		<li><input type="submit" name="variant" value="Коммерческое приложение"></li>
- 	          </sec:authorize>	
-			  <sec:authorize access="hasRole('ROLE_ADMIN')">	 	          		 
- 	          		<li><input type="submit" name="variant" value="Редактировать">
-				            <ul class="submenu">
-				              <li><input type="submit" name="variant" value="Производители"></a></li>          
-				              <li><input type="submit" name="variant" value="Классы жидкости"></li>
-				              <li><input type="submit" name="variant" value="Страны"></li>
-				              <li><input type="submit" name="variant" value="Клиенты"></li>
-				              <li><input type="submit" name="variant" value="Пользователи"></li>
-				              <li><input type="submit" name="variant" value="Логирование"></li>
-				            </ul>
-				          </li>
- 	          		</li>
- 	          </sec:authorize>	
- 	          </ul>	
+ 	          <li class="first" ><input type="submit" name="task" value="Сравнить"></li>	
+	          <li><input type="submit" name="task" value="В корзину"></li>
+         	  <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
+	          <li><input type="submit" name="task" value="Загрузить цены"></li>
+			  <li><input type="submit" name="task" value="Коммерческое приложение"></li>
+ 	          <li><a href="#">Редактировать</a>
+	            <ul class="submenu">
+	              <li><input type="submit" name="task" value="Производители"></a></li>          
+	              <li><input type="submit" name="task" value="Классы жидкости"></li>
+	              <li><input type="submit" name="task" value="Страны"></li>
+	              <li><input type="submit" name="task" value="Клиенты"></li>
+	              <li><input type="submit" name="task" value="Пользователи"></li>
+	              <li><input type="submit" name="task" value="Логирование"></li>
+	            </ul>
+	          </li>
+          </ul>	
 
  	    </div> 
     

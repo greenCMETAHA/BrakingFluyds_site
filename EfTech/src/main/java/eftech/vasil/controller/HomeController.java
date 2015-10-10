@@ -71,6 +71,7 @@ import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.ReviewTemplate;
+import eftech.workingset.DAO.templates.RoleTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.Services.Service;
@@ -86,6 +87,7 @@ import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.Review;
+import eftech.workingset.beans.Role;
 
 /**
  * Handles requests for the application home page.
@@ -103,6 +105,10 @@ public class HomeController{
 
 	@Autowired
 	UserTemplate userDAO;
+	
+	@Autowired
+	RoleTemplate roleDAO;
+	
 	
 	@Autowired
 	ManufacturerTemplate manufacturerDAO;
@@ -148,11 +154,14 @@ public class HomeController{
 		wishlist = wishlistDAO.getWishList(user.getId());
 		model.addAttribute("wishlist", wishlist);
 		double totalBasket=0;	
+		int totalQauntity=0;
 		for (Basket current:basket){
 			BrakingFluid brFluid=current.getBrakingFluid();
 			totalBasket+=(brFluid.getPrice()*current.getQauntity());
+			totalQauntity+=current.getQauntity();
 		}
 		model.addAttribute("totalBasket", totalBasket);  //ограничить 2 знаками после запятой.
+		model.addAttribute("totalQauntity", totalQauntity);  //ограничить 2 знаками после запятой.
 		return model;
 	}
 	
@@ -298,24 +307,24 @@ public class HomeController{
 				            message.setSubject("Тестовое письмо");
 				            //Содержимое
 				            
-//					            // Create the message part
-//					            BodyPart messageBodyPart = new MimeBodyPart();
-//
-//					            // Now set the actual message
-//					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
-//
-//					            // Create a multipar message
-//					            Multipart multipart = new MimeMultipart();
-//
-//					            // Set text message part
-//					            multipart.addBodyPart(messageBodyPart);
-//
-//					            // Part two is attachment
-//					            messageBodyPart = new MimeBodyPart();
-//					            DataSource source = new FileDataSource(pdfFile);
-//					            messageBodyPart.setDataHandler(new DataHandler(source));
-//					            messageBodyPart.setFileName(pdfFile.getName());
-//					            multipart.addBodyPart(messageBodyPart);
+					            // Create the message part
+					            BodyPart messageBodyPart = new MimeBodyPart();
+
+					            // Now set the actual message
+					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
+
+					            // Create a multipar message
+					            Multipart multipart = new MimeMultipart();
+
+					            // Set text message part
+					            multipart.addBodyPart(messageBodyPart);
+
+					            // Part two is attachment
+					            messageBodyPart = new MimeBodyPart();
+					            DataSource source = new FileDataSource(pdfFile);
+					            messageBodyPart.setDataHandler(new DataHandler(source));
+					            messageBodyPart.setFileName(pdfFile.getName());
+					            multipart.addBodyPart(messageBodyPart);
 
 				            // Send the complete message parts
 				            // Session mailSession = Session.getDefaultInstance(props, null);
@@ -472,6 +481,9 @@ public class HomeController{
 		HttpSession session=request.getSession();
 
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		if (user.getId()!=0){
+			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), user, "Пользователь зашел в систему"));
+		}
 		
 		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
@@ -521,7 +533,7 @@ public class HomeController{
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
-		HttpSession session=request.getSession();
+ 		HttpSession session=request.getSession();
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
 		try {
@@ -1583,6 +1595,7 @@ public class HomeController{
 	@RequestMapping(value = "/menu", method = {RequestMethod.POST, RequestMethod.GET})
 	public String menuAdmin(
 			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
+			,@RequestParam(value = "task", defaultValue="", required=false) String task
 			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,HttpServletRequest request
 			,Locale locale, Model model) {
@@ -1608,31 +1621,46 @@ public class HomeController{
 				
 		try {
 			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+			task=new String(task.getBytes("iso-8859-1"), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 		
-		if (variant.compareTo("Сравнить")==0){
-			result="adminpanel/Comparison";
-		}else if(variant.compareTo("В корзину")==0){
-			result="adminpanel/Basket";
-		}else if (variant.compareTo("Загрузить номенклатуру")==0){
+		if (task.compareTo("Сравнить")==0){
+			result="Comparison";
+		}else if (task.compareTo("На главную")==0){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+		}else if(task.compareTo("В корзину")==0){
+			result="Basket";
+		}else if ((task.compareTo("Загрузить номенклатуру")==0) || (task.compareTo("DownloadProduct")==0)){
 			model.addAttribute("variantDownload", Service.VARIANT_PRODUCT);
 			model.addAttribute("errors", new ArrayList<String>());
-			result="adminpanel/Download";
-		}else if (variant.compareTo("Загрузить цены")==0){
+			result="Download";
+		}else if ((task.compareTo("Загрузить цены")==0) || (task.compareTo("DownloadProduct")==0)){
 			model.addAttribute("variantDownload", Service.VARIANT_PRICES);
 			model.addAttribute("errors", new ArrayList<String>());
-			result="adminpanel/Download";
-		}else if(variant.compareTo("Коммерческое приложение")==0){
+			result="Download";
+		}else if(task.compareTo("Коммерческое приложение")==0){
 			model.addAttribute("listBrakFluids", basket);
 			model.addAttribute("listClients", clientDAO.getClients());
-			result="adminpanel/BussinessOffer";
+			result="BussinessOffer";
+		}else if ((task.compareTo("Новый")==0) || (task.compareTo("Создать новый")==0)){
+			model.addAttribute("variant",variant);
+			model.addAttribute("pageInfo",task);
+			model.addAttribute("id",0);
+			model.addAttribute("combobox_countris",countryDAO.getCountries());
+			if ((variant.compareTo("user")==0) || (variant.compareTo("Пользователи")==0)){	
+				model.addAttribute("roles",roleDAO.getRoles());
+				model.addAttribute("currentRoles",new ArrayList<Role>());
+			}
+			
+			result="AddEdit";
+			
 		}else{
-			result=Service.createAdminEdit(model,variant, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO, new LinkedList<String>());
+			result=Service.createAdminEdit(model,task, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO, new LinkedList<String>());
 		}
-		return result;
+		return "adminpanel/"+result;
 	}
 		
 	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)

@@ -30,6 +30,14 @@ public class User implements InterfaceUser{
 		this.role = (InterfaceRole)role;
 	}
 	
+	public User(int id, String name, String email, String login) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.login = login;
+	}	
+	
 	public User(String login, String password) {
 		super();
 		this.login = login;

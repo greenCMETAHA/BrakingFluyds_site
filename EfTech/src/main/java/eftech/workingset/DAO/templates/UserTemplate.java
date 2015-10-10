@@ -33,7 +33,7 @@ public class UserTemplate implements InterfaceUserDAO  {
 	}
 	
 	public  int getCountRows(){
-		String sqlQuery="select count(distinct login) from user";
+		String sqlQuery="select count(distinct login) from users";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
@@ -47,7 +47,7 @@ public class UserTemplate implements InterfaceUserDAO  {
 	}	
 
 	public User getUser(String login, String password) {
-		String sqlQuery="select us.id, us.name, us.login, us.email, us.role, rol.name as rol_name "
+		String sqlQuery="select us.id, us.name, us.login, us.email, us.password, us.role, rol.name as rol_name "
 				+ "from users as us, roles as rol where login = :login and password=:password and us.role=rol.id";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -63,7 +63,7 @@ public class UserTemplate implements InterfaceUserDAO  {
 
 	@Override
 	public User getUser(int id) {
-		String sqlQuery="select us.id, us.name, us.login, us.email, us.role, rol.name as rol_name "
+		String sqlQuery="select us.id, us.name, us.login, us.email , us.password, us.role, rol.name as rol_name "
 				+ "from users as us, roles as rol where us.id = :id and us.role=rol.id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -78,14 +78,16 @@ public class UserTemplate implements InterfaceUserDAO  {
 	
 	@Override
 	public User getUser(String login) {
-		String sqlQuery="select us.id, us.name, us.login, us.email, us.role, rol.name as rol_name "
+		String sqlQuery="select us.id, us.name, us.login, us.email, us.password, us.role, rol.name as rol_name "
 				+ "from users as us, roles as rol where us.login = :login and us.role=rol.id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("login", login);
 
 		try{
-			return jdbcTemplate.queryForObject(sqlQuery, params, new UserRowMapper());
+			ArrayList<User> list=(ArrayList<User>)jdbcTemplate.query(sqlQuery, params, new UserRowMapper());
+			
+			return list.get(0);
 		}catch (EmptyResultDataAccessException e){
 			return new User();
 		}		
@@ -99,7 +101,7 @@ public class UserTemplate implements InterfaceUserDAO  {
 
 	@Override
 	public ArrayList<User> getUsers(int num, int nextRows) {
-		String sqlQuery="select us.id, us.name, us.login, us.email	from users as us group by us.login"
+		String sqlQuery="select us.id, us.name, us.login, us.email, us.password	from users as us group by us.login"
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 
 		try{
@@ -117,26 +119,36 @@ public class UserTemplate implements InterfaceUserDAO  {
 
 	@Override
 	public void deleteUser(User user, Role role) {
-		deleteUser(user.getId(), role.getId());
+		deleteUser(user.getLogin(), role.getId());
 		
 	}
 
 	@Override
 	public void deleteUser(int id) {
-		String sqlUpdate="delete from user where id=:id";
+		String sqlUpdate="delete from users where id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id",  id);
 		
 		jdbcTemplate.update(sqlUpdate, params);
 	}
-
+	
 	@Override
-	public void deleteUser(int user_id, int role_id) {  //удалим только конкретную роль
-		String sqlUpdate="delete from user where user_id=:user_id and role_id=:role_id";
+	public void deleteUser(String login) {
+		String sqlUpdate="delete from users where login=:login";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("user_id",  user_id);
+		params.addValue("login",  login);
+		
+		jdbcTemplate.update(sqlUpdate, params);
+	}
+
+	@Override
+	public void deleteUser(String login, int role_id) {  //удалим только конкретную роль
+		String sqlUpdate="delete from users where login=:login and role=:role_id";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("login",  login);
 		params.addValue("role_id",  role_id);
 		
 		jdbcTemplate.update(sqlUpdate, params);
@@ -144,15 +156,15 @@ public class UserTemplate implements InterfaceUserDAO  {
 	}
 	
 	@Override
-	public User createUserWithRole(User user, Role roles) {
-			String sqlUpdate="INSERT INTO User (name, email, login, password, role) VALUES (:name, :email, :login, :password, :role)";
+	public User createUserWithRole(User user, Role role) {
+			String sqlUpdate="INSERT INTO Users (name, email, login, password, role) VALUES (:name, :email, :login, :password, :role)";
 			
 			MapSqlParameterSource params = new MapSqlParameterSource();
 			params.addValue("name", user.getName());
 			params.addValue("email", user.getEmail());
 			params.addValue("login", user.getLogin());
 			params.addValue("password", user.getPassword());
-			params.addValue("role", ((Role)user.getRole()).getId());
+			params.addValue("role", role.getId());
 			
 			
 			KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -191,8 +203,13 @@ public class UserTemplate implements InterfaceUserDAO  {
 			user.setName(rs.getString("name"));
 			user.setLogin(rs.getString("login"));
 			user.setEmail(rs.getString("email"));
-			Role role=new Role(rs.getInt("role"),rs.getString("rol_name"));
-			user.setRole(role);
+			user.setPassword(rs.getString("password"));
+			
+			try {
+				Role role=new Role(rs.getInt("role"),rs.getString("rol_name"));
+				user.setRole(role);
+			}catch(Exception e){
+			}
 			
 			return user;
 		}

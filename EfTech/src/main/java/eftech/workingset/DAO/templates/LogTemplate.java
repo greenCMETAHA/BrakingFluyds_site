@@ -1,8 +1,14 @@
 package eftech.workingset.DAO.templates;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 
 import javax.sql.DataSource;
@@ -60,15 +66,13 @@ public class LogTemplate implements InterfaceLogDAO {
 	@Override
 	public ArrayList<Log> getLog(int num, int nextRows) { //num - номер страницы
 		String sqlQuery="select log.id AS id, log.info AS info, log.time AS time, log.object AS object, log.object_id AS object_id, log.object_name AS object_name"
-					+ ", u.id AS User_id, u.name AS User_name, u.login AS User_login"
+					+ ", u.id AS User_id, u.name AS User_name, u.login AS User_login "
 					+ " from log"
-					+ " left join users AS u ON (log.user=u.id) where u.id=:id"
+					+ " left join users AS u ON (log.user=u.id) order by log.time desc "
 					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 			
-		MapSqlParameterSource params = new MapSqlParameterSource();
-	
 		try{ 
-			return (ArrayList<Log>)jdbcTemplate.query(sqlQuery,params,new LogRowMapper());
+			return (ArrayList<Log>)jdbcTemplate.query(sqlQuery,new LogRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Log>();
 		}catch (InvalidDataAccessApiUsageException e){
@@ -78,13 +82,14 @@ public class LogTemplate implements InterfaceLogDAO {
 
 	@Override
 	public Log getLogById(int id) {
-		String sqlQuery="select * from Log where id=:id";
+		String sqlQuery="select *, u.id AS User_id, u.name as User_name, u.login as user_login from Log "
+				+ " left join Users AS u on (Log.user=u.id)  where log.id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
 
 		try{ 
-			return (Log)jdbcTemplate.query(sqlQuery,new LogRowMapper());
+			return (Log)jdbcTemplate.queryForObject(sqlQuery,params,new LogRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new Log();
 		}
@@ -97,39 +102,49 @@ public class LogTemplate implements InterfaceLogDAO {
 		if (log.getId()>0){
 			currentLog=getLogById(log.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}
-		String sqlUpdate="insert into Log (user, time, object, object_id, object_name, info) Values (:user, :time, :object, :object_id, :object_name, :info)";
+		String sqlUpdate="insert into Log (user, time, "
+				+(log.getObject()==null?"":"object, object_id, object_name,")
+				+" info) Values (:user, :time,"+(log.getObject()==null?"":":object, :object_id, :object_name,")+" :info)";
 		if (currentLog.getId()>0){ // В БД есть такой элемент
 			if (log.getObject()==null){
-				sqlUpdate="update review set user=:user, info=:info where id=:id";
+				sqlUpdate="update Log set user=:user, info=:info where id=:id";
 			}else{
-				sqlUpdate="update review set user=:user, time=:time, object=:object, object_id=:object_id, object_name=:object_name, info=:info where id=:id";
+				sqlUpdate="update Log set user=:user, time=:time, object=:object, object_id=:object_id, object_name=:object_name, info=:info where id=:id";
 			}
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("user", ((User)log.getUser()).getId());
+		params.addValue("user", ((User)log.getUser()).getId()); 
 		params.addValue("info", log.getInfo());
+		params.addValue("time", log.getTime());
 		if (log.getObject()!=null){
-			params.addValue("time", log.getTime());
 			Object obj=log.getObject();
-			Class c = obj.getClass(); 
+			Class c = obj.getClass();  
 			
-			params.addValue("object", c.getName());
+			params.addValue("object", c.getSimpleName());
 			try {
-				params.addValue("object_id", c.getField("id").get(obj));
-				params.addValue("object_name", c.getField("name").get(obj));
+				Class[] paramTypes = new Class[] {};
+				
+				Method method = c.getMethod("getId", paramTypes); 
+				Object[] args = new Object[] {}; 
+				params.addValue("object_id", (Integer) method.invoke(obj, args));
+				method = c.getMethod("getName", paramTypes);
+				params.addValue("object_name", (String) method.invoke(obj, args));
 			} catch (IllegalArgumentException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (IllegalAccessException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (NoSuchFieldException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			} catch (SecurityException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		
@@ -176,6 +191,10 @@ public class LogTemplate implements InterfaceLogDAO {
 			Log log = new Log();
 			log.setId(rs.getInt("id"));
 			log.setInfo(rs.getString("info"));
+			Timestamp timestamp = rs.getTimestamp("time");
+			if (timestamp != null){
+				log.setTime(new java.util.Date(timestamp.getTime()));
+			}
 			String strObj=rs.getString("object");
 			Object object=null;
 			if ("User".equals(strObj)){

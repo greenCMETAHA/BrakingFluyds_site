@@ -476,7 +476,6 @@ public class Service {
 		User result=new User();
 		if (userPrincipal!=null){
 			result=userDAO.getUser(userPrincipal.getName());		//сделал так чтобы выцепить реальное имя пользователя, а не логин
-			Log log=logDAO.createLog(new Log(0, result, new GregorianCalendar().getTime(), result, "Пользователь зашел в систему"));
 		}
 		
 		return result;
@@ -486,45 +485,45 @@ public class Service {
 			, ManufacturerTemplate manufacturerDAO, FluidClassTemplate fluidClassDAO, CountryTemplate countryDAO
 			,ClientTemplate clientDAO, UserTemplate userDAO,LogTemplate logDAO, LinkedList<String> errors){
 		
-		String result="adminpanel/ShowList";
+		String result="ShowList";
 		int totalRows=0;
 		int totalPages=0;
 		int elementsInList=Service.LOG_ELEMENTS_IN_LIST;
 		model.addAttribute("tablehead", variant);
-		if (variant.compareTo("Производители")==0){
+		if ((variant.compareTo("Производители")==0) || (variant.compareTo("manufacturer")==0)){
 			totalRows=manufacturerDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-			model.addAttribute("list",manufacturerDAO.getManufacturers(1, elementsInList));
+			model.addAttribute("list",manufacturerDAO.getManufacturers(currentPage, elementsInList));
 			model.addAttribute("variant", "manufacturer");
 			
-		}else if (variant.compareTo("Классы жидкости")==0){
+		}else if ((variant.compareTo("Классы жидкости")==0) || (variant.compareTo("fluidClass")==0)){
 			totalRows=fluidClassDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-			model.addAttribute("list",fluidClassDAO.getFluidClassis(1, elementsInList));
+			model.addAttribute("list",fluidClassDAO.getFluidClassis(currentPage, elementsInList));
 			model.addAttribute("variant", "fluidClass");
 
-		}else if (variant.compareTo("Страны")==0){
+		}else if ((variant.compareTo("Страны")==0) || (variant.compareTo("country")==0)){
 			totalRows=countryDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-			model.addAttribute("list",countryDAO.getCountries(1, elementsInList));
+			model.addAttribute("list",countryDAO.getCountries(currentPage, elementsInList));
 			model.addAttribute("variant", "country");
 			
-		}else if (variant.compareTo("Клиенты")==0){
+		}else if ((variant.compareTo("Клиенты")==0) || (variant.compareTo("client")==0)){
 			totalRows=clientDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-			model.addAttribute("list",clientDAO.getClients(1, elementsInList));
+			model.addAttribute("list",clientDAO.getClients(currentPage, elementsInList));
 			model.addAttribute("variant", "client");
 			
-		}else if (variant.compareTo("Пользователи")==0){
+		}else if ((variant.compareTo("Пользователи")==0) || (variant.compareTo("user")==0)){
 			totalRows=userDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-			model.addAttribute("list",userDAO.getUsers(1, elementsInList));
+			model.addAttribute("list",userDAO.getUsers(currentPage, elementsInList));
 			model.addAttribute("variant", "user");
 			
-		}else if (variant.compareTo("Логирование")==0){
+		}else if ((variant.compareTo("Логирование")==0) || (variant.compareTo("log")==0)){
 			totalRows=logDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
-			model.addAttribute("list",logDAO.getLog(1, elementsInList));
+			model.addAttribute("list",logDAO.getLog(currentPage, elementsInList));
 			model.addAttribute("variant", "log");
 			model.addAttribute("tablehead", "Лог изменений");
 		}

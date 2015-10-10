@@ -12,6 +12,7 @@ public interface InterfaceFluidClassDAO {
 	int getCountRows();
 	
 	FluidClass createFluidClass(String name);
+	FluidClass createFluidClass(FluidClass fluidClass);
 	void deleteFluidClass(FluidClass fluidClass);
 	void deleteFluidClass(int id);
 }

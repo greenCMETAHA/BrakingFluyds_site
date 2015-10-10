@@ -92,6 +92,43 @@ public class CountryTemplate implements InterfaceCountryDAO{
 	}
 	
 	@Override
+	public Country createCountry(Country country) {
+		Country result=new Country();
+		Country currentCountry = null;
+		if (country.getId()>0){
+			currentCountry=getCountry(country.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
+		}else{
+			currentCountry=country;
+		}
+		String sqlUpdate="insert into country (name) Values (:name)";
+		if (currentCountry.getId()>0){ // В БД есть такой элемент
+			 sqlUpdate="update country set name=:name where id=:id";
+		}
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("name", country.getName());
+	
+		if (currentCountry.getId()>0){ // В БД есть элемент
+			params.addValue("id", currentCountry.getId());
+		}
+		
+		KeyHolder keyHolder=new GeneratedKeyHolder(); 
+		
+		jdbcTemplate.update(sqlUpdate, params, keyHolder);
+		
+		try{
+			if (keyHolder.getKey()!=null) {
+				result=getCountry(keyHolder.getKey().intValue());
+			}
+					
+		}catch (EmptyResultDataAccessException e){
+			result = new Country();
+		}		
+		
+		return result;
+	}
+	
+	@Override
 	public ArrayList<Country> getCountries() {
 		return getCountries(0,0);	
 	}

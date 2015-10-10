@@ -27,7 +27,7 @@ public class RoleTemplate implements InterfaceRoleDAO {
 	
 	@Override
 	public ArrayList<Role> getRoles() {
-		String sqlQuery="select * from role order by name";
+		String sqlQuery="select * from roles order by name";
 
 		try{
 			return (ArrayList<Role>) jdbcTemplate.query(sqlQuery, new RoleRowMapper());
@@ -56,7 +56,7 @@ public class RoleTemplate implements InterfaceRoleDAO {
 				+" left join users on (roles.id=users.role) where users.login=:login group by roles.name";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("id", user_login);
+		params.addValue("login", user_login);
 
 		try{
 			return (ArrayList<Role>)jdbcTemplate.query(sqlQuery, params, new RoleRowMapper());

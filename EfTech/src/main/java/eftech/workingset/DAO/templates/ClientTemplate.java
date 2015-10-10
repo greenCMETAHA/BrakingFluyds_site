@@ -47,7 +47,8 @@ public class ClientTemplate implements InterfaceClientDAO {
 	
 	@Override
 	public Client getClient(int id) {
-		String sqlQuery="select * from Client as c where c.id=:id";
+		String sqlQuery="select *, country.id as country_id, country.name as country_name from Client"
+				+ "	left join country on (client.country=country.id) where client.id=:id order by client.name";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
@@ -66,7 +67,8 @@ public class ClientTemplate implements InterfaceClientDAO {
 	
 	@Override
 	public ArrayList<Client> getClients(int num, int nextRows) {
-		String sqlQuery="select * from client order by Name "
+		String sqlQuery="select *, country.id as country_id,  country.name as country_name from client "
+				+ "	left join country on (client.country=country.id) order by client.name "
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		try{
 			return (ArrayList<Client>) jdbcTemplate.query(sqlQuery, new ClientRowMapper());
@@ -85,14 +87,14 @@ public class ClientTemplate implements InterfaceClientDAO {
 		}
 		String sqlUpdate="insert into client (name, email, address, country) Values (:name, :email, :address, :country)";
 		if (currentClient.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update brakingfluids set name=:name, email=:email, address=:address, country=:country where id=:id";
+			 sqlUpdate="update client set name=:name, email=:email, address=:address, country=:country where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("name", currentClient.getName());
-		params.addValue("email", currentClient.getEmail());
-		params.addValue("address", currentClient.getAddress());
-		params.addValue("country", ((Country)currentClient.getCountry()).getId());
+		params.addValue("name", client.getName());
+		params.addValue("email", client.getEmail());
+		params.addValue("address", client.getAddress());
+		params.addValue("country", ((Country)client.getCountry()).getId());
 	
 		if (currentClient.getId()>0){ // В БД есть элемент
 			params.addValue("id", currentClient.getId());
@@ -138,6 +140,9 @@ public class ClientTemplate implements InterfaceClientDAO {
 			result.setId(rs.getInt("id"));
 			result.setName(rs.getString("name"));
 			result.setEmail(rs.getString("email"));
+			result.setAddress(rs.getString("address"));
+			Country country=new Country(rs.getInt("country_id"),rs.getString("country_name"));
+			result.setCountry(country);
 			
 			return result;
 		}

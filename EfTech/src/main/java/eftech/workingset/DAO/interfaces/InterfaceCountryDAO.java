@@ -13,6 +13,7 @@ public interface InterfaceCountryDAO {
 	int getCountRows();
 	
 	Country createCountry(String name);
+	Country createCountry(Country country);
 	void deleteCountry(Country country);
 	void deleteCountry(int id);
 	

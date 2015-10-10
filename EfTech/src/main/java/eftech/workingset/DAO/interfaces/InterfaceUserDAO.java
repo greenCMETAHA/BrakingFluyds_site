@@ -18,6 +18,7 @@ public interface InterfaceUserDAO {
 	void updateUsers(User user);
 	void deleteUser(User user);
 	void deleteUser(User user, Role role);
+	void deleteUser(String login);
 	void deleteUser(int id);
-	void deleteUser(int user_id, int role_id);
+	void deleteUser(String login, int role_id);
 }

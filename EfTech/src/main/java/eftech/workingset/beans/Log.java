@@ -83,7 +83,7 @@ public class Log implements InterfaceLog{
 		
 		if (object!=null){
 			Class c=object.getClass();
-			result=c.getName();
+			result=c.getSimpleName();
 		}
 		
 		return result;
