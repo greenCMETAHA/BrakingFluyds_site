@@ -59,6 +59,13 @@
 		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
 		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
+		                        <sec:authorize access="!isAnonymous()"> 
+			                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+			                        <li><a href="listDoc?variant=Offer">Список ком. предложенийк</a></li>
+			                    </sec:authorize>
+		                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
+		                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
+		                        </sec:authorize>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -279,6 +286,21 @@
 			                        	<li><a href="Download">Загрузить цены из Excel</a></li>
 			                        </sec:authorize>
 			                        <li><a href="Comparison">Сравнить товары</a></li>
+			                        <sec:authorize access="!isAnonymous()">
+				                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+				                        <li><a href="listDoc?variant=Offer">Список ком. предложенийк</a></li>
+				                    </sec:authorize>
+			                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
+			                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
+			                        </sec:authorize>
+			                        <sec:authorize access="hasRole('ROLE_MANAGER_SALE')">
+				                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+				                    </sec:authorize>
+				                    <sec:authorize access="hasRole('ROLE_DISTR')">
+				                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+				                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+				                    </sec:authorize>
+			                        
                                 </ul>
                             </div>
                         </div>
@@ -287,6 +309,16 @@
                   </li>
                   <!-- /.menu-item -->
                   <li><a href="home">Тормозные жидкости</a></li>
+                  <sec:authorize access="hasRole('ROLE_DELIVERY')">
+                  	<li><a href="listDoc?variant=Demand">Доставка</a></li>
+                  </sec:authorize>
+                  <sec:authorize access="hasRole('ROLE_MANAGER_SALE')">
+                      <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+                  </sec:authorize>
+                  <sec:authorize access="hasRole('ROLE_DISTR')">
+                      <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+                      <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+                  </sec:authorize>
                 </ul>
                 <!-- /.nav -->
               </nav>

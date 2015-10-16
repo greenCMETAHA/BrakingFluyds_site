@@ -41,7 +41,7 @@ public class PriceTemplate implements InterfacePriceDAO{
 	
 	@Override
 	public int getCountRows(int id) {
-		String sqlQuery="select count(*) from Price where brakingfluid=:id";
+		String sqlQuery="select count(*) from Prices where brakingfluid=:id";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
@@ -56,7 +56,8 @@ public class PriceTemplate implements InterfacePriceDAO{
 	
 	@Override
 	public ArrayList<Price> getPrices() {
-		String sqlQuery="select *  from prices as p "
+		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price"
+				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login from prices as p "
 				+ " left join Users AS u on (p.user=u.id)"
 				+ " left join brakingfluids AS bf on (p.brakingfluid=bf.id)";
 		
@@ -68,10 +69,11 @@ public class PriceTemplate implements InterfacePriceDAO{
 			return new  ArrayList<Price>();
 		}		
 	}	
-
+	
 	@Override
 	public ArrayList<Price> getPrices(int id) {
-		String sqlQuery="select *, u.id as user_id, u.name as user_name, u.login as user_login, u.email as user_email from prices as p "
+		String sqlQuery="select *, u.id as user_id, u.name as user_name, u.login as user_login, u.email as user_email"
+				+ ", bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price from prices as p "
 				+ " left join Users AS u on (p.user=u.id) "
 				+ " left join brakingfluids AS bf on (p.brakingfluid=bf.id)"
 				+ "where p.brakingfluid=:id order by time DESC";
@@ -88,7 +90,8 @@ public class PriceTemplate implements InterfacePriceDAO{
 
 	@Override
 	public Price getPriceById(int id) {
-		String sqlQuery="select *, u.id as user_id, u.name as user_name, u.login as user_login, u.email as user_email from prices as p "
+		String sqlQuery="select *, u.id as user_id, u.name as user_name, u.login as user_login, u.email as user_email"
+				+ ", bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price from prices as p "
 				+ " left join Users AS u on (p.user=u.id) "
 				+ " left join brakingfluids AS bf on (p.brakingfluid=bf.id)"
 				+ "where p.id=:id order by time DESC";
@@ -110,10 +113,10 @@ public class PriceTemplate implements InterfacePriceDAO{
 		if (price.getId()>0){
 			currentPrice=getPriceById(price.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}
-		String sqlUpdate="insert into Price (id, time, price, user, brakingFluid)"
+		String sqlUpdate="insert into Prices (id, time, price, user, brakingFluid)"
 				+ " Values (:id, :time, :price, :user, :brakingFluid)";
 		if (currentPrice.getId()>0){ // В БД есть такой элемент
-			sqlUpdate="update Price set user=:user, time=:time, price=:price, brakingFluid=:brakingFluid where id=:id";
+			sqlUpdate="update Prices set user=:user, time=:time, price=:price, brakingFluid=:brakingFluid where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();

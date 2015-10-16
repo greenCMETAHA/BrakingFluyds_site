@@ -147,14 +147,72 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	@Override
+	public BrakingFluid createBrakingFluidWithoutPrice(BrakingFluid brFluid) {
+		BrakingFluid result=new BrakingFluid();
+		BrakingFluid currentBrFluid = null;
+		if (brFluid.getId()>0){
+			currentBrFluid=getBrakingFluid(brFluid.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
+		}else{
+			currentBrFluid=getBrakingFluidByName(brFluid.getName());
+		}
+		String sqlUpdate="insert into brakingfluids (name, boilingTemperatureDry, boilingTemperatureWet, description, fluidClass, judgement, manufacturer"
+				+ ", photo, specification, value, viscosity40, viscosity100) Values (:name, :boilingTemperatureDry" 
+		 		+ ", :boilingTemperatureWet, :description, :fluidClass, :judgement, :manufacturer, :photo, :specification, :value"
+		 		+ ", :viscosity40, :viscosity100)";
+		if (currentBrFluid.getId()>0){ // В БД есть такой элемент
+			 sqlUpdate="update brakingfluids set name=:name, boilingTemperatureDry=:boilingTemperatureDry"
+			 		+ ", boilingTemperatureWet=:boilingTemperatureWet, description=:description, fluidClass=:fluidClass, judgement=:judgement"
+			 		+ ", manufacturer=:manufacturer, photo=:photo, specification=:specification, value=:value"
+			 		+ ", viscosity40=:viscosity40, viscosity100=:viscosity100 where id=:id";
+		}
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("name", brFluid.getName());
+		params.addValue("boilingTemperatureDry", brFluid.getBoilingTemperatureDry());
+		params.addValue("boilingTemperatureWet", brFluid.getBoilingTemperatureWet());
+		params.addValue("description", brFluid.getDescription());
+		
+		FluidClass fluidClass=(FluidClass)brFluid.getFluidClass();
+		params.addValue("fluidClass", fluidClass.getId());
+		params.addValue("judgement", brFluid.getJudgement());
+		
+		Manufacturer manufacturer=(Manufacturer)brFluid.getManufacturer();
+		params.addValue("manufacturer", manufacturer.getId());
+		
+		params.addValue("photo", brFluid.getPhoto());
+		params.addValue("specification", brFluid.getSpecification());
+		params.addValue("value", brFluid.getValue());
+		params.addValue("viscosity40", brFluid.getViscosity40());
+		params.addValue("viscosity100", brFluid.getViscosity100());
+		if (currentBrFluid.getId()>0){ // В БД есть элемент
+			params.addValue("id", brFluid.getId());
+		}
+		
+		KeyHolder keyHolder=new GeneratedKeyHolder(); 
+		
+		jdbcTemplate.update(sqlUpdate, params, keyHolder);
+		
+		try{
+			if (keyHolder.getKey()!=null) {
+				result=getBrakingFluid(keyHolder.getKey().intValue());
+			}
+					
+		}catch (EmptyResultDataAccessException e){
+			result = new BrakingFluid();
+		}		
+		
+		return result;
+	}
+	
+	@Override
 	public BrakingFluid fillPrices(BrakingFluid brFluid) {
 		BrakingFluid result=new BrakingFluid();
 		BrakingFluid currentBrFluid = getBrakingFluidByName(brFluid.getName());
 		if (currentBrFluid.getId()>0){
-			String sqlUpdate="update brakingfluids set price=:price where name=:name";
+			String sqlUpdate="update brakingfluids set price=:price where id=:id";
 			
 			MapSqlParameterSource params = new MapSqlParameterSource();
-			params.addValue("name", brFluid.getName());
+			params.addValue("id", brFluid.getId());
 			params.addValue("price", brFluid.getPrice());
 	
 			KeyHolder keyHolder=new GeneratedKeyHolder(); 
@@ -450,6 +508,6 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			 
 		 	 return brFluid;
 		 }
-	}	
+	}
 	
 }

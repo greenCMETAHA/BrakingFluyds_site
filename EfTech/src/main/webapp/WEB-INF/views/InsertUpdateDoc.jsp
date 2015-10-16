@@ -222,6 +222,9 @@
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
 					                    </div>
 					  				</c:forEach>
+					  				
+					  				
+					  				
 					
 					                <li class="checkout">
 					                    <div class="basket-item">
@@ -246,204 +249,166 @@
 			</div><!-- /.container -->
 		</header>
       <!-- ============================================================= HEADER : END ============================================================= -->
+      
+      
       <div id="single-product">
         <div class="container">
-    	  <form action="InsertUpdate" method="POST"  enctype="multipart/form-data">
-    	    <c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"></c:set>
-			<input name="id_BrakeFluid" type="hidden" value="${currentBrakFluid.getId()}" >
+    	  <form action="InsertUpdateDoc" method="POST">
 			<input name="pageInfo" type="hidden" value="${requestScope.pageInfo}" >
-			<c:set var="readOnly" value=""></c:set>
-			<c:set var="disabledValue" value=""></c:set>
-			<sec:authorize access="!hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-				<c:set var="readOnly" value="readonly"></c:set>
-				<c:set var="disabledValue" value="disabled"></c:set>
-			</sec:authorize>
-			
+			<input name="variant" type="hidden" value="${requestScope.variant}" >
+						
 			<h1 class="border"><c:out value="${requestScope.pageInfo}"/></h1>
            
-			
- 	
             <div class="no-margin col-xs-12 col-sm-7 body-holder">
               <ul class="tabled-data">
-	            	<li>
-	                   <label></label>
+	                 <li>
+	                   <label>Номер документа:</label>
 	                   <div class="value">
-			                <div class="star-holder inline">
-			                  <div class="star" data-score="${currentBrakFluid.getJudgement()}" id="Judgement" ></div>
+	                   	 <c:if test="${requestScope.task=='New'}">
+	                   		<input type="text" class="input" value="${requestScope.doc_id}" name="doc_id" />
+	                   	 </c:if>
+	                   	 <c:if test="${requestScope.task!='New'}">
+	                   	 	<c:out value="${requestScope.doc_id}"/>
+	                   	 	<input type="text" hidden class="input" value="${requestScope.doc_id}" name="doc_id" />
+	                   	 </c:if>
+						</div>
+	                 </li>
+	                 <li>
+	                   <label>Дата документа:</label>
+	                   <div class="value">
+	                     <c:if test="${requestScope.task=='New'}">
+	                   		<input type="date" class="input" value="${requestScope.time}" name="time" />
+	                   	 </c:if>
+	                     <c:if test="${requestScope.task!='New'}">
+	                   	 	<c:out value="${requestScope.time.toLocaleString()}"/>
+	                   	 	<input type="text" hidden class="input" value="${requestScope.timeString}" name="time" />
+	                   	 </c:if>
+	                   		
+						</div>
+	                 </li>
+	                 <c:if test="${requestScope.variant=='Demand'}">
+	                  	<sec:authorize access="hasAnyRole('ROLE_DELIVERY','ROLE_MANAGER_SALE')">
+	                 	<li>
+		                   <label>Заказчик:</label>
+		                   <div class="value">
+			                   	<c:out value="${requestScope.userDoc.getName()}"/><br>
+			                   	<c:out value="${requestScope.userDoc.getEmail()}"/><br>
+							</div>
+		                 </li>
+		                </sec:authorize>
+	                 
+		           	  	 <li>
+		                   <label>Статус:</label>
+		                    <div class="value">
+		                    	<select size="1" name="status_id"  class="le-select">
+				                    <option >Выберите статус</option>	
+										<c:forEach var="punct" items="${requestScope.statuslist}">
+										<c:if test="${requestScope.currentStatus != punct.getId()}">
+											<option value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+										</c:if>
+										<c:if test="${requestScope.currentStatus == punct.getId()}">
+											<option selected value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+										</c:if>
+									</c:forEach>
+				                </select>
+							</div>
+		                 </li>
+		                 
+		                 <li>
+		                   <label>Исполнитель:</label>
+		                   <div class="value">
+		                   	   <sec:authorize access="hasAnyRole('ROLE_MANAGER_SALE')">
+	 		                   <select size="1" name="executer_id"  class="le-select"> 
+				                    <option >Выберите исполнителя</option>
+									<c:forEach var="punct" items="${requestScope.combobox_executers}">
+											<c:if test="${requestScope.executer_id != punct.getId()}">
+												<option value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+											</c:if>
+											<c:if test="${requestScope.executer_id == punct.getId()}">
+												<option selected value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+											</c:if>
+									</c:forEach>
+	 			                </select> 
+	 			                </sec:authorize>
+	 			                <sec:authorize access="!hasAnyRole('ROLE_MANAGER_SALE')">
+		 		                   <c:out value="${requestScope.executer_name}"/>
+		                   	 		<input type="text" hidden class="input" value="${requestScope.executer_id}" name="executer_id" />
+	 			                </sec:authorize>
 			                </div>
-		                </div>
-	                 </li>
-	                 <li>
-	                   <label>Наименование:</label>
-	                   <div class="value">
-	                   		<input <c:out value="${readOnly}"/> type="text" class="input" value="${currentBrakFluid.getName()}" name="name_BrakeFluid" />
-						</div>
-	                 </li>
-	           	  	 <li>
-	                   <label>Описание:</label>
-	                   <div class="value">
-	                   		<textarea name="Description"   <c:out value="${readOnly}"/>  cols="75" rows="7" class="textarea" ><c:out value="${currentBrakFluid.getDescription()}"  /></textarea>
-					   </div>
-	                 </li>
-	                 <li>
-	                   <label>Цена:</label>
-	                   <div class="value">
-	                   		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
-	                   			<input type="text" class="input" value="${currentBrakFluid.getPrice()}" name="Price" />
-	                   		</sec:authorize>
-					   </div>
-	                 </li>
+		                 </li>
+	                 </c:if>
 	        	 </ul>
-	           </div>
-	            <div class="col-xs-12 col-sm-3 no-margin">
-		         <div class="buttons-holder">
-		             <button class="le-button" type="submit" name="variant" value="Save">Сохранить</button>
-		         </div>
-		     </div>
-            </div>
-            <!-- /.body -->
-          </div>
-          <!-- /.body-holder -->
-        </div>
-        <!-- /.container -->
-      </div>
-      <!-- /.single-product -->
-      <!-- ========================================= SINGLE PRODUCT TAB ========================================= -->
-      <section id="single-product-tab">
-        <div class="container">
-          <div class="tab-holder">
-            <ul class="nav nav-tabs simple" >
-              <li class="active"><a href="#description" data-toggle="tab">Описание</a></li>
-              <li><a href="#character" data-toggle="tab">Характеристики</a></li>
-              <li><a href="#additional-info" data-toggle="tab">Дополнительная информация</a></li>
-              <li><a href="#image" data-toggle="tab">Изображение</a></li>
-            </ul>
-            <!-- /.nav-tabs -->
-            <div class="tab-content">
-	            <div class="tab-pane active" id="description">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Производитель:</label>
-	                    <div class="value">
-	                    	<select size="1" name="Manufacturer"  <c:out value="${disabledValue}"/> class="le-select">
-			                    <option >Выберите получателя</option>	
-									<c:forEach var="punct" items="${requestScope.combobox_Manufacturers}">
-									<c:if test="${currentBrakFluid.getManufacturer().getName() != punct.getName()}">
-										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-									<c:if test="${currentBrakFluid.getManufacturer().getName() == punct.getName()}">
-										<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-								</c:forEach>
-			                </select>
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Класс жидкости:</label>
-	                    <div class="value">
-	                    	<select size="1" name="FluidClass"  <c:out value="${disabledValue}"/>  class="le-select">
-			                    <option >Выберите класс жидкости</option>	
-									<c:forEach var="punct" items="${requestScope.combobox_FluidClasses}">
-									<c:if test="${currentBrakFluid.getFluidClass().getName() != punct.getName()}">
-										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-									<c:if test="${currentBrakFluid.getFluidClass().getName() == punct.getName()}">
-										<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-								</c:forEach>
-			                </select>
-						</div>
-	                  </li>
-	            	  <li>
-	                    <label>Объём:</label>
-	                    <div class="value">
-	                    	<input  <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getValue()}" name="Value" />
-						</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              
-	              <div class="tab-pane" id="character">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Температура кипения (сух.):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getBoilingTemperatureDry()}" name="BoilingTemperatureDry" />
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Температура кипения (вл.):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getBoilingTemperatureWet()}" name="BoilingTemperatureWet" />
-						</div>
-	                  </li>
-	            	  <li>
-	                    <label>Вязкость (при -40):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getViscosity40()}" name="Viscosity40" />
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Вязкость (при 100):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getViscosity100()}" name="Viscosity100" />
-						</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <div class="tab-pane" id="additional-info">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Спецификация:</label>
-	                    <div class="value">	
-	                    	<div class="excerpt">
-			                	<div><textarea name="Specification"  readonly="${readOnly}" cols="90" rows="7" class="textarea" ><c:out value="${currentBrakFluid.getSpecification()}"  /></textarea></div>
-            			  	</div>
-            			</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <div class="tab-pane" id="image">
-	                <ul class="tabled-data">
-	                  <li>
-		                <label></label>
-		                <div class="value">	
-		                	<c:if test="${currentBrakFluid.hasPhoto()}">
-						  		<img src="resources/jpg/<c:out value="${currentBrakFluid.getPhoto()}"  />" alt="${currentBrakFluid.getName()}">
-					    	</c:if><p>
-					    </div>
-					   </li>
-  	                   <li>
-	                    <label>Изменить изображение:</label>
-	                    <div class="value">	
-				            <div>
-				            	<input  type="file"  name="Photo" class="upload-file" id="file"/><p>
-				            	    <button class="le-button" type="submit" name="variant" value="Refresh">Обновить</button>
-		                	</div>
-		                	
-		                </div>
-	                  </li>
-	         		</ul>
-	              </div>
-                  </ul>
-                
-                <!-- /.tabled-data -->
-                <div class="meta-row">
-                </div>
-                <!-- /.meta-row -->
-              </div>
-              
-              <!-- /.tab-pane #reviews -->
-            </div>
-            <!-- /.tab-content -->
-          </div>
-        </div>
-        <!-- /.container -->
-      </section>
-      <!-- /#single-product-tab -->
-    
-      <!-- ========================================= SINGLE PRODUCT TAB : END ========================================= -->
-
+	         </div>
+           	 <div class="col-xs-12 col-sm-3 no-margin">
+	            <div class="buttons-holder">
+	               <button class="le-button" type="submit" name="task" value="Save">Сохранить</button>
+	               <button class="le-button" type="submit" name="task" value="SaveAndList">Сохранить и закрыть</button>
+	               <button class="le-button" type="submit" name="task" value="home">К списку товаров</button>
+	            </div>
+	         </div>
+     
+      
+			<div class="col-xs-12 col-md-9 items-holder no-margin">
+            	<c:if test="${requestScope.task=='New'}">
+            	<c:set var="name" value="basket" />
+		            <c:forEach var="currentDoc" items="${sessionScope[name]}">
+						<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+			            <div class="row no-margin cart-item">
+			              <div class="col-xs-12 col-sm-2 no-margin">
+			                
+			                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+			                </a>
+			              </div>
+			              <div class="col-xs-12 col-sm-4 ">
+			                <div class="title">
+			                  <c:out value="${currentBFluid.getName()}" />
+			                </div>
+			                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
+			              </div>
+			          	  <div class="col-xs-12 col-sm-3 no-margin">
+			          	  	<div class="quantity">
+			                      <c:out value="${currentDoc.getQauntity()}"/>
+			                </div>
+			               </div>
+			               <sec:authorize access="!isAnonymous()">
+				               <div class="col-xs-12 col-sm-2 no-margin">
+				                  <div class="price">
+					               		<c:out value="${currentDoc.getQauntity()*currentBFluid.getPrice()}"/>
+				                  </div>
+				               </div>
+				           </sec:authorize>
+			            </div>
+			            <!-- /.cart-item -->
+		          	</c:forEach>
+	          	</c:if>
+	          	<c:if test="${requestScope.task!='New'}">
+	            	<c:forEach var="currentDoc" items="${requestScope.listDoc}">
+						<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+			            <div class="row no-margin cart-item">
+			              <div class="col-xs-12 col-sm-1 no-margin">
+			                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+			              </div>
+			              <div class="col-xs-12 col-sm-6 ">
+			                <div class="title">
+			                  <c:out value="${currentBFluid.getName()}" />
+			                </div>
+			                <div class="brand">(<c:out value="${currentBFluid.getManufacturer().getName()}"/>)</div>
+			              </div>
+			          	  <div class="col-xs-12 col-sm-1 no-margin">
+			          	  	<div class="quantity">
+			                	<c:out value="${currentDoc.getQuantity()}"/>
+			                </div>
+			              </div>
+			              <div class="col-xs-12 col-sm-2 no-margin">
+			                  <div class="price">
+			               		<c:out value="${currentDoc.getQuantity()*currentBFluid.getPrice()}"/>
+			                  </div>
+			              </div>
+			            </div>
+			            <!-- /.cart-item -->
+		          	</c:forEach>
+	  			</c:if>
+        	</div>
 		</form>
       	</div>
       </div>

@@ -97,12 +97,12 @@ public class AddEditElementController {
 			,HttpServletRequest request
 			, Locale locale, Model model) {
 		
-		try {
-			task=new String(task.getBytes("iso-8859-1"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			task=new String(task.getBytes("iso-8859-1"), "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		String page="AddEdit";
 		
@@ -210,21 +210,21 @@ public class AddEditElementController {
 		String page="home";
 		int id=new Integer(id_current);
 		
-		try {
-			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8"); 
-			task = new String(task.getBytes("iso-8859-1"), "UTF-8");
-			name =new String(name.getBytes("iso-8859-1"), "UTF-8");
-			email =new String(email.getBytes("iso-8859-1"), "UTF-8");
-			country_name =new String(country_name.getBytes("iso-8859-1"), "UTF-8");
-			login =new String(login.getBytes("iso-8859-1"), "UTF-8");
-			login_current =new String(login_current.getBytes("iso-8859-1"), "UTF-8");
-			password =new String(password.getBytes("iso-8859-1"), "UTF-8");
-			address =new String(address.getBytes("iso-8859-1"), "UTF-8");
-			info =new String(info.getBytes("iso-8859-1"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8"); 
+//			task = new String(task.getBytes("iso-8859-1"), "UTF-8");
+//			name =new String(name.getBytes("iso-8859-1"), "UTF-8");
+//			email =new String(email.getBytes("iso-8859-1"), "UTF-8");
+//			country_name =new String(country_name.getBytes("iso-8859-1"), "UTF-8");
+//			login =new String(login.getBytes("iso-8859-1"), "UTF-8");
+//			login_current =new String(login_current.getBytes("iso-8859-1"), "UTF-8");
+//			password =new String(password.getBytes("iso-8859-1"), "UTF-8");
+//			address =new String(address.getBytes("iso-8859-1"), "UTF-8");
+//			info =new String(info.getBytes("iso-8859-1"), "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		LinkedList<String> errors=new LinkedList<String>();
 		
 		if (task.compareTo("К списку")==0){

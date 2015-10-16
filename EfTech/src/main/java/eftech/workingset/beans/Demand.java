@@ -4,6 +4,7 @@ import java.util.Date;
 
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceDemand;
+import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 
 public class Demand implements InterfaceDemand {
 	private int id;
@@ -13,8 +14,11 @@ public class Demand implements InterfaceDemand {
 	private InterfaceBrakingFluid brakingFluid;
 	private int quantity;
 	private double price;
+	private InterfaceOfferStatus status;
+	private User executer;
 
-	public Demand(int id, Date time, User user, String demand_id, InterfaceBrakingFluid brakingFluid, int quantity,	double price) {
+	public Demand(int id, Date time, User user, String demand_id, InterfaceBrakingFluid brakingFluid, int quantity,	double price
+			, InterfaceOfferStatus status, User executer) {
 		super();
 		this.id = id;
 		this.time = time;
@@ -23,7 +27,17 @@ public class Demand implements InterfaceDemand {
 		this.brakingFluid = brakingFluid;
 		this.quantity = quantity;
 		this.price = price;
+		this.status = status;
+		this.setExecuter(executer);
 	}
+	
+	public Demand(int id, String demand_id, InterfaceOfferStatus status) {
+		super();
+		this.id = id;
+		this.demand_id = demand_id;
+		this.status = status;
+	}
+	
 
 	public Demand() {
 		super();
@@ -55,6 +69,10 @@ public class Demand implements InterfaceDemand {
 	 */
 	public void setTime(Date time) {
 		this.time = time;
+	}
+	
+	public String showDate() {
+		return time.toLocaleString();
 	}
 
 	/**
@@ -126,5 +144,29 @@ public class Demand implements InterfaceDemand {
 	public void setPrice(double price) {
 		this.price = price;
 	}
+	
+
+	/**
+	 * @return the status
+	 */
+	public InterfaceOfferStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setStatus(InterfaceOfferStatus status) {
+		this.status = status;
+	}
+
+	public User getExecuter() {
+		return executer;
+	}
+
+	public void setExecuter(User executer) {
+		this.executer = executer;
+	}
+	
 }
 

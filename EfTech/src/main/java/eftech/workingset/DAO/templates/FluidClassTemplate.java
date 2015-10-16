@@ -81,7 +81,6 @@ public class FluidClassTemplate implements InterfaceFluidClassDAO{
 			MapSqlParameterSource params = new MapSqlParameterSource();
 			params.addValue("name", name);
 			jdbcTemplate.update(sqlUpdate, params, keyHolder);
-			System.out.println(keyHolder.getKey().intValue());
 
 			try{
 				result=(FluidClass)getFluidClass(keyHolder.getKey().intValue());

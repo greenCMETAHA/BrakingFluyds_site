@@ -14,10 +14,8 @@ public class Offer implements InterfaceOffer {
 	private InterfaceBrakingFluid brakingFluid;
 	private int quantity;
 	private double price;
-	private InterfaceOfferStatus status;
 
-	public Offer(int id, Date time, User user, String offer_id, InterfaceBrakingFluid brekingFluid, int quantity,
-			double price, InterfaceOfferStatus status) {
+	public Offer(int id, Date time, User user, String offer_id, InterfaceBrakingFluid brekingFluid, int quantity) {
 		super();
 		this.id = id;
 		this.time = time;
@@ -26,7 +24,12 @@ public class Offer implements InterfaceOffer {
 		this.brakingFluid = brekingFluid;
 		this.quantity = quantity;
 		this.price = price;
-		this.status = status;
+	}
+	
+	public Offer(int id, String offer_id) {
+		super();
+		this.id = id;
+		this.offer_id = offer_id;
 	}
 
 	public Offer() {
@@ -52,6 +55,10 @@ public class Offer implements InterfaceOffer {
 	 */
 	public Date getTime() {
 		return time;
+	}
+	
+	public String showDate() {
+		return time.toLocaleString();
 	}
 
 	/**
@@ -131,21 +138,4 @@ public class Offer implements InterfaceOffer {
 		this.price = price;
 	}
 
-	/**
-	 * @return the status
-	 */
-	public InterfaceOfferStatus getStatus() {
-		return status;
-	}
-
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(InterfaceOfferStatus status) {
-		this.status = status;
-	}
-
-	
-	
-	
 }

@@ -32,7 +32,11 @@
     <script src="resources/Ecommerce/assets/js/html5shiv.js"></script>
     <script src="resources/Ecommerce/assets/js/respond.min.js"></script>
     <![endif]-->
-    <link href="style.css" rel="resources/greenCMETAHA.css">
+    <style type="text/css">
+		.dropdown-menu:hover {
+		  display: block;
+		}
+    </style>
   </head>
   <body>
     <div class="wrapper">
@@ -145,10 +149,10 @@
 					                    
 					
 					                    <ul class="dropdown-menu" role="menu" >
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По наименованию</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По классу жидкости</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По производителю</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По описанию</a></li>
 					                    </ul>
 					                </li>
 					            </ul>
@@ -267,30 +271,29 @@
                 <div class="category-filter">
                   <h2>Производители:</h2>
                   <hr>
+                  <c:set var="isSearch" value="${0}"/>
                   <ul>
-                  	
                   	<c:forEach var="currentManufacturer" items="${requestScope.manufacturersFilter}">
                   		<li>
                   			<c:if test="${currentManufacturer.isSelected()}">
                   				<input checked="checked" type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  />
+                  				<label><c:out value="${currentManufacturer.getName()}"  /> </label>
+                  				<c:set var="isSearch" value="${isSearch+1}"/>
                   			</c:if>
-<%--                   			<c:if test="${!currentManufacturer.isSelected()}"> --%>
-<%--                   				<input type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  /> --%>
-<%--                   			</c:if> --%>
-      						<label><c:out value="${currentManufacturer.getName()}"  /> </label> 
                   		</li>
                   	</c:forEach>
                   </ul>
+                  	<c:if test="${isSearch==0}">
+                  		По всем
+                  	</c:if>
                   
                   <!-- ================================== TOP NAVIGATION ================================== -->
-		            <div class="side-menu animate-dropdown">
-		              <nav class="yamm megamenu-horizontal" role="navigation">
+                  <c:if test="${(requestScope.manufacturersFilter.size()-isSearch)>0}">
+		            <div class="side-menu animate-dropdown" tabindex="-1" >
+		              <nav class="yamm megamenu-horizontal" role="navigation" >
 		                <ul class="nav">
 		                  <li class="dropdown menu-item">
-		                    <a href="" class="dropdown-toggle" data-toggle="dropdown">Всего: <c:out value="${requestScope.manufacturersFilter.size()}"/>  </a>
-<!-- 		                    <div  class="hidden-wrapper"> -->
-<!--                   			<div class="hidden-list"> -->
-		                    
+		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.manufacturersFilter.size()-isSearch}"/>  </a>
 		                    <ul class="dropdown-menu mega-menu">
 		                      <li class="yamm-content">
 		                      	<div class="row">
@@ -306,18 +309,16 @@
 		                                   </c:forEach>
 		                                </ul>
 		                            </div>
-		                            
 		                        </div>
 		                      </li>
 		                    </ul>
-<!-- 		                    </div> -->
-<!-- 		                    </div> -->
 		                  </li>
 		                </ul>
 		                <!-- /.nav -->
 		              </nav>
 		              <!-- /.megamenu-horizontal -->
 		            </div>
+		            </c:if>
 		            <!-- /.side-menu -->
 		            <!-- ================================== TOP NAVIGATION : END ================================== -->		
                   
@@ -331,19 +332,60 @@
                 <div class="category-filter">
 	                  <h2>Класс жидкости:</h2>
 	                  <hr>
+	                  <c:set var="isSearch" value="${0}"/>
 	                  <ul>
 	                  	<c:forEach var="currentFluidClass" items="${requestScope.fluidClassFilter}">
 	                  		<li>
 	                  			<c:if test="${currentFluidClass.isSelected()}">
 	                  				<input checked="checked" type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  />
+	                  				<label><c:out value="${currentFluidClass.getName()}"  /> 
+	      							<c:set var="isSearch" value="${isSearch+1}"/> 
 	                  			</c:if>
-	                  			<c:if test="${!currentFluidClass.isSelected()}">
-	                  				<input type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  />
-	                  			</c:if>
-	      						<label><c:out value="${currentFluidClass.getName()}"  />  
+<%-- 	                  			<c:if test="${!currentFluidClass.isSelected()}"> --%>
+<%-- 	                  				<input type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  /> --%>
+<%-- 	                  			</c:if> --%>
 	                  		</li>
 	                  	</c:forEach>
 	                  </ul>
+	                  <c:if test="${isSearch==0}">
+                  		По всем
+                  	  </c:if>
+                  	   <!-- ================================== TOP NAVIGATION ================================== -->
+                  	   <c:if test="${(requestScope.fluidClassFilter.size()-isSearch)>0}">
+		            <div class="side-menu animate-dropdown" tabindex="-1" >
+		              <nav class="yamm megamenu-horizontal" role="navigation" >
+		                <ul class="nav">
+		                  <li class="dropdown menu-item">
+		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.fluidClassFilter.size()-isSearch}"/>  </a>
+		                    <ul class="dropdown-menu mega-menu">
+		                      <li class="yamm-content">
+		                      	<div class="row">
+		                            <div class="col-md-4">
+		                                <ul class="list-unstyled">
+		                                	<c:forEach var="currentfluidClassFilter" items="${requestScope.fluidClassFilter}">
+		                                   		<li>
+													<c:if test="${!currentfluidClassFilter.isSelected()}">
+                										<input type="checkbox" name="fluidClassselections" value="${currentfluidClassFilter.getId()}" class="le-checkbox"  />
+                										<label><c:out value="${currentfluidClassFilter.getName()}"  /> </label>
+						                   			</c:if>
+												</li>
+		                                   </c:forEach>
+		                                </ul>
+		                            </div>
+		                            
+		                        </div>
+		                      </li>
+		                    </ul>
+		                  </li>
+		                </ul>
+		                <!-- /.nav -->
+		              </nav>
+		              <!-- /.megamenu-horizontal -->
+		            </div>
+		            </c:if>
+		            <!-- /.side-menu -->
+		            <!-- ================================== TOP NAVIGATION : END ================================== -->	
+                  	  
                 </div>                
                 
                 

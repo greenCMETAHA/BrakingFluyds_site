@@ -63,12 +63,12 @@ public class ExcelController {
 		
 		String result="home";
 		
-		try {
-			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		ArrayList<String> errors=new ArrayList<String>();
 		
 		if ("На главную".equals(variant)){

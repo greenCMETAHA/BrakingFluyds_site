@@ -14,6 +14,7 @@ public interface InterfaceBrakingFluidDAO {
 	BrakingFluid getBrakingFluid(int id);
 	BrakingFluid getBrakingFluidByName(String name);
 	BrakingFluid createBrakingFluid(BrakingFluid brFluid);
+	BrakingFluid createBrakingFluidWithoutPrice(BrakingFluid brFluid);
 	BrakingFluid fillPrices(BrakingFluid brFluid);
 	
 	double minData(String param);

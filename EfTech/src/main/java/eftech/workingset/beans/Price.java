@@ -34,6 +34,10 @@ public class Price implements InterfacePrice{
 		return time;
 	}
 
+	public String showDate() {
+		return time.toLocaleString();
+	}
+
 	/**
 	 * @param time the time to set
 	 */

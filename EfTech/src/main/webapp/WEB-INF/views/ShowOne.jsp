@@ -331,6 +331,9 @@
             <ul class="nav nav-tabs simple" >
               <li class="active"><a href="#description" data-toggle="tab">Описание</a></li>
               <li><a href="#additional-info" data-toggle="tab">Дополнительная информация</a></li>
+              <sec:authorize access="hasRole('ROLE_PRICE')">
+              	<li><a href="#prices" data-toggle="tab">История цены (<c:out value="${requestScope.prices.size()}"/>)</a></li>
+              </sec:authorize>
               <li><a href="#reviews" data-toggle="tab">Отзывы (<c:out value="${requestScope.reviews.size()}"/>)</a></li>
             </ul>
             <!-- /.nav-tabs -->
@@ -415,6 +418,27 @@
                 <!-- /.meta-row -->
               </div>
               
+              <!-- /.tab-pane #description													!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! --> 
+              <div class="tab-pane" id="prices">
+                <!-- ========================================= CONTENT ========================================= -->
+		        <div >
+		            <c:forEach var="price" items="${requestScope.prices}">
+			            <div class="row no-margin">
+			              <div class="col-xs-12 col-sm-4 no-margin">
+			                <c:out value="${price.showDate()}"/>
+			              </div>
+			              <div class="col-xs-12 col-sm-4 ">
+			                <c:out value="${price.getUser().getName()}"/>
+			              </div>
+			              <div class="col-xs-12 col-sm-2 ">
+			                <c:out value="${price.getPrice()}"/>
+			              </div>
+			            </div>
+			       	</c:forEach>
+		        </div>
+		        <!-- ========================================= CONTENT : END ========================================= -->
+             </div>   
+                
               <!-- /.tab-pane #additional-info -->
               <div class="tab-pane" id="reviews">
                 <div class="comments">

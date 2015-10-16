@@ -12,9 +12,10 @@ import eftech.workingset.beans.User;
 public interface InterfaceOfferDAO {
 	int getCountRows(Date begin, Date end);
 	ArrayList<Offer> getOffersLast(int numPage, int quantity);
+	ArrayList<Offer> getOffersIn(Date begin, Date end, int numPage, int quantity);
 	ArrayList<Offer> getOffer(String offer_id);
 	Offer getOfferById(int id);
 	Offer getOfferByOfferId(String offer_id, int braking_fluid_id);
 	
-	ArrayList<Offer> createOffer(String offer_id, LinkedList<Basket> basket, User user, OfferStatus status);
+	ArrayList<Offer> createOffer(String offer_id, LinkedList<Basket> basket, User user);
 }

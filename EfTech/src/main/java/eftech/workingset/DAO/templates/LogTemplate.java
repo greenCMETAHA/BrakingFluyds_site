@@ -128,8 +128,12 @@ public class LogTemplate implements InterfaceLogDAO {
 				Method method = c.getMethod("getId", paramTypes); 
 				Object[] args = new Object[] {}; 
 				params.addValue("object_id", (Integer) method.invoke(obj, args));
-				method = c.getMethod("getName", paramTypes);
-				params.addValue("object_name", (String) method.invoke(obj, args));
+				try{
+					method = c.getMethod("getName", paramTypes);
+					params.addValue("object_name", (String) method.invoke(obj, args));
+				}catch(NoSuchMethodException e){
+					params.addValue("object_name","");
+				}
 			} catch (IllegalArgumentException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

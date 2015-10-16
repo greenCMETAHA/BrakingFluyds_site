@@ -249,563 +249,80 @@
 				
 			</div><!-- /.container -->
 		</header>
-      <!-- ============================================================= HEADER : END ============================================================= -->		
-
-
-
-
-      <section id="category-grid">
+      <!-- ============================================================= HEADER : END ============================================================= -->
+      <form action="listDoc" method="POST" enctype="application/x-www-form-urlencoded">		
+    <section id="category-grid">
         <div class="container">
-          <!-- ========================================= SIDEBAR ========================================= -->
-          <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
-            <!-- ========================================= PRODUCT FILTER ========================================= -->
-            <form action="home" method="POST">
-            <div class="widget">
-              <h1>Фильтр по товарам</h1>
-              <div class="body bordered">
-              
-                <div class="category-filter">
-                  <h2>Производители:</h2>
-                  <hr>
-                  <ul>
-                  	
-                  	<c:forEach var="currentManufacturer" items="${requestScope.manufacturersFilter}">
-                  		<li>
-                  			<c:if test="${currentManufacturer.isSelected()}">
-                  				<input checked="checked" type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  />
-                  			</c:if>
-<%--                   			<c:if test="${!currentManufacturer.isSelected()}"> --%>
-<%--                   				<input type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  /> --%>
-<%--                   			</c:if> --%>
-      						<label><c:out value="${currentManufacturer.getName()}"  /> </label> 
-                  		</li>
-                  	</c:forEach>
-                  </ul>
-                  
-                  <!-- ================================== TOP NAVIGATION ================================== -->
-		            <div class="side-menu animate-dropdown">
-		              <nav class="yamm megamenu-horizontal" role="navigation">
-		                <ul class="nav">
-		                  <li class="dropdown menu-item">
-		                    <a href="" class="dropdown-toggle" data-toggle="dropdown">Всего: <c:out value="${requestScope.manufacturersFilter.size()}"/>  </a>
-<!-- 		                    <div  class="hidden-wrapper"> -->
-<!--                   			<div class="hidden-list"> -->
-		                    
-		                    <ul class="dropdown-menu mega-menu">
-		                      <li class="yamm-content">
-		                      	<div class="row">
-		                            <div class="col-md-4">
-		                                <ul class="list-unstyled">
-		                                	<c:forEach var="currentManufacturer" items="${requestScope.manufacturersFilter}">
-		                                   		<li>
-													<c:if test="${!currentManufacturer.isSelected()}">
-                										<input type="checkbox" name="selections" value="${currentManufacturer.getId()}" class="le-checkbox"  />
-                										<label><c:out value="${currentManufacturer.getName()}"  /> </label>
-						                   			</c:if>
-												</li>
-		                                   </c:forEach>
-		                                </ul>
-		                            </div>
-		                            
-		                        </div>
-		                      </li>
-		                    </ul>
-<!-- 		                    </div> -->
-<!-- 		                    </div> -->
-		                  </li>
-		                </ul>
-		                <!-- /.nav -->
-		              </nav>
-		              <!-- /.megamenu-horizontal -->
-		            </div>
-		            <!-- /.side-menu -->
-		            <!-- ================================== TOP NAVIGATION : END ================================== -->		
-                  
-                  
-                  
-                  
+        	<h1><c:if test="${requestScope.variant=='Demand'}">
+    	  		Заявки:
+    	  	</c:if>
+    	  	<c:if test="${requestScope.variant=='Offer'}">
+    	  		Коммерческие предложения:
+    	  	</c:if></h1>
+       		<input name="variant" type="hidden" value="${requestScope.variant}" >
+       		<div class="row">
+       		
+       			<div class="col-xs-5 col-sm-10">
+       				За период с <input type="date" value="${dateBeginFilterString}" name="dateBeginFilterString"> 
+    	    			по <input type="date" value="${dateEndFilterString}" name="dateEndFilterString"> &nbsp&nbsp&nbsp
+                    <input type="submit" class="le-button" value="Обновить" name="button">
                 </div>
-                <!-- /.category-filter -->
-                
-                
-                <div class="category-filter">
-	                  <h2>Класс жидкости:</h2>
-	                  <hr>
-	                  <ul>
-	                  	<c:forEach var="currentFluidClass" items="${requestScope.fluidClassFilter}">
-	                  		<li>
-	                  			<c:if test="${currentFluidClass.isSelected()}">
-	                  				<input checked="checked" type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  />
-	                  			</c:if>
-	                  			<c:if test="${!currentFluidClass.isSelected()}">
-	                  				<input type="checkbox" name="fluidClassselections" value="${currentFluidClass.getId()}" class="le-checkbox"  />
-	                  			</c:if>
-	      						<label><c:out value="${currentFluidClass.getName()}"  />  
-	                  		</li>
-	                  	</c:forEach>
-	                  </ul>
-                </div>                
-                
-                
-               <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-					<div class="price-filter">
-	                  <h2>Цена</h2>
-	                  <hr>
-	                  <div class="price-range-holder">
-						<input id="ex2" type="text" class="price-slider" value="" name="currentPriceFilter"
-							data-slider-min="${requestScope.MinPrice}" data-slider-max="${requestScope.MaxPrice}" 
-							data-slider-step="100" data-slider-value="[${requestScope.currentMinPriceFilter},${requestScope.currentMaxPriceFilter}]"/>
-	                    <span class="min-max">
-	                    Цена: $<c:out value="${requestScope.MinPrice}"/> - $<c:out value="${requestScope.MaxPrice}"/>
-	                    </span>
-	                  </div>
-	                </div>                
-                <!-- /.price-filter -->
-                 </sec:authorize>
-                
-                 <div class="price-filter">
-	                  <h2>Температура кипения (сухая)</h2>
-	                  <hr>
-	                  <div class="price-range-holder">
-<%-- 	                  	<c:set  var="name" value="currentBoilingTemperatureDryFilter" /> --%>
-						<input id="ex3" type="text" class="price-slider" value="" name="currentBoilingTemperatureDryFilter"
-							data-slider-min="${requestScope.MinBoilingTemperatureDry}" data-slider-max="${requestScope.MaxBoilingTemperatureDry}" 
-							data-slider-step="100" data-slider-value="[${requestScope.currentMinBoilingTemperatureDryFilter},${requestScope.currentMaxBoilingTemperatureDryFilter}]"/>
-	                    <span class="min-max">
-	                    От <c:out value="${requestScope.MinBoilingTemperatureDry}"/> до <c:out value="${requestScope.MaxBoilingTemperatureDry}"/> градусов
-	                    </span>
-	                  </div>
-	                </div>
-	                
-	               <div class="price-filter">
-	                  <h2>Температура кипения (влажная)</h2>
-	                  <hr>
-	                  <div class="price-range-holder">
-<%-- 	                  	<c:set  var="name" value="currentBoilingTemperatureWetFilter" /> --%>
-						<input id="ex4" type="text" class="price-slider" value="" name="currentBoilingTemperatureWetFilter"
-							data-slider-min="${requestScope.MinBoilingTemperatureWet}" data-slider-max="${requestScope.MaxBoilingTemperatureWet}" 
-							data-slider-step="100" data-slider-value="[${requestScope.currentMinBoilingTemperatureWetFilter},${requestScope.currentMaxBoilingTemperatureWetFilter}]"/>
-	                    <span class="min-max">
-	                    От <c:out value="${requestScope.MinBoilingTemperatureWet}"/> до <c:out value="${requestScope.MaxBoilingTemperatureWet}"/> градусов
-	                    </span>
-	                  </div>
-	                </div>
-	                
-	                <div class="price-filter">
-	                  <h2>Объём</h2>
-	                  <hr>
-	                  <div class="price-range-holder">
-<%-- 	                  	<c:set  var="name" value="currentValueFilter" /> --%>
-						<input id="ex5" type="text" class="price-slider" value="" name="currentValueFilter" 
-							data-slider-min="${requestScope.MinValue}" data-slider-max="${requestScope.MaxValue}" 
-							data-slider-step="100" data-slider-value="[${requestScope.currentMinValueFilter},${requestScope.currentMaxValueFilter}]"/>
-	                    <span class="min-max">
-	                    От <c:out value="${requestScope.MinValue}"/> до <c:out value="${requestScope.MaxValue}"/> мл.
-	                    </span>
-	                  </div>
-	                </div>
-                
-                 <div class="price-filter">
-	                  <h2>Вязкость (при -40 градусах)</h2>
-	                  <hr>
-	                  <div class="price-range-holder">
-<%-- 	                  	<c:set  var="name" value="currentViscosity40Filter" /> --%>
-						<input id="ex6" type="text" class="price-slider" value="" name="currentViscosity40Filter"
-							data-slider-min="${requestScope.MinViscosity40}" data-slider-max="${requestScope.MaxViscosity40}" 
-							data-slider-step="50" data-slider-value="[${requestScope.currentMinViscosity40Filter},${requestScope.currentMaxViscosity40Filter}]"/>
-	                    <span class="min-max">
-	                    От <c:out value="${requestScope.MinViscosity40}"/> до <c:out value="${requestScope.MaxViscosity40}"/>
-	                    </span>
-	                  </div>
-	                </div>
-	                
-	                <div class="price-filter">
-	                  <h2>Вязкость (при 100 градусах)</h2>
-	                  <hr>
-	                  <div class="price-range-holder">
-	                  	<c:set  var="name" value="currentViscosity100Filter" />
-						<input id="ex7" type="text" class="price-slider" value="" name="currentViscosity100Filter"
-							data-slider-min="${requestScope.MinViscosity100}" data-slider-max="${requestScope.MaxViscosity100}" 
-							data-slider-step="50" data-slider-value="[${requestScope.currentMinViscosity100Filter},${requestScope.currentMaxViscosity100Filter}]"/>
-	                    <span class="min-max">
-	                    От <c:out value="${requestScope.MinViscosity100}"/> до <c:out value="${requestScope.MaxViscosity100}"/>
-	                    </span>
-	                  </div>
-	                </div>
-	                
-	                
-<!-- 	                 <div class="price-filter"> -->
-<!-- 	                  <h2>Оценка пользователей</h2> -->
-<!-- 	                  <hr> -->
-<%-- 	                  <c:out value="${requestScope.currentJudgementFilter}"></c:out> --%>
-<!-- 	                  <div class="price-range-holder"> -->
-<%-- 							<c:set  var="name" value="currentJudgementFilter" /> --%>
-<!-- 						<input id="ex8" type="text" class="price-slider" value="" name="currentJudgementFilter" -->
-<%-- 							data-slider-min="${requestScope.MinJudgement}" data-slider-max="${requestScope.MaxJudgement}"  --%>
-<%-- 							data-slider-step="1" data-slider-value="[${requestScope.currentMinJudgementFilter},${requestScope.currentMaxJudgementFilter}]"/> --%>
-<!-- 	                    <span class="min-max"> -->
-<%-- 	                    От <c:out value="${requestScope.MinJudgement}"/> до <c:out value="${requestScope.MaxJudgement}"/> --%>
-<!-- 	                    </span> -->
-<!-- 	                  </div> -->
-<!-- 	                </div> -->
-                
-                
-              </div>
-              <!-- /.body -->
-              <span class="filter-button">
-                   	<button class="le-button" type="submit" name="sss">Отбор</button>	
-               </span>
-              
-            </div>
-            <!-- /.widget -->
-            </form>
-            <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-	            <div class="widget">
-	            	<div class="body bordered">
-		            	<div class="buttons-holder">
-		                  <a class="le-button big" href="InsertUpdate?variant=New" >Новый товар</a>
-		                </div>
-	            	</div>
-	            </div>
-            </sec:authorize>            
-                        
-            <!-- ========================================= PRODUCT FILTER : END ========================================= -->
-            
-          </div>
-          <!-- ========================================= CONTENT ========================================= -->
-          <div class="col-xs-12 col-sm-9 no-margin wide sidebar">
-            <section id="recommended-products" class="carousel-holder hover small">
-              <div class="title-nav">
-                <h2 class="inverse">Рекомендуемые товары:</h2>
-                <div class="nav-holder">
-                  <a href="#prev" data-target="#owl-recommended-products" class="slider-prev btn-prev fa fa-angle-left"></a>
-                  <a href="#next" data-target="#owl-recommended-products" class="slider-next btn-next fa fa-angle-right"></a>
-                </div>
-              </div>
-              <!-- /.title-nav -->
-              <div id="owl-recommended-products" class="owl-carousel product-grid-holder">
-                  <c:forEach var="currentBFluid" items="${requestScope.recommendedBrakFluids}">
-                     <div class="no-margin carousel-item product-item-holder hover size-medium">
-                  	   
-		                   <div class="product-item">
-		                    
-			                    <div class="image">
-			                      <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
-			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
-			                    </div>
-			                    <div class="body">
-			                      <div class="title">
-			                        <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}"  /></a>
-			                      </div>
-			                      <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/>
-			                      </div>
-			                    </div>
-			                    <div class="prices">
-			                      	<div class="price-current text-right">
-			                      		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-			                      			$<c:out value="${currentBFluid.getPrice()}"/>
-			                      		</sec:authorize>
-			                      	</div>
-			                    </div>
-			                    <div class="hover-area">
-			                      <div class="add-cart-button">
-				                    <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inBasket"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
-			                      </div>
-			                      <div class="wish-compare">
-			                      	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
-				                        <c:url value="home" var="UpdateBrakingFluid">
-											<c:param name="id" value="${currentBFluid.getId()}"/>
-											<c:param name="variant" value="inWishlist"/>
-											<c:param name="currentPage" value="${requestScope.currentPage}"/>
-										</c:url>
-										
-					                    <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
-				                    </sec:authorize>
-			                        <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inCompare"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a class="btn-add-to-compare" href="${UpdateBrakingFluid}">Сравнить</a>
-			                      </div>
-		                    	</div>
-		                    </div>
-		                  </div>
-		               </form>
-                  </c:forEach>
                </div>
-              <!-- /#recommended-products-carousel .owl-carousel -->
-            </section>
-            <!-- /.carousel-holder -->            
-            <section id="gaming">
-              <div class="grid-list-products">
-                <h2 class="section-title">Отобранные товары:</h2>
-                <div class="control-bar">
-                   <div id="item-count" class="le-select">
-                    <select name="elementsInList">
-                      <option value="4">4 на странице</option>
-                      <option value="6">6 на странице</option>
-                      <option value="10">10 на странице</option>
-                      <option value="24">24 на странице</option>
-                      <option value="32">32 на странице</option>
-                    </select>
-                  </div>
-                  <div class="grid-list-buttons">
-                    <ul>
-                      <li class="grid-list-button-item active"><a data-toggle="tab" href="#grid-view"><i class="fa fa-th-large"></i> Мозаика</a></li>
-                      <li class="grid-list-button-item "><a data-toggle="tab" href="#list-view"><i class="fa fa-th-list"></i> Список</a></li>
-                    </ul>
-                  </div>
-                </div>
-                <!-- /.control-bar -->
-                <div class="tab-content">
-                  <div id="grid-view" class="products-grid fade tab-pane in active">
-                    <div class="product-grid-holder">
-                      <div class="row no-margin">
-						<c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
-                  	 	  <div class="col-xs-12 col-sm-4 no-margin product-item-holder hover">
-                          <div class="product-item">
-                            <div class="image">
-                              <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
-			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
-                            </div>
-                            <div class="body">
-                              <div class="title">
-                                <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}"  /></a>
-                              </div>
-                              <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
-                            </div>
-                            <div class="prices">
-                              <div class="price-current pull-right">
-									<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">		                              
-	                              		$<c:out value="${currentBFluid.getPrice()}"/>
-	                              	</sec:authorize>
-   	                          </div>
-                            </div>
-                            <div class="hover-area">
-                              <div class="add-cart-button">
-                                <c:url value="home" var="UpdateBrakingFluid">
-									<c:param name="id" value="${currentBFluid.getId()}"/>
-									<c:param name="variant" value="inBasket"/>
-									<c:param name="currentPage" value="${requestScope.currentPage}"/>
-								</c:url>
-			                    <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
-                              </div>
-                              <div class="wish-compare">
-                              	   <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
-				                        <c:url value="home" var="UpdateBrakingFluid">
-											<c:param name="id" value="${currentBFluid.getId()}"/>
-											<c:param name="variant" value="inWishlist"/>
-											<c:param name="currentPage" value="${requestScope.currentPage}"/>
-										</c:url>
-										
-				                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
-				                   </sec:authorize>
-		                        <c:url value="home" var="UpdateBrakingFluid">
-									<c:param name="id" value="${currentBFluid.getId()}"/>
-									<c:param name="variant" value="inCompare"/>
-									<c:param name="currentPage" value="${requestScope.currentPage}"/>
-								</c:url>
-		                        <a class="btn-add-to-compare" href="${UpdateBrakingFluid}">Сравнить</a>
-			                        
-			                  </div>
-                            </div>
-                          </div>
-                          <!-- /.product-item -->
-                        </div>
-                        <!-- /.product-item-holder -->
-                        </c:forEach>
-                      </div>
-                      <!-- /.row -->
-                    </div>
-                    <!-- /.product-grid-holder -->
-                    <div class="pagination-holder">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-6 text-left">
-                          <ul class="pagination ">
-                          	<c:forEach var="page" begin="1" end="${requestScope.totalPages}">
-                          		<c:url value="home" var="UpdateBrakingFluid">
-									<c:param name="variant" value="home"/>
-									<c:param name="currentPage" value="${page}"/>
-								</c:url>
-                       	    	<c:set var="current" value=""/>
- 		                  			<c:if test="${(page+1)==requestScope.currentPage}">
-        	          				<c:set var="current" value="class='current'"/>
-            	      			</c:if>
-                          	    <li <c:out value="${current}"  />  ><a  href="${UpdateBrakingFluid}"><c:out value="${page}"/></a></li>
-                          	</c:forEach>
-                          	<c:if test="${requestScope.totalPages>requestScope.currentPage}">
-	                          	<c:url value="home" var="UpdateBrakingFluid">
-									<c:param name="variant" value="home"/>
-									<c:param name="currentPage" value="${requestScope.currentPage+1}"/>
-								</c:url>
-								<li><a href="${UpdateBrakingFluid}">Следующая</a></li>
-							</c:if>
-                          </ul>
-                        </div>
-                        <div class="col-xs-12 col-sm-6">
-                          <div class="result-counter">
-                          	Товары <span><c:out value="${requestScope.paginationString_part1}"  /> </span> из <span> <c:out value="${requestScope.paginationString_part2}"  /> <span> найденных
-                           
-                          </div>
-                        </div>
-                      </div>
-                      <!-- /.row -->
-                    </div>
-                    <!-- /.pagination-holder -->
-                  </div>
-                  <!-- /.products-grid #grid-view -->
-                  <div id="list-view" class="products-grid fade tab-pane ">
-                    <div class="products-list">
-                        
-                        
-						 <c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
-						    <div class="product-item product-item-holder">
-                        		<div class="row">
-						 
-	                  	 	 <div class="no-margin col-xs-12 col-sm-4 image-holder">
-	                            <div class="image">
-	                              <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
-			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
-	                            </div>
-	                         </div> 
-	                         <!-- /.image-holder -->
-	                          <div class="no-margin col-xs-12 col-sm-5 body-holder">
-	                            <div class="body">
-	                              <div class="title">
-	                                <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}"  /></a>
-	                              </div>
-	                              <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
-	                              <div class="excerpt">
-	                                <p><c:out value="${currentBFluid.getDescription()}"/></p>
-	                              </div>
-	                              <div class="addto-compare">
-	                               <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inCompare"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-			                        <a class="btn-add-to-compare" href="${UpdateBrakingFluid}">Сравнить</a>
-	                              </div>
-	                            </div>
-	                          </div>
-	                          <!-- /.body-holder --> 
-	                           <div class="no-margin col-xs-12 col-sm-3 price-area">
-	                            <div class="right-clmn">
-	                              <div class="price-current">
-	                              	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-	                              		$<c:out value="${currentBFluid.getPrice()}"/>
-	                              	</sec:authorize>
-	                              </div>
-	                              	
-	                              <div class="availability"><label>В наличии:</label><span class="available"> на складе</span></div>
-	                              <div class="add-cart-button">
-	                                <c:url value="home" var="UpdateBrakingFluid">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
-										<c:param name="variant" value="inBasket"/>
-										<c:param name="currentPage" value="${requestScope.currentPage}"/>
-									</c:url>
-				                    <a href="${UpdateBrakingFluid}" class="le-button">В корзину</a>
-		                            <div class="wish-compare">
-			                            <sec:authorize access="!isAnonymous()  and !hasRole('ROLE_ADMIN')">
-					                        <c:url value="home" var="UpdateBrakingFluid">
-												<c:param name="id" value="${currentBFluid.getId()}"/>
-												<c:param name="variant" value="inWishlist"/>
-												<c:param name="currentPage" value="${requestScope.currentPage}"/>
-											</c:url>
-				                        <a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
-				                        </sec:authorize>
-			                  		</div>
-			                  		
-	                            </div>
-	                          </div>
-	                          <!-- /.price-area -->
-	                          </div>
-	                          <!-- /.product-item -->
-		                        <!-- /.product-item-holder -->
-	                          </div> 
-                        </div>
-                        <!-- /.row -->
-	                        </c:forEach>                        
-                        
-                      </div>
-                    <!-- /.pagination-holder -->
-                    <div class="pagination-holder">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-6 text-left">
-                          <ul class="pagination ">
-                          	<c:forEach var="page" begin="1" end="${requestScope.totalPages}">
-                          		<c:url value="home" var="UpdateBrakingFluid">
-									<c:param name="variant" value="home"/>
-									<c:param name="currentPage" value="${page}"/>
-								</c:url>
-                       	    	<c:set var="current" value=""/>
- 		                  			<c:if test="${(page+1)==requestScope.currentPage}">
-        	          				<c:set var="current" value="class='current'"/>
-            	      			</c:if>
-                          	    <li <c:out value="${current}"  />  ><a  href="${UpdateBrakingFluid}"><c:out value="${page}"/></a></li>
-                          	</c:forEach>
-                          	<c:if test="${requestScope.totalPages>requestScope.currentPage}">
-	                          	<c:url value="home" var="UpdateBrakingFluid">
-									<c:param name="variant" value="home"/>
-									<c:param name="currentPage" value="${requestScope.currentPage+1}"/>
-								</c:url>
-								<li><a href="${UpdateBrakingFluid}">Следующая</a></li>
-							</c:if>
-                          </ul>
-                        </div>
-                        <div class="col-xs-12 col-sm-6">
-                          <div class="result-counter">
-                          	Товары <span><c:out value="${requestScope.paginationString_part1}"  /> </span> из <span> <c:out value="${requestScope.paginationString_part2}"  /> <span> найденных
-                          </div>
-                        </div>
-                      </div>
-                      <!-- /.row -->
-                    </div>
-                  </div>
-                  <!-- /.products-grid #list-view -->
-                </div>
-                <!-- /.tab-content -->
-              </div>
-              <!-- /.grid-list-products -->
-            </section>
-            <!-- /#gaming -->            
-          </div>
-          <!-- /.col -->
-          <!-- ========================================= CONTENT : END ========================================= -->    
-        </div>
-        <!-- /.container -->
-      </section>
-      <!-- /#category-grid -->		<!-- ============================================================= FOOTER ============================================================= -->
-      <footer id="footer" class="color-bg">
-         <div class="copyright-bar">
-          <div class="container">
-            <div class="col-xs-12 col-sm-6 no-margin">
-              <div class="copyright">
-                &copy; <a href="index">Media Center</a> - all rights reserved
-              </div>
-              <!-- /.copyright -->
-            </div>
-            <div class="col-xs-12 col-sm-6 no-margin">
-              <div class="payment-methods ">
-                <ul>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-visa.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-master.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-paypal.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-skrill.png"></li>
-                </ul>
-              </div>
-              <!-- /.payment-methods -->
-            </div>
-          </div>
-          <!-- /.container -->
+       	
+			<section id="single-product-tab">
+		    	<div class="container">
+		        	
+		        	<div class="col-xs-12 col-md-20 items-holder no-margin">
+			            <c:forEach var="currentDoc" items="${requestScope.listDoc}">
+			            	<c:url value="InsertUpdateDoc" var="OpenDoc">
+			            		<c:param name="doc_id" value="${currentDoc.getNumDoc()}"/>
+			            		<c:param name="variant" value="${requestScope.variant}"/>
+			            		<c:param name="task" value="Open"/>
+							</c:url>
+							<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+				            <div class="row no-margin cart-item">
+				              <div class="col-xs-12 col-sm-3 no-margin">
+				                	<a href="${OpenDoc}"><c:out value="${currentDoc.getNumDoc()}" /></a>
+				              </div>
+				              <div class="col-xs-12 col-sm-2 no-margin">
+				                	<a href="${OpenDoc}"><c:out value="${currentDoc.showDate()}" /></a>
+				              </div>
+				              <c:if test="${requestScope.variant=='Demand'}">
+					              <div class="col-xs-12 col-sm-2 ">
+					                <div class="row no-margin cart-item">
+					                  <a href="${OpenDoc}"><c:out value="${currentDoc.getStatus().getName()}" /></a>
+					                </div>
+					              </div>
+    				 	  	  </c:if>
+				              <div class="col-xs-12 col-sm-1 ">
+				                <div class="quantity">
+				                  <a href="${OpenDoc}"><c:out value="${currentDoc.getQuantity()}" /></a>
+				                </div>
+				              </div>
+				              <sec:authorize access="!isAnonymous()">
+					               <div class="col-xs-12 col-sm-2 no-margin">
+					                  <div class="price">
+					                      <a href="${OpenDoc}"><c:out value="${currentDoc.getSumm()}"/></a>
+					                  </div>
+					              </div>
+				              </sec:authorize>
+ 				              <sec:authorize access="hasAnyRole('ROLE_MANAGER_SALE','ROLE_DELIVERY','ROLE_DISTR')">
+					               <div class="col-xs-12 col-sm-2 no-margin">
+					                  <div class="price">
+					                      <a href="${OpenDoc}"><c:out value="${currentDoc.getExecuter().getName()}"/></a>
+					                  </div>
+					              </div>
+ 				              </sec:authorize>
+				            </div>
+				            <!-- /.cart-item -->
+			          	</c:forEach>
+		        	</div>
+	        	</div>
+        	</section>
         </div>
         <!-- /.copyright-bar -->
+     </section>
+        </form>
       </footer>
       <!-- /#footer -->
       <!-- ============================================================= FOOTER : END ============================================================= -->	

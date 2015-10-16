@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +58,8 @@ public class Service {
 	public static int ELEMENTS_IN_LIST = 4;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
 	public static int LOG_ELEMENTS_IN_LIST = 50;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
 	public static int ELEMENTS_IN_RECOMMENDED = 7; //количество номенклатуры в "Рекомендуемом"
- 	
+	public static int ID_CUSTOMER = 7; //default customer
+	public static int ID_EXECUTER = 6; //default executer
 	
 	@Autowired
 	static BrakingFluidTemplate brakingFluidDAO;
@@ -541,5 +543,29 @@ public class Service {
 	
 	}
 	
+	public static String getFormattedDate(Date date){
+		String result="";
+		
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(date);
+
+		result=gc.get(gc.YEAR)+"-"; 
+		result=result+((gc.get(gc.MONTH)+1)<10?"0":"")+(gc.get(gc.MONTH)+1)+"-";
+		result=result+(gc.get(gc.DAY_OF_MONTH)<10?"0":"")+gc.get(gc.DAY_OF_MONTH);
+		
+		return  result;
+	}
+	
+	
+
+	public static boolean isDate(Date begin, Date end){
+		boolean result=false;
+		
+		if (begin.getTime()<end.getTime()){
+			result=true;
+		}
+		
+		return result;
+	}
 	
 }

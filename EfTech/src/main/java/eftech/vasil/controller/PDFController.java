@@ -68,8 +68,8 @@ public class PDFController {
 			,HttpServletRequest request
 			, Locale locale, Model model) {
 			
-		try {
-			formButton=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
+//		try {
+//			formButton=new String(formButton.getBytes("iso-8859-1"), "UTF-8");
 			if (formButton.compareTo("Заявка")==0){
 				LinkedList<Basket> basket = new LinkedList<Basket>();
 				basket.add(new Basket(brakingFluidDAO.getBrakingFluid(id)));
@@ -88,10 +88,10 @@ public class PDFController {
 					
 				}
 			}
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}		
 		
 		model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
 		
@@ -106,12 +106,12 @@ public class PDFController {
 			, @RequestParam(value = "client") int clientId
 			,HttpServletRequest request
 			,Locale locale, Model model) {
-		try {
-			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		String result="home";
 		
 		if (("Назад к списку номенклатуры".equals(variant)) || ("На главную".equals(variant))){

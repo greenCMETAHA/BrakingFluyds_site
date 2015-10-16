@@ -317,6 +317,9 @@
               <li><a href="#character" data-toggle="tab">Характеристики</a></li>
               <li><a href="#additional-info" data-toggle="tab">Дополнительная информация</a></li>
               <li><a href="#image" data-toggle="tab">Изображение</a></li>
+              <sec:authorize access="hasRole('ROLE_PRICE')">
+              	<li><a href="#prices" data-toggle="tab">История цены (<c:out value="${requestScope.prices.size()}"/>)</a></li>
+              </sec:authorize>
             </ul>
             <!-- /.nav-tabs -->
             <div class="tab-content">
@@ -425,11 +428,29 @@
 	                  </li>
 	         		</ul>
 	              </div>
-                  </ul>
-                
-                <!-- /.tabled-data -->
-                <div class="meta-row">
-                </div>
+	              <!-- /.tab-pane #description												 --> 
+	              <div class="tab-pane" id="prices">
+	                <!-- ========================================= CONTENT ========================================= -->
+			        <div class="col-xs-20 col-md-12 items-holder no-margin">
+			         	<ul class="tabled-data">
+			            <c:forEach var="price" items="${requestScope.prices}">
+				           	<li> <div class="row no-margin">
+				              <div class="col-xs-12 col-sm-5 no-margin">
+				                <c:out value="${price.getTime()}"/>
+				              </div>
+				              <div class="col-xs-12 col-sm-3 ">
+				                <c:out value="${price.getUser().getName()}"/>
+				              </div>
+				              <div class="col-xs-12 col-sm-4 ">
+				                <c:out value="${price.getPrice()}"/>
+				              </div>
+				            </div>
+				            </li>
+				       	</c:forEach>
+				       	</ul>
+			        </div>
+			        <!-- ========================================= CONTENT : END ========================================= -->
+	             </div>   
                 <!-- /.meta-row -->
               </div>
               

@@ -273,7 +273,7 @@
 							<c:param name="variant" value="deleteQuantityFromBasket"/>
 							<c:param name="quantity" value="${-1}"/>
 						  </c:url>
-	                      <a class="minus" href="${deleteFromBasket}"><h4>-</h4></a>
+	                      <a class="minus" href="${deleteFromBasket}"></a>
 	                      
 	                      <input name="quantity" readonly="readonly" type="text" value="${currentBasket.getQauntity()}" />   <!-- отображаем количество -->
 
@@ -282,7 +282,7 @@
 							<c:param name="variant" value="deleteQuantityFromBasket"/>
 							<c:param name="quantity" value="${1}"/>
 						  </c:url>
-						  <a class="plus" href="${deleteFromBasket}"><h4>+</h4></a>
+						  <a class="plus" href="${deleteFromBasket}"></a>
 	                  </div>
 	              
 	                
@@ -291,7 +291,7 @@
 	          	  <div class="col-xs-12 col-sm-2 no-margin">
 	                <div class="price">
 	                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-	                  		$<c:out value="${currentBFluid.getPrice()}" />
+	                  		$<c:out value="${currentBFluid.getPrice()*currentBasket.getQauntity()}" />
 	                  	</sec:authorize>
 	                </div>
 	                <c:url value="Basket" var="deleteFromBasket">
@@ -359,6 +359,7 @@
 								<div class="text-right">
 									<div class="add-cart-button">
 										<a class="le-button add_to_cart_button product_type_simple" href="Basket?variant=Show">Распечатать</a>
+										<a class="le-button add_to_cart_button product_type_simple" href="InsertUpdateDoc?variant=Offer&task=New">Сохранить</a>
 									</div>							
 								</div>
 							</div>
@@ -392,7 +393,7 @@
 	              </div>
 	            </div> 
 	            </sec:authorize>
-	            <sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
+	            <sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE')">
 				<div class="row">
 	  			 <div class="items-holder">
 					<div class="container-fluid wishlist_table">
@@ -405,6 +406,7 @@
 								<div class="text-right">
 									<div class="add-cart-button">
 										<a class="le-button add_to_cart_button product_type_simple" href="Basket?variant=Demand">Заявка</a>
+										<a class="le-button add_to_cart_button product_type_simple" href="InsertUpdateDoc?variant=Demand&task=New">Сохранить</a>
 									</div>							
 								</div>
 							</div>

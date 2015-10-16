@@ -24,3 +24,25 @@
   padding: 10px;
   border-radius: 7px;
 }
+
+
+dropdown-toggle:hover {
+  display: block;
+  position: absolute;
+  left: 105px;
+  top: 0;
+  width: 250px;
+  border: 2px solid grey;
+  padding: 10px;
+  border-radius: 7px;
+}
+.mega--menu:hover {
+  display: block;
+  position: absolute;
+  left: 105px;
+  top: 0;
+  width: 250px;
+  border: 2px solid grey;
+  padding: 10px;
+  border-radius: 7px;
+}
