@@ -3,6 +3,7 @@ package eftech.workingset.beans;
 import java.util.Date;
 
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
+import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceDemand;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 
@@ -16,9 +17,10 @@ public class Demand implements InterfaceDemand {
 	private double price;
 	private InterfaceOfferStatus status;
 	private User executer;
+	private InterfaceClient client;
 
 	public Demand(int id, Date time, User user, String demand_id, InterfaceBrakingFluid brakingFluid, int quantity,	double price
-			, InterfaceOfferStatus status, User executer) {
+			, InterfaceOfferStatus status, User executer, InterfaceClient client ) {
 		super();
 		this.id = id;
 		this.time = time;
@@ -29,6 +31,7 @@ public class Demand implements InterfaceDemand {
 		this.price = price;
 		this.status = status;
 		this.setExecuter(executer);
+		this.setClient(client);
 	}
 	
 	public Demand(int id, String demand_id, InterfaceOfferStatus status) {
@@ -166,6 +169,14 @@ public class Demand implements InterfaceDemand {
 
 	public void setExecuter(User executer) {
 		this.executer = executer;
+	}
+
+	public InterfaceClient getClient() {
+		return client;
+	}
+
+	public void setClient(InterfaceClient client) {
+		this.client = client;
 	}
 	
 }

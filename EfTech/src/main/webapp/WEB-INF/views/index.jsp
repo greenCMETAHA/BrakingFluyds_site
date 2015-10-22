@@ -77,7 +77,9 @@
 										<a href="j_spring_security_logout">Выйти</a>
 						 			</c:if> 
 		                        </li>
-		                        
+		                        <sec:authorize access="hasRole('ROLE_ADMIN')">
+                      				<li><a href="home?adminpanel=true">Конфигурирование</a></li>
+                  				</sec:authorize>
 		                     </ul>
 		                </li>
 		            </ul>
@@ -300,7 +302,9 @@
 				                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
 				                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
 				                    </sec:authorize>
-			                        
+				                    <sec:authorize access="hasRole('ROLE_ADMIN')">
+                      					<li><a href="home?adminpanel=true">Конфигурирование</a></li>
+                  					</sec:authorize>
                                 </ul>
                             </div>
                         </div>
@@ -318,6 +322,9 @@
                   <sec:authorize access="hasRole('ROLE_DISTR')">
                       <li><a href="listDoc?variant=Demand">Список заявок</a></li>
                       <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+                  </sec:authorize>
+                   <sec:authorize access="hasRole('ROLE_ADMIN')">
+                      <li><a href="home?adminpanel=true">Конфигурирование</a></li>
                   </sec:authorize>
                 </ul>
                 <!-- /.nav -->

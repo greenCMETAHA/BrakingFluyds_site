@@ -47,6 +47,8 @@ public class ClientTemplate implements InterfaceClientDAO {
 	
 	@Override
 	public Client getClient(int id) {
+		id=(id==0?Service.ID_EMPTY_CLIENT:id);
+		
 		String sqlQuery="select *, country.id as country_id, country.name as country_name from Client"
 				+ "	left join country on (client.country=country.id) where client.id=:id order by client.name";
 		

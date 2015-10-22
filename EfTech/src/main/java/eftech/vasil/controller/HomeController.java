@@ -63,6 +63,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.itextpdf.text.DocumentException;
@@ -77,6 +78,7 @@ import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.OfferStatusTemplate;
 import eftech.workingset.DAO.templates.OfferTemplate;
+import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.PriceTemplate;
 import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.RoleTemplate;
@@ -108,7 +110,7 @@ import eftech.workingset.beans.Role;
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes({"user", "basket", "wishlist", "compare", "manufacturersFilter", "fluidClassFilter", "elementsInList"
+@SessionAttributes({"user", "adminpanel", "basket", "wishlist", "compare", "manufacturersFilter", "fluidClassFilter", "elementsInList"
 	, "currentPriceFilter" , "currentBoilingTemperatureDryFilter" , "currentBoilingTemperatureWetFilter" , "currentValueFilter" 
 	, "currentViscosity40Filter" , "currentViscosity100Filter", "currentJudgementFilter"
 	,"dateBeginFilterOffer", "dateEndFilterOffer", "dateBeginFilterDemand", "dateEndFilterDemand" })
@@ -162,6 +164,9 @@ public class HomeController{
 	
 	@Autowired
 	DemandTemplate demandDAO;
+
+	@Autowired
+	PayTemplate payDAO;
 
 	private Model createHeader(Model model, User user, LinkedList<Basket>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
 		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
@@ -272,59 +277,51 @@ public class HomeController{
 					Client currentClient=(Client)clientDAO.getClient(clientId);
 					if (currentClient.getEmail().length()>0){
 					 	Properties props = new Properties();			//ssl для яндекса
+					 	props.put("mail.smtp.host", "smtp.yandex.ru");
+					 	props.put("mail.smtp.socketFactory.port", "465");
+					 	props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 					 	props.put("mail.smtp.auth", "true");
-					 	props.put("mail.transport.protocol", "smtp");
-
-//						 	props.put("mail.smtp.host", "smtp.beget.ru");
-//						 	props.put("mail.smtp.port", "25");
-					 	
-					 	
-					 	props.put("mail.smtp.host", "smtp.mail.ru");
-				 	props.put("mail.smtp.port", "465");
-//					 	props.put("mail.user", "test@locomotions.ru");
-//						 	props.put("mail.password" , "12345678qa");					 	
-				        
-//						 		props.put("mail.smtp.auth", "true");
-					        props.put("mail.smtp.starttls.enable", "true");
-//						        props.put("mail.smtp.host", "smtp.gmail.com");
-//						        props.put("mail.smtp.port", "587");
-//				        
+					 	props.put("mail.smtp.port", "465");
 //					        
 //					     //   Session session = Session.getInstance(props,null);
 					        Session sessionEmail = Session.getInstance(props, new Authenticator() {
 					            protected PasswordAuthentication getPasswordAuthentication() {
-					                return new PasswordAuthentication("phylife@mail.ru", "cbcmrb2000"); //phylife@mail.ru
+					            	return new PasswordAuthentication("locomotions2@yandex.ru", "1z2x3c4v5b");
 					            }
 					        });
 				 
 				        try {
 				            Message message = new MimeMessage(sessionEmail);
 				            //от кого
-				            message.setFrom(new InternetAddress("glebas@tut.by","Васильченко"));
+				            message.setFrom(new InternetAddress("locomotions2@yandex.ru","Васильченко"));
 				            //кому
 				            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(currentClient.getEmail()));
 				            //Заголовок письма
-				            message.setSubject("Тестовое письмо");
+				            message.setSubject("Бизнес-предложение");
 				            //Содержимое
 				            
-					            // Create the message part
-					            BodyPart messageBodyPart = new MimeBodyPart();
+				            // Create the message part
+				            BodyPart messageBodyPart = new MimeBodyPart();
 
-					            // Now set the actual message
-					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
+				            // Now set the actual message
+				            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
 
-					            // Create a multipar message
-					            Multipart multipart = new MimeMultipart();
+				            // Create a multipar message
+				            Multipart multipart = new MimeMultipart();
 
-					            // Set text message part
-					            multipart.addBodyPart(messageBodyPart);
+				            // Set text message part
+				            multipart.addBodyPart(messageBodyPart);
 
-					            // Part two is attachment
-					            messageBodyPart = new MimeBodyPart();
-					            DataSource source = new FileDataSource(pdfFile);
-					            messageBodyPart.setDataHandler(new DataHandler(source));
-					            messageBodyPart.setFileName(pdfFile.getName());
-					            multipart.addBodyPart(messageBodyPart);
+				            // Part two is attachment
+				            
+				          //now write the PDF content to the output stream
+				            messageBodyPart = new MimeBodyPart();
+				            DataSource source = new FileDataSource(pdfFile);
+				            messageBodyPart.setDataHandler(new DataHandler(source));
+				            messageBodyPart.setFileName(pdfFile.getName());
+				            multipart.addBodyPart(messageBodyPart);
+				            
+				            message.setContent(messageBodyPart.getParent());
 
 				            // Send the complete message parts
 				            // Session mailSession = Session.getDefaultInstance(props, null);
@@ -349,7 +346,7 @@ public class HomeController{
 	
 	//isChanging - это для Корзины. если = false - просто устанавливаем quantity. Если нет - смещаем на +/-1. если <=0 - удалим из корзины
 	private void workWithList(int id, int quantity, boolean isChanging, String variant, User user, LinkedList<Basket>  basket
-			, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare, HttpSession session){  
+			, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare, HttpSession session, double paySumm, int client_id){  
 	
 		if (variant.compareTo("Demand")==0){
 			LinkedList<Basket>  listBrakingFluid = null; 
@@ -413,7 +410,10 @@ public class HomeController{
 			}
 		}
 		if (variant.compareTo("checkout")==0){
-			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование закаха на склад 
+			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование заказа на склад
+			Service.createDemandAndPay(user, basket, clientDAO, manufacturerDAO,
+					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO);
+			
 		}
 		if (variant.compareTo("inWishlist")==0){
 			if (user.getId()!=0){
@@ -476,9 +476,12 @@ public class HomeController{
 	public String index(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
 			,HttpServletRequest request,Locale locale, Model model) {
 
 		HttpSession session=request.getSession();
+		
+		session.setAttribute("adminpanel", adminpanel);
 
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		if (user.getId()!=0){
@@ -502,7 +505,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session, 0,0);
 		
 		session.setAttribute("user", user);
 		session.setAttribute("basket", basket);
@@ -530,11 +533,16 @@ public class HomeController{
 			,@RequestParam(value = "currentViscosity100Filter", defaultValue="0,0", required=false) String currentViscosity100Filter
 			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
+			,@RequestParam(value = "paySumm", defaultValue="0.0", required=false) double paySumm
+			,@RequestParam(value = "client_id", defaultValue="0", required=false) int client_id
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
  		HttpSession session=request.getSession();
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		
+		session.setAttribute("adminpanel", adminpanel);
 		
 //		try {
 //			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
@@ -610,7 +618,7 @@ public class HomeController{
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
  
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,paySumm, client_id);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
@@ -826,7 +834,7 @@ public class HomeController{
 		session.setAttribute("fluidClassFilter", fluidClassFilter);
 		session.setAttribute("elementsInList", elementsInList);
 		
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+		return Service.isAdminPanel(session,request)+"home";
 	}
 	
 	@RequestMapping(value = {"/Comparison","/adminpanel/Comparison"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -861,11 +869,11 @@ public class HomeController{
 				session.setAttribute("basket", basket);
 			}
 		
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Comparison";
+			return Service.isAdminPanel(session,request)+"Comparison";
 		}
 		if (variant.compareTo("На главную")==0){
 			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+			return Service.isAdminPanel(session,request)+"home";
 		}
 		
 		
@@ -881,14 +889,14 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Comparison";
+		return Service.isAdminPanel(session,request)+"Comparison";
 	}	
 	
 	@RequestMapping(value = "/Wishlist", method = {RequestMethod.POST, RequestMethod.GET})
@@ -916,7 +924,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -941,15 +949,16 @@ public class HomeController{
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		HttpSession session=request.getSession();
+		
 		if (variant.compareTo("Заявка")==0){
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"makeDemand";
+			return Service.isAdminPanel(session,request)+"makeDemand";
 		}
 		if (variant.compareTo("На главную")==0){
 			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+			return Service.isAdminPanel(session,request)+"home";
 		}		
 		
-		HttpSession session=request.getSession();
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
 		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
@@ -968,7 +977,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, quantity, true, variant, user, basket, wishlist, compare, session);
+		workWithList(id, quantity, true, variant, user, basket, wishlist, compare, session,0,0);
 		
 		createBussinessOffer(id, client, variant, user, basket, session);
 
@@ -980,7 +989,7 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Basket";
+		return Service.isAdminPanel(session,request)+"Basket";
 	}	
 	
 	
@@ -1064,16 +1073,17 @@ public class HomeController{
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		HttpSession session=request.getSession();
+		
 		if (variant.compareTo("На главную")==0){
 			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+			return Service.isAdminPanel(session,request)+"home";
 		}
 		if (variant.compareTo("Загрузка")==0){
 			variant="Download";
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+			return Service.isAdminPanel(session,request)+"home";
 		}
 		
-		HttpSession session=request.getSession();
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
 		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
@@ -1092,7 +1102,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		ArrayList<String> errors=new ArrayList<String>();
@@ -1105,7 +1115,7 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"Download";
+		return Service.isAdminPanel(session,request)+"Download";
 	}		
 		
 	@RequestMapping(value = {"/ShowOne","/adminpanel/ShowOne"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -1160,7 +1170,7 @@ public class HomeController{
 			reviewDAO.createReview(review);
 		}		
 		
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1190,7 +1200,7 @@ public class HomeController{
 			model.addAttribute("errors", new ArrayList<String>());
 			model.addAttribute("prices", priceDAO.getPrices(id));
 			
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"InsertUpdate";
+			return Service.isAdminPanel(session,request)+"InsertUpdate";
 		}else{
 			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
 			model.addAttribute("reviews", reviewDAO.getReviews(id));
@@ -1354,11 +1364,7 @@ public class HomeController{
 		session.setAttribute("manufacturersFilter", manufacturersFilter);
 		session.setAttribute("elementsInList", elementsInList);
 		
-		
 		return "home";
-		
-		
-		
 	}
 	
 	@RequestMapping(value = {"/InsertUpdate","/adminpanel/InsertUpdate"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -1390,18 +1396,20 @@ public class HomeController{
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		
 		if (variant.compareTo("Сохранить")==0){
 			variant="Save";
 		}
 		if (variant.compareTo("Обновить")==0){
 			variant="Refresh";
 		}
+		HttpSession session=request.getSession();
+		
 		if (variant.compareTo("На главную")==0){
 			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-			return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"home";
+			return Service.isAdminPanel(session,request)+"home";
 		}				
 		
-		HttpSession session=request.getSession();
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		
 		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
@@ -1422,7 +1430,7 @@ public class HomeController{
 		}
 		
 		
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1587,7 +1595,7 @@ public class HomeController{
 				result=defaultHome(session, model, user, basket, wishlist, compare);
 			}
 		}
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+result;
+		return Service.isAdminPanel(session,request)+result;
 	}			
 	
 	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})
@@ -1615,7 +1623,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1696,14 +1704,6 @@ public class HomeController{
 		return "adminpanel/"+result;
 	}
 		
-	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
-	 public String viewEdit(@PathVariable("name") final String name, Model model) {
-		 if ("Download".equals(name)){  
-			 return "Download";
-		 }
-          return "error404";
-     }
-
 	 @RequestMapping(value = {"/listDoc","/adminpanel/listDoc"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String listDoc(
 			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
@@ -1766,7 +1766,7 @@ public class HomeController{
 		}
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
-			workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+			workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		}
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -1847,7 +1847,7 @@ public class HomeController{
 		session.setAttribute("dateBeginFilter", dateBeginFilter);
 		session.setAttribute("dateEndFilter", dateEndFilter);
 		
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+"listDoc";
+		return Service.isAdminPanel(session,request)+"listDoc";
 	}	 
  
 	 @RequestMapping(value = {"/InsertUpdateDoc","/adminpanel/InsertUpdateDoc"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -1859,6 +1859,7 @@ public class HomeController{
 			,@RequestParam(value = "doc_id", defaultValue="", required=false) String doc_id
 			,@RequestParam(value = "status_id" , defaultValue="", required=false) String status_id
 			,@RequestParam(value = "executer_id" , defaultValue="", required=false) String executer_id
+			,@RequestParam(value = "client_id" , defaultValue="0", required=false) int client_id
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		
 			,HttpServletRequest request,Locale locale, Model model) {
 		
@@ -1905,7 +1906,7 @@ public class HomeController{
 		}
  		
 		if (task.length()==0){ //если task=="New/Open/Save" не нужно выводить pdf. Будет сформирован документ
-			workWithList(new Integer(id), 0, false, variant, user, basket, wishlist, compare, session);
+			workWithList(new Integer(id), 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		}
 		
 		GregorianCalendar currentTime = new GregorianCalendar();
@@ -1921,6 +1922,8 @@ public class HomeController{
 			model.addAttribute("currentStatus", 1);
 			model.addAttribute("executer_id", Service.ID_EXECUTER);
 			model.addAttribute("executer_name", userDAO.getUser(Service.ID_EXECUTER).getName());
+			model.addAttribute("listClients", clientDAO.getClients());
+			model.addAttribute("currentClient", Service.ID_EMPTY_CLIENT);
 			model.addAttribute("listDoc", basket);
 			model.addAttribute("task", "New");
 			result="InsertUpdateDoc";
@@ -1939,6 +1942,8 @@ public class HomeController{
 				model.addAttribute("executer_id", (listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER));
 				model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
 				model.addAttribute("userDoc", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getUser().getId():Service.ID_EXECUTER)));
+				Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
+				model.addAttribute("client", currentClient);
 			}else if ("Offer".equals(variant)){
 				ArrayList<Offer> listDoc=offerDAO.getOffer(doc_id);
 				model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
@@ -1952,7 +1957,7 @@ public class HomeController{
 				if (listDoc.size()==0){
 					if (basket.size()>0){
 						demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(new Integer(status_id))
-								,userDAO.getUser(executer_id.isEmpty()?Service.ID_EXECUTER:new Integer(executer_id)));
+								,userDAO.getUser(executer_id.isEmpty()?Service.ID_EXECUTER:new Integer(executer_id)), clientDAO.getClient(client_id));
 						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
 						model.addAttribute("listDoc", basket);
 					}						
@@ -1984,7 +1989,10 @@ public class HomeController{
 					model.addAttribute("listDoc", listDoc);
 					model.addAttribute("currentStatus",  (listDoc.size()>0?((OfferStatus)listDoc.get(0).getStatus()).getId():offerStatusDAO.getOfferStatus(1)));
 					model.addAttribute("executer_id", (listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER));
+					model.addAttribute("userDoc", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getUser().getId():Service.ID_EXECUTER)));
 					model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
+					Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
+					model.addAttribute("client", currentClient);
 				}else if ("Offer".equals(variant)){	
 					model.addAttribute("listDoc", offerDAO.getOffer(doc_id));
 				}
@@ -2057,7 +2065,7 @@ public class HomeController{
 		session.setAttribute("dateBeginFilter", dateBeginFilter);
 		session.setAttribute("dateEndFilter", dateEndFilter);
 
-		return (request.isUserInRole("ROLE_ADMIN")?"adminpanel/":"")+result;
+		return Service.isAdminPanel(session,request)+result;
 	}	
  
 	 
@@ -2073,16 +2081,156 @@ public class HomeController{
 	 
 	 
 	 
+
 	 
+	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
+	 public String viewEdit(@PathVariable("name") final String name, Model model
+			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			 ,HttpServletRequest request) {
+		 if ("Download".equals(name)){  
+			 return "Download";
+		 }
 	 
+		HttpSession session=request.getSession();
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		
+		model.addAttribute("errNumber", "404");
+		model.addAttribute("errMessage", "Извините, страница не может быть найдена.");
+		
+		return "errorPage";
+     }
 	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
+	@ExceptionHandler(Exception.class)
+	public ModelAndView handleAllException(Exception ex
+//			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+//			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			, HttpServletRequest request,Locale locale) {
+
+		ModelAndView model = new ModelAndView("errorPage");
+		model.addObject("errNumber", "Ошибка");
+		model.addObject("errMessage", ex.getMessage());
+		String strMessage=ex.getMessage();
+		if (strMessage.length()>185){
+			strMessage=strMessage.substring(0, 185);
+		}
+
+		try{
+			Service.sendTheErrorToAdmin(ex.getMessage(),infoDAO.getInfo(Service.ADMIN_EMAIL));
+		}catch(Exception e){
+			Service.sendTheErrorToAdmin(ex.getMessage(),"phylife@mail.ru");
+			
+		}
+		
+		try{
+			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
+		}catch(Exception e){
+			//---
+		}
+
+		return model;
+
+	}
+	
+	@RequestMapping(value = "/error", method = {RequestMethod.POST, RequestMethod.GET})
+	public String errorGlobal(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		model.addAttribute("errNumber", "403");
+		model.addAttribute("errMessage", "У Вас нет доступа к этой странице.");
+		
+		
+		return "errorPage";
+	}			
+	
+	@RequestMapping(value = "/error403", method = {RequestMethod.POST, RequestMethod.GET})
+	public String error403(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		model.addAttribute("errNumber", "403");
+		model.addAttribute("errMessage", "У Вас нет доступа к этой странице.");
+		
+		
+		return "errorPage";
+	}		
 	
 	@RequestMapping(value = "/error404", method = {RequestMethod.POST, RequestMethod.GET})
 	public String error404(
@@ -2109,14 +2257,17 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session);
+		workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return "error404";
+		model.addAttribute("errNumber", "404");
+		model.addAttribute("errMessage", "Извините, страница не может быть найдена.");
+		
+		return "errorPage";
 	}		
 	
 	@ModelAttribute("basket")
@@ -2245,10 +2396,16 @@ public class HomeController{
 	@ModelAttribute("dateBeginFilterDemand") 
 	public Date createDateBeginFilterDemand(){
 		return createDateBeginFilterOffer();
-	}	
+	}
+	
 	@ModelAttribute("dateEndFilterDemand") 
 	public Date createDateEndFilterDemand(){
 		return createDateEndFilterOffer();
+	}
+	
+	@ModelAttribute("adminpanel") 
+	public boolean isAdminPanel(){
+		return false;
 	}		
 	
 }

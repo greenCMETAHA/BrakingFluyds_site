@@ -33,7 +33,7 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	}	
 	
 	public  int getCountRows(){
-		String sqlQuery="select count(*) from Manufacturer";
+		String sqlQuery="select count(*) from Manufacturer where isManufacturer=1";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
@@ -47,7 +47,7 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	@Override
 	public Manufacturer getManufacturer(int id) {
 		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c "
-				+ "where (man.country=c.id) and (man.id=:id) group by man.name";
+				+ "where (man.country=c.id) and (man.id=:id) and (isManufacturer=1) group by man.name";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
@@ -63,7 +63,7 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	public Manufacturer getManufacturerByName(String name) {
 		String sqlQuery="select *, c.name AS c_name from manufacturer as man"
 				+ " left join country AS c  on (man.country=c.id)"
-				+ " where (man.name=:name) group by man.name";
+				+ " where (man.name=:name) and (isManufacturer=1) group by man.name";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("name", name);
@@ -98,11 +98,12 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	public Manufacturer createManufacturer(String name, int countryId) {
 		Manufacturer result=getManufacturerByName(name);
 		if (result.getId()==0){
-			String sqlUpdate="INSERT INTO manufacturer (name, country) VALUES (:name,:countryId)";
+			String sqlUpdate="INSERT INTO manufacturer (name, country, isManufacturer) VALUES (:name,:countryId,:isManufacturer)";
 
 			MapSqlParameterSource params = new MapSqlParameterSource();
 			params.addValue("name", name);
 			params.addValue("countryId", countryId);
+			params.addValue("isManufacturer", 1);
 			
 			KeyHolder keyHolder=new GeneratedKeyHolder(); 
 			
@@ -130,14 +131,15 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 		}else{
 			currentManufacturer=manufacturer;
 		}
-		String sqlUpdate="insert into manufacturer (name, country) Values (:name, :country)";
+		String sqlUpdate="insert into manufacturer (name, country, isManufacturer) Values (:name, :country, :isManufacturer)";
 		if (currentManufacturer.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update manufacturer set name=:name, country=:country where id=:id";
+			 sqlUpdate="update manufacturer set name=:name, country=:country, isManufacturer=:isManufacturer where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("name", manufacturer.getName());
 		params.addValue("country", ((Country)manufacturer.getCountry()).getId());
+		params.addValue("isManufacturer", 1);
 	
 		if (currentManufacturer.getId()>0){ // В БД есть элемент
 			params.addValue("id", currentManufacturer.getId());
@@ -166,7 +168,8 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 
 	@Override
 	public ArrayList<Manufacturer> getManufacturers(int num, int nextRows) {
-		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c where (man.country=c.id) order by man.name"
+		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c "
+				+ "where (man.country=c.id) and (isManufacturer=1) order by man.name"
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		
 		try{

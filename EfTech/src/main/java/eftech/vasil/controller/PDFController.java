@@ -1,8 +1,10 @@
 package eftech.vasil.controller;
 
 import java.awt.Desktop;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.GregorianCalendar;
@@ -11,6 +13,9 @@ import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -23,6 +28,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -178,59 +184,71 @@ public class PDFController {
 						Client currentClient=(Client)clientDAO.getClient(clientId);
 						if (currentClient.getEmail().length()>0){
 						 	Properties props = new Properties();			//ssl для яндекса
+						 	props.put("mail.smtp.host", "smtp.yandex.ru");
+						 	props.put("mail.smtp.socketFactory.port", "465");
+						 	props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 						 	props.put("mail.smtp.auth", "true");
-						 	props.put("mail.transport.protocol", "smtp");
-
-//						 	props.put("mail.smtp.host", "smtp.beget.ru");
-//						 	props.put("mail.smtp.port", "25");
+						 	props.put("mail.smtp.port", "465");
 						 	
 						 	
-						 	props.put("mail.smtp.host", "smtp.mail.ru");
-					 	props.put("mail.smtp.port", "465");
-//					 	props.put("mail.user", "test@locomotions.ru");
-//						 	props.put("mail.password" , "12345678qa");					 	
-					        
-//						 		props.put("mail.smtp.auth", "true");
-						        props.put("mail.smtp.starttls.enable", "true");
-//						        props.put("mail.smtp.host", "smtp.gmail.com");
-//						        props.put("mail.smtp.port", "587");
+						 	
+//						 	props.put("mail.smtp.auth", "true");   
+//						 	props.put("mail.transport.protocol", "smtp");
+//
+////						 	props.put("mail.smtp.host", "smtp.beget.ru");
+////						 	props.put("mail.smtp.port", "25");
+//						 	
+//						 	
+//						 	props.put("mail.smtp.host", "smtp.mail.ru");
+//					 	props.put("mail.smtp.port", "465");
+////					 	props.put("mail.user", "test@locomotions.ru");
+////						 	props.put("mail.password" , "12345678qa");					 	
+//					        
+////						 		props.put("mail.smtp.auth", "true");
+//						        props.put("mail.smtp.starttls.enable", "true");
+////						        props.put("mail.smtp.host", "smtp.gmail.com");
+////						        props.put("mail.smtp.port", "587");
 //				        
 //					        
 //					     //   Session session = Session.getInstance(props,null);
 						        Session session = Session.getInstance(props, new Authenticator() {
 						            protected PasswordAuthentication getPasswordAuthentication() {
-						                return new PasswordAuthentication("phylife@mail.ru", "cbcmrb2000"); //phylife@mail.ru
+						            	return new PasswordAuthentication("locomotions2@yandex.ru", "1z2x3c4v5b");
 						            }
 						        });
 					 
 					        try {
 					            Message message = new MimeMessage(session);
 					            //от кого
-					            message.setFrom(new InternetAddress("glebas@tut.by","Васильченко"));
+					            message.setFrom(new InternetAddress("locomotions2@yandex.ru","Васильченко"));
 					            //кому
 					            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(currentClient.getEmail()));
 					            //Заголовок письма
-					            message.setSubject("Тестовое письмо");
+					            message.setSubject("Коммерческое предложение");
 					            //Содержимое
 					            
-//					            // Create the message part
-//					            BodyPart messageBodyPart = new MimeBodyPart();
-//
-//					            // Now set the actual message
-//					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
-//
-//					            // Create a multipar message
-//					            Multipart multipart = new MimeMultipart();
-//
-//					            // Set text message part
-//					            multipart.addBodyPart(messageBodyPart);
-//
-//					            // Part two is attachment
-//					            messageBodyPart = new MimeBodyPart();
-//					            DataSource source = new FileDataSource(pdfFile);
-//					            messageBodyPart.setDataHandler(new DataHandler(source));
-//					            messageBodyPart.setFileName(pdfFile.getName());
-//					            multipart.addBodyPart(messageBodyPart);
+					            // Create the message part
+					            BodyPart messageBodyPart = new MimeBodyPart();
+
+					            // Now set the actual message
+					            messageBodyPart.setText("Бизнес предложение (тестовое задание) для "+currentClient.getName());
+
+					            // Create a multipar message
+					            Multipart multipart = new MimeMultipart();
+
+					            // Set text message part
+					            multipart.addBodyPart(messageBodyPart);
+
+					            // Part two is attachment
+					            
+					          //now write the PDF content to the output stream
+					            messageBodyPart = new MimeBodyPart();
+					            DataSource source = new FileDataSource(pdfFile);
+					            messageBodyPart.setDataHandler(new DataHandler(source));
+					            messageBodyPart.setFileName(pdfFile.getName());
+					            multipart.addBodyPart(messageBodyPart);
+					            
+					            message.setContent(messageBodyPart.getParent());
 
 					            // Send the complete message parts
 					            // Session mailSession = Session.getDefaultInstance(props, null);

@@ -18,15 +18,17 @@
          <intercept-url pattern="listDoc" access="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER_SALE')"/>
          <intercept-url pattern="InsertUpdateDoc" access="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER_SALE','ROLE_DELIVERY')"/>
 
-				<form-login
-					login-page="/login"
-				/>
-            
-            
-            <remember-me key="spitterKey"  token-validity-seconds="2419200" />    
- 			
-			<logout logout-success-url="/" logout-url="/j_spring_security_logout" />
-			<csrf disabled="true"/>
+		<form-login
+			login-page="/login"
+		/>
+	         
+	         
+	    <remember-me key="spitterKey"  token-validity-seconds="24192000" />    
+			
+		<logout logout-success-url="/" logout-url="/j_spring_security_logout" />
+		<csrf disabled="true"/>
+		
+		<access-denied-handler error-page="/error403" />
     </http>
     <!--Authority storage-->
     <authentication-manager>

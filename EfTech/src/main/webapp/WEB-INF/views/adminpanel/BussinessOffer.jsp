@@ -61,7 +61,8 @@
 			  <th>Спецификация</th>
 			  <th>Оценка покупателей</th>
             </tr>
-		 	<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+		 	<c:forEach var="currentBasket" items="${sessionScope[name]}">
+		 	  <c:set var="currentBFluid" value="${currentBasket.getBrakingFluid()}"/>
 		      <tr>
           	    <td class="dragHandle">&nbsp;</td>
 			 	<td class="checkbox"><input type="checkbox" name="selections" checked="checked" value="${currentBFluid.getId()}" /></td>

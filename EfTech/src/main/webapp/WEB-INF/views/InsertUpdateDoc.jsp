@@ -296,6 +296,28 @@
 							</div>
 		                 </li>
 		                </sec:authorize>
+		                
+		                 <li>
+		                   <label>Покупатель:</label>
+		                   <div class="value">
+		                   		<c:if test="${requestScope.task=='New'}">
+									<select size="1" name="client_id"  class="le-select">
+					                    <option >Выберите покупателя</option>	
+											<c:forEach var="punct" items="${requestScope.listClients}">
+											<c:if test="${requestScope.currentClient != punct.getId()}">
+												<option value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+											</c:if>
+											<c:if test="${requestScope.currentStatus == punct.getId()}">
+												<option selected value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+											</c:if>
+										</c:forEach>
+					                </select>
+		                   		</c:if>
+		                   		<c:if test="${requestScope.task!='New'}">
+		                   			<c:out value="${requestScope.client.getName()}"/><br>
+		                   		</c:if>
+							</div>
+		                 </li>
 	                 
 		           	  	 <li>
 		                   <label>Статус:</label>

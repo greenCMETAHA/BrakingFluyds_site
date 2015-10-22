@@ -22,6 +22,7 @@ import eftech.workingset.DAO.interfaces.InterfaceDemandDAO;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.BrakingFluid;
+import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Demand;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.Offer;
@@ -93,9 +94,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
 				+ ", exe.id AS executer_id, exe.name AS executer_name, exe.email AS executer_email, exe.login AS executer_login"
 				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name"
+				+ ", cl.id AS client_id, cl.name AS client_name, cl.email AS client_email, cl.address AS client_address"
 				+ ", status.id AS status_id, status.name AS status_name from demand as of "
 				+ " left join Users AS u on (of.user=u.id)"
 				+ " left join Users AS exe on (of.executer=exe.id)"
+				+ " left join Client AS cl on (of.client=cl.id)"
 				+ " left join offerstatus AS status on (of.status=status.id)"
 				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
@@ -104,7 +107,6 @@ public class DemandTemplate implements InterfaceDemandDAO{
 				//+ " order by of.time desc, of.demand_id limit :numPage, :quantity";
 				+ " order by of.time desc, of.demand_id";
 
-		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("quantity", quantity);
 		params.addValue("numPage", numPage-1);
@@ -117,7 +119,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Demand>();
 		}				
-			}	
+	}	
 	
 
 	@Override
@@ -126,9 +128,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
 				+ ", exe.id AS executer_id, exe.name AS executer_name, exe.email AS executer_email, exe.login AS executer_login"
 				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name"
+				+ ", cl.id AS client_id, cl.name AS client_name, cl.email AS client_email, cl.address AS client_address"
 				+ ", status.id AS status_id, status.name AS status_name from demand as of "
 				+ " left join Users AS u on (of.user=u.id)"
 				+ " left join Users AS exe on (of.executer=exe.id)"
+				+ " left join Client AS cl on (of.client=cl.id)"
 				+ " left join offerstatus AS status on (of.status=status.id)"
 				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
@@ -151,9 +155,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
 				+ ", exe.id AS executer_id, exe.name AS executer_name, exe.email AS executer_email, exe.login AS executer_login"
 				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name"
+				+ ", cl.id AS client_id, cl.name AS client_name, cl.email AS client_email, cl.address AS client_address"
 				+ ", status.id AS status_id, status.name AS status_name from demand as of "
 				+ " left join Users AS u on (of.user=u.id)"
 				+ " left join Users AS exe on (of.executer=exe.id)"
+				+ " left join Client AS cl on (of.client=cl.id)"
 				+ " left join offerstatus AS status on (of.status=status.id)"
 				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
@@ -177,9 +183,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
 				+ ", exe.id AS executer_id, exe.name AS executer_name, exe.email AS executer_email, exe.login AS executer_login"
 				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name"
+				+ ", cl.id AS client_id, cl.name AS client_name, cl.email AS client_email, cl.address AS client_address"
 				+ ", status.id AS status_id, status.name AS status_name from demand as of "
 				+ " left join Users AS u on (of.user=u.id)"
 				+ " left join Users AS exe on (of.executer=exe.id)"
+				+ " left join Client AS cl on (of.client=cl.id)"
 				+ " left join offerstatus AS status on (of.status=status.id)"
 				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
@@ -198,6 +206,36 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		}
 	}
 	
+
+
+	@Override
+	public ArrayList<Demand> getDemandsByClient(int client_id) {
+		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, bf.photo AS fluid_photo"
+				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
+				+ ", exe.id AS executer_id, exe.name AS executer_name, exe.email AS executer_email, exe.login AS executer_login"
+				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name"
+				+ ", cl.id AS client_id, cl.name AS client_name, cl.email AS client_email, cl.address AS client_address"
+				+ ", status.id AS status_id, status.name AS status_name from demand as of "
+				+ " left join Users AS u on (of.user=u.id)"
+				+ " left join Users AS exe on (of.executer=exe.id)"
+				+ " left join Client AS cl on (of.client=cl.id)"
+				+ " left join offerstatus AS status on (of.status=status.id)"
+				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
+				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
+				+ " where of.client=:client_id order by time desc";
+
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("client_id", client_id);
+		
+		try{
+			return (ArrayList<Demand>)jdbcTemplate.query(sqlQuery,params,new DemandRowMapper());
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<Demand>();
+		}					}
+
+	
+	
 	private Demand createDemand(Demand demand){
 		
 		Demand result=new Demand();
@@ -205,11 +243,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
-		String sqlUpdate="insert into demand (time, demand_id, brakingfluid, quantity, price, user, status, executer)"
-				+ " Values (:time, :demand_id, :brakingfluid, :quantity, :price, :user, :status, :executer)";
+		String sqlUpdate="insert into demand (time, demand_id, brakingfluid, quantity, price, user, status, executer, client)"
+				+ " Values (:time, :demand_id, :brakingfluid, :quantity, :price, :user, :status, :executer, :client)";
 		if (currentDemand.getId()>0){ // В БД есть такой элемент
 			 sqlUpdate="update demand set time=:time, demand_id=:demand_id, brakingfluid=:brakingfluid, quantity=:quantity"
-			 		+ ", price=:price, user=:user, status=:status, executer=:executer  where id=:id";
+			 		+ ", price=:price, user=:user, status=:status, executer=:executer , client=:client where id=:id";
 			 params.addValue("id", currentDemand.getId());
 		}
 		
@@ -221,6 +259,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		params.addValue("user", (((User)demand.getUser()).getId()==0?Service.ID_CUSTOMER:((User)demand.getUser()).getId()));
 		params.addValue("status", ((OfferStatus)demand.getStatus()).getId());
 		params.addValue("executer", (((User)demand.getExecuter()).getId()==0?Service.ID_EXECUTER:((User)demand.getExecuter()).getId()));
+		params.addValue("client", (((Client)demand.getClient()).getId()==0?Service.ID_EMPTY_CLIENT:((Client)demand.getClient()).getId()));
 		
 		KeyHolder keyHolder=new GeneratedKeyHolder(); 
 		
@@ -294,7 +333,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 	
 	
 	@Override
-	public ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executer) {
+	public ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executer, Client client) {
 		ArrayList<Demand> list=getDemand(demand_id);	//все строки документа получили
 		ArrayList<Demand> result=new ArrayList<Demand>();
 		LinkedList<Basket> copyBasket=(LinkedList<Basket>)basket.clone();
@@ -323,6 +362,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			demand.setUser(user);
 			demand.setBrakingFluid((BrakingFluid)currentFluid.getBrakingFluid());
 			demand.setExecuter(executer);
+			demand.setClient(client);
 			
 			result.add(demand);
 		}
@@ -358,8 +398,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			manufacturer.setId(rs.getInt("fluid_manufacturer_id"));
 			manufacturer.setName(rs.getString("fluid_manufacturer_name"));
 			fluid.setManufacturer(manufacturer);
-			
 			demand.setBrakingFluid(fluid);
+			
+			demand.setClient(new Client(rs.getInt("client_id"),rs.getString("client_name")
+					,rs.getString("client_email"),rs.getString("client_address"),null));
+			
 			demand.setQuantity(rs.getInt("quantity"));
 			demand.setPrice(rs.getDouble("price"));
 			demand.setUser(new User(rs.getInt("user_id"),rs.getString("user_name"),rs.getString("user_email"),rs.getString("user_login")));
@@ -369,6 +412,5 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			return demand;
 		}
 	}
-
 
 }

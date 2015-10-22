@@ -252,8 +252,8 @@
           <div class="row">
             <div class="col-md-8 center-block">
               <div class="info-404 text-center">
-                <h2 class="primary-color inner-bottom-xs">404</h2>
-                <p class="lead">Извините, страница не может быть найдена.</p>
+                <h2 class="primary-color inner-bottom-xs"><c:out value="${requestScope.errNumber}"/></h2>
+                <p class="lead"><c:out value="${requestScope.errMessage}"/></p>
                 <div class="sub-form-row inner-top-xs inner-bottom-xs">
 <!--                   <form role="form" action="find"> -->
 <!--                     <input placeholder="Поиск по каталогу" autocomplete="off"> -->

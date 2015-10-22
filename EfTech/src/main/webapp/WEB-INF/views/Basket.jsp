@@ -335,6 +335,16 @@
 	                    </sec:authorize>
 	                </div>
                   </li>
+                  <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+	                  <li>
+	                    <label>Введите сумму оплаты:</label>
+	                    <div class="value pull-right">
+		                    <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+		                    	$<input type="text" class="input" name="paySumm" value="${requestScope.totalBasket}" />
+		                    </sec:authorize>
+		                </div>
+	                  </li>
+                  </sec:authorize>
                 </ul>
                 <div class="buttons-holder">
                   <a class="le-button big" href="home?variant=checkout" >Оплатить</a>
