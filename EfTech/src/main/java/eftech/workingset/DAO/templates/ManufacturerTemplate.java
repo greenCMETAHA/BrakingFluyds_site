@@ -47,7 +47,7 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	@Override
 	public Manufacturer getManufacturer(int id) {
 		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c "
-				+ "where (man.country=c.id) and (man.id=:id) and (isManufacturer=1) group by man.name";
+				+ "where (man.country=c.id) and (man.id=:id) group by man.name";
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);

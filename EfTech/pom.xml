@@ -213,6 +213,12 @@
             <artifactId>spring-security-taglibs</artifactId>
             <version>${spring.securiry}</version>
         </dependency>
+ 		
+		<dependency>														<!-- для PayPal - rest API -->
+			<groupId>com.paypal.sdk</groupId>
+			<artifactId>rest-api-sdk</artifactId>
+			<version>LATEST</version>
+		</dependency>        
 		      
 	</dependencies>
     <build>

@@ -286,6 +286,43 @@
 	                   		
 						</div>
 	                 </li>
+	                 <c:if test="${requestScope.variant=='Pay'}">
+	                 	<li>
+		                   <label>Заказчик:</label>
+		                   <div class="value">
+		                   		<c:if test="${requestScope.task=='New'}">
+									<select size="1" name="client_id"  class="le-select">
+					                    <option >Выберите покупателя</option>	
+											<c:forEach var="punct" items="${requestScope.listClients}">
+											<c:if test="${requestScope.currentClient != punct.getId()}">
+												<option value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+											</c:if>
+											<c:if test="${requestScope.currentClient == punct.getId()}">
+												<option selected value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
+											</c:if>
+										</c:forEach>
+					                </select>
+		                   		</c:if>
+		                   		<c:if test="${requestScope.task!='New'}">
+		                   			<input name="client_id" type="hidden" value="${requestScope.currentClient}" >
+		                   			<c:out value="${requestScope.client.getName()}"/><br>
+		                   		</c:if>
+							</div>
+		                 </li>
+		                 <li>
+		                   <label>Получатель:</label>
+		                   <div class="value">
+	                   			<c:out value="${requestScope.currentManufacturer.getName()}"/><br>
+							</div>
+		                 </li>
+	                 	 <li>
+		                   <label>Сумма:</label>
+		                   <div class="value">
+	                   			<input type="text" class="input" value="${requestScope.summ}" name="doc_summ" />
+							</div>
+		                 </li>
+	                 
+	                 </c:if>
 	                 <c:if test="${requestScope.variant=='Demand'}">
 	                  	<sec:authorize access="hasAnyRole('ROLE_DELIVERY','ROLE_MANAGER_SALE')">
 	                 	<li>
@@ -314,6 +351,7 @@
 					                </select>
 		                   		</c:if>
 		                   		<c:if test="${requestScope.task!='New'}">
+		                   			<input name="client_id" type="hidden" value="${requestScope.currentClient}" >
 		                   			<c:out value="${requestScope.client.getName()}"/><br>
 		                   		</c:if>
 							</div>
@@ -339,23 +377,7 @@
 		                 <li>
 		                   <label>Исполнитель:</label>
 		                   <div class="value">
-		                   	   <sec:authorize access="hasAnyRole('ROLE_MANAGER_SALE')">
-	 		                   <select size="1" name="executer_id"  class="le-select"> 
-				                    <option >Выберите исполнителя</option>
-									<c:forEach var="punct" items="${requestScope.combobox_executers}">
-											<c:if test="${requestScope.executer_id != punct.getId()}">
-												<option value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
-											</c:if>
-											<c:if test="${requestScope.executer_id == punct.getId()}">
-												<option selected value="${punct.getId()}"><c:out value="${punct.getName()}"  /></option>
-											</c:if>
-									</c:forEach>
-	 			                </select> 
-	 			                </sec:authorize>
-	 			                <sec:authorize access="!hasAnyRole('ROLE_MANAGER_SALE')">
-		 		                   <c:out value="${requestScope.executer_name}"/>
-		                   	 		<input type="text" hidden class="input" value="${requestScope.executer_id}" name="executer_id" />
-	 			                </sec:authorize>
+		                   	   <c:out value="${requestScope.user_name}"/>
 			                </div>
 		                 </li>
 	                 </c:if>
@@ -368,69 +390,102 @@
 	               <button class="le-button" type="submit" name="task" value="home">К списку товаров</button>
 	            </div>
 	         </div>
-     
-      
-			<div class="col-xs-12 col-md-9 items-holder no-margin">
-            	<c:if test="${requestScope.task=='New'}">
-            	<c:set var="name" value="basket" />
-		            <c:forEach var="currentDoc" items="${sessionScope[name]}">
-						<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
-			            <div class="row no-margin cart-item">
-			              <div class="col-xs-12 col-sm-2 no-margin">
-			                
-			                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
-			                </a>
-			              </div>
-			              <div class="col-xs-12 col-sm-4 ">
-			                <div class="title">
-			                  <c:out value="${currentBFluid.getName()}" />
-			                </div>
-			                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
-			              </div>
-			          	  <div class="col-xs-12 col-sm-3 no-margin">
-			          	  	<div class="quantity">
-			                      <c:out value="${currentDoc.getQauntity()}"/>
-			                </div>
-			               </div>
-			               <sec:authorize access="!isAnonymous()">
-				               <div class="col-xs-12 col-sm-2 no-margin">
+     		
+     		<c:if test="${requestScope.variant=='Pay'}">
+     			<c:if test="${requestScope.listDemands.size()>0}">
+					<div class="col-xs-12 col-md-9 items-holder no-margin">
+					<label>Закрытые заявки:</label><br>
+		            	<c:forEach var="currentDoc" items="${requestScope.listDemands}">
+				            <div class="row no-margin cart-item">
+				              <div class="col-xs-12 col-sm-5 ">
+				                <div class="title">
+				                  <c:if test="${!currentDoc.getDemand_id().isEmpty()}">
+				                  	<c:out value="${currentDoc.getDemand_id()}" />
+				                  </c:if>
+				                  <c:if test="${currentDoc.getDemand_id().isEmpty()}">
+				                  	<- предоплата ->
+				                  </c:if>
+				                </div>
+				              </div>
+				          	  <div class="col-xs-12 col-sm-3 no-margin">
+				          	  	<div class="title">
+				                	<c:out value="${currentDoc.showDate()}"/>
+				                </div>
+				              </div>
+				              <div class="col-xs-12 col-sm-2 no-margin">
 				                  <div class="price">
-					               		<c:out value="${currentDoc.getQauntity()*currentBFluid.getPrice()}"/>
+				               		<c:out value="${currentDoc.getSumm()}"/>
 				                  </div>
+				              </div>
+				            </div>
+				            <!-- /.cart-item -->
+			          	</c:forEach>
+		        	</div>
+		        </c:if>
+        	</c:if>			
+     		<c:if test="${requestScope.variant!='Pay'}">
+  				<div class="col-xs-12 col-md-9 items-holder no-margin">
+	            	<c:if test="${requestScope.task=='New'}">
+	            	<c:set var="name" value="basket" />
+			            <c:forEach var="currentDoc" items="${sessionScope[name]}">
+							<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+				            <div class="row no-margin cart-item">
+				              <div class="col-xs-12 col-sm-2 no-margin">
+				                
+				                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+				                </a>
+				              </div>
+				              <div class="col-xs-12 col-sm-4 ">
+				                <div class="title">
+				                  <c:out value="${currentBFluid.getName()}" />
+				                </div>
+				                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
+				              </div>
+				          	  <div class="col-xs-12 col-sm-3 no-margin">
+				          	  	<div class="quantity">
+				                      <c:out value="${currentDoc.getQauntity()}"/>
+				                </div>
 				               </div>
-				           </sec:authorize>
-			            </div>
-			            <!-- /.cart-item -->
-		          	</c:forEach>
-	          	</c:if>
-	          	<c:if test="${requestScope.task!='New'}">
-	            	<c:forEach var="currentDoc" items="${requestScope.listDoc}">
-						<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
-			            <div class="row no-margin cart-item">
-			              <div class="col-xs-12 col-sm-1 no-margin">
-			                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
-			              </div>
-			              <div class="col-xs-12 col-sm-6 ">
-			                <div class="title">
-			                  <c:out value="${currentBFluid.getName()}" />
-			                </div>
-			                <div class="brand">(<c:out value="${currentBFluid.getManufacturer().getName()}"/>)</div>
-			              </div>
-			          	  <div class="col-xs-12 col-sm-1 no-margin">
-			          	  	<div class="quantity">
-			                	<c:out value="${currentDoc.getQuantity()}"/>
-			                </div>
-			              </div>
-			              <div class="col-xs-12 col-sm-2 no-margin">
-			                  <div class="price">
-			               		<c:out value="${currentDoc.getQuantity()*currentBFluid.getPrice()}"/>
-			                  </div>
-			              </div>
-			            </div>
-			            <!-- /.cart-item -->
-		          	</c:forEach>
-	  			</c:if>
-        	</div>
+				               <sec:authorize access="!isAnonymous()">
+					               <div class="col-xs-12 col-sm-2 no-margin">
+					                  <div class="price">
+						               		<c:out value="${currentDoc.getQauntity()*currentBFluid.getPrice()}"/>
+					                  </div>
+					               </div>
+					           </sec:authorize>
+				            </div>
+				            <!-- /.cart-item -->
+			          	</c:forEach>
+		          	</c:if>
+		          	<c:if test="${requestScope.task!='New'}">
+		            	<c:forEach var="currentDoc" items="${requestScope.listDoc}">
+							<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+				            <div class="row no-margin cart-item">
+				              <div class="col-xs-12 col-sm-1 no-margin">
+				                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+				              </div>
+				              <div class="col-xs-12 col-sm-6 ">
+				                <div class="title">
+				                  <c:out value="${currentBFluid.getName()}" />
+				                </div>
+				                <div class="brand">(<c:out value="${currentBFluid.getManufacturer().getName()}"/>)</div>
+				              </div>
+				          	  <div class="col-xs-12 col-sm-1 no-margin">
+				          	  	<div class="quantity">
+				                	<c:out value="${currentDoc.getQuantity()}"/>
+				                </div>
+				              </div>
+				              <div class="col-xs-12 col-sm-2 no-margin">
+				                  <div class="price">
+				               		<c:out value="${currentDoc.getQuantity()*currentBFluid.getPrice()}"/>
+				                  </div>
+				              </div>
+				            </div>
+				            <!-- /.cart-item -->
+			          	</c:forEach>
+		  			</c:if>
+	        	</div>
+        	</c:if>
 		</form>
       	</div>
       </div>

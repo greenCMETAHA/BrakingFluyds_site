@@ -13,13 +13,14 @@ public class DocRow {
 	private InterfaceBrakingFluid brakingFluid;
 	private InterfaceOfferStatus status;
 	private User executer;
+	private boolean paid;  //оплачено
 	
 	public DocRow() {
 		super();
 	}
 
 	public DocRow(String numDoc, Date time, InterfaceBrakingFluid interfaceBrakingFluid, int quantity, double summ
-				, InterfaceOfferStatus status, User executer) {
+				, InterfaceOfferStatus status, User executer, boolean paid) {
 		super();
 		this.numDoc = numDoc;
 		this.quantity = quantity;
@@ -28,6 +29,7 @@ public class DocRow {
 		this.setTime(time);
 		this.setBrakingFluid(interfaceBrakingFluid);
 		this.setExecuter(executer);
+		this.setPaid(paid);
 		
 	}
 
@@ -113,6 +115,14 @@ public class DocRow {
 
 	public void setExecuter(User executer) {
 		this.executer = executer;
+	}
+
+	public boolean isPaid() {
+		return paid;
+	}
+
+	public void setPaid(boolean paid) {
+		this.paid = paid;
 	}	
 
 }

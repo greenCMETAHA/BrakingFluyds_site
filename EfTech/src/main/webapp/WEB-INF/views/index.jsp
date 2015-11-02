@@ -61,7 +61,7 @@
 		                        <li><a href="Comparison">Сравнить товары</a></li>
 		                        <sec:authorize access="!isAnonymous()"> 
 			                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
-			                        <li><a href="listDoc?variant=Offer">Список ком. предложенийк</a></li>
+			                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
 			                    </sec:authorize>
 		                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
 		                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
@@ -290,7 +290,8 @@
 			                        <li><a href="Comparison">Сравнить товары</a></li>
 			                        <sec:authorize access="!isAnonymous()">
 				                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
-				                        <li><a href="listDoc?variant=Offer">Список ком. предложенийк</a></li>
+				                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+				                        <li><a href="listDoc?variant=Pay">Список оплат</a></li>
 				                    </sec:authorize>
 			                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
 			                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
@@ -301,12 +302,18 @@
 				                    <sec:authorize access="hasRole('ROLE_DISTR')">
 				                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
 				                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+				                        <li><a href="listDoc?variant=Pay">Список оплат</a></li>
 				                    </sec:authorize>
 				                    <sec:authorize access="hasRole('ROLE_ADMIN')">
                       					<li><a href="home?adminpanel=true">Конфигурирование</a></li>
                   					</sec:authorize>
                                 </ul>
                             </div>
+							<div class="col-md-4">
+                                <ul class="list-unstyled">
+	 		                        <li><a href="report?variant=Pay">Отчет по платежам</a></li>
+                                </ul>
+                            </div>                            
                         </div>
                       </li>
                     </ul>
@@ -322,6 +329,7 @@
                   <sec:authorize access="hasRole('ROLE_DISTR')">
                       <li><a href="listDoc?variant=Demand">Список заявок</a></li>
                       <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+                      <li><a href="listDoc?variant=Pay">Список оплат</a></li>
                   </sec:authorize>
                    <sec:authorize access="hasRole('ROLE_ADMIN')">
                       <li><a href="home?adminpanel=true">Конфигурирование</a></li>

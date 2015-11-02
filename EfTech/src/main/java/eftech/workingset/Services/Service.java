@@ -53,6 +53,7 @@ import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.OfferStatusTemplate;
+import eftech.workingset.DAO.templates.OfferTemplate;
 import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.beans.*;
@@ -644,26 +645,31 @@ public class Service {
 			}	
 		}
 	}
+	
 	//------------------------------------------------
-	public static ArrayList<Demand> getDemandsWithoutPay(Client client, DemandTemplate demandDAO, PayTemplate payDAO){
+	
+	//определим, какие заказы ещё не были оплачены. Их мы будем закрывать остаточными суммами
+	public static ArrayList<Demand> getDemandsWithoutPay(Client client, InfoTemplate infoDAO, DemandTemplate demandDAO, PayTemplate payDAO){
 		ArrayList<Demand> result = new ArrayList<Demand>();
 		
-		ArrayList<Demand> demands=demandDAO.getDemandsByClient(client.getId());
-		ArrayList<Pay> pays=payDAO.getPaysByClient(client.getId());
+		ArrayList<Demand> demands=demandDAO.getDemandsByClient(client.getId()); 
+		ArrayList<Pay> pays=payDAO.getPaysByClient(client.getId(),new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)));
 		for (Demand demand:demands){
 			double summ=demand.getPrice()*demand.getQuantity();
 			for (Pay pay:pays){
-				if (pay.getDemand_id().equals(demand.getDemand_id())){
-					summ-=pay.getSumm();
-					pays.remove(pay);
-					if (summ<=0){
-						break;
+				if (pay.getSumm()>0.0001){
+					if (pay.getDemand_id().equals(demand.getDemand_id())){
+						double value=Math.min(summ, pay.getSumm());
+						summ-=value;
+						value=pay.getSumm()-value;
+						pay.setSumm(value);
+						if (summ<=0){
+							break;
+						}
 					}
 				}
 			}
-			if (summ<=0){
-				demands.remove(demand);
-			}else{
+			if (summ>0){
 				demand.setQuantity(0);
 				demand.setPrice(summ); //вместо цены в price сохраним сумму, которую ещё должен оплатить клиент по заказу
 				result.add(demand);
@@ -673,24 +679,26 @@ public class Service {
 		return result;
 	}
 	
-	private static void createEntry(double summ, String demand_id, Date currentTime, Client client, User user, ManufacturerTemplate manufacturerDAO, InfoTemplate infoDAO, PayTemplate payDAO, LogTemplate logDAO){
+	private static void createEntry(double summ, boolean storno, String numDoc, String demand_id, Date currentTime, Client client, User user
+			, ManufacturerTemplate manufacturerDAO, InfoTemplate infoDAO, PayTemplate payDAO, LogTemplate logDAO){
 		String timeDoc=Service.getFormattedDate(currentTime)
 				+":"+currentTime.getHours()+":"+currentTime.getMinutes()+":"+currentTime.getSeconds();
 		// Теперь - внесение денег на счет посредника
-		Pay pay=new Pay(0,currentTime, user, "pay_"+timeDoc,demand_id
+		numDoc=(numDoc==null?"pay_"+timeDoc:numDoc);
+		Pay pay=new Pay(0,currentTime, user, numDoc,demand_id
 				,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
-				,false, summ, client);
+				,storno, summ, client);
 		pay=payDAO.createPay(pay);
 		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Оплатили посреднику"));
 		summ=summ/100*95;
-		pay=new Pay(0,currentTime, user, "pay_"+timeDoc,demand_id
+		pay=new Pay(0,currentTime, user, numDoc,demand_id
 				,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
-				,false, -summ, client);
+				,storno, -summ, client);
 		pay=payDAO.createPay(pay);
 		log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник оплатил за товар поставщику"));
-		pay=new Pay(0,currentTime, user, "pay_"+timeDoc,demand_id
+		pay=new Pay(0,currentTime, user, numDoc,demand_id
 				,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MAIN_FIRM)))
-				,false, summ, client);
+				,storno, summ, client);
 		pay=payDAO.createPay(pay);
 		log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Поставщик получил деньги за товар"));
 	}
@@ -700,44 +708,315 @@ public class Service {
 			, OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO, PayTemplate payDAO
 			, double paySumm, int client_id, LogTemplate logDAO){
 		Client client=clientDAO.getClient((client_id==0?Service.ID_EMPTY_CLIENT:client_id));
+		boolean storno=false;
+		if (paySumm<0){
+			paySumm=-paySumm;
+			storno=true;
+		}
+			
 		double totalSumm=0;
 		for (Basket position:basket){
 			totalSumm+=position.getQauntity()*position.getBrakingFluid().getPrice();
 		}
-		if (paySumm>=totalSumm){
-			double summ=Math.min(paySumm,totalSumm);
-			// сначала создадим заявку - основание для внесения денег
+		double summ=Math.min(paySumm,totalSumm); 			//вносимая сумма может быть не равна сумме к оплате: как от недостатка денег - так и из-за наличия не отгруженных старых платежей 
 			
-		GregorianCalendar currentTime=new GregorianCalendar(); 
+		GregorianCalendar currentTime=new GregorianCalendar();  // сначала создадим заявку - основание для внесения денег 
 		String timeDoc=Service.getFormattedDate(currentTime.getTime())
 				+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
 		String demand_id="Demand_"+timeDoc;
 		synchronized (demand_id) {
-			ArrayList<Demand> demand = demandDAO.createDemand(demand_id, basket, user, offerStatusDAO.getOfferStatus(1), user, client);
-			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), demand, "Создали заявку (товар уже оплачен)"));
-			createEntry(summ, demand_id, currentTime.getTime(), client, user, manufacturerDAO, infoDAO, payDAO, logDAO);
+			ArrayList<Demand> listDemand = demandDAO.createDemand(demand_id, basket, user, offerStatusDAO.getOfferStatus(1), user, client);
+			for (Demand demand:listDemand){
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), demand, "Создали заявку (товар уже оплачен)"));
+			}
+			createEntry(summ, storno, null,demand_id, currentTime.getTime(), client, user, manufacturerDAO, infoDAO, payDAO, logDAO);
 		}
-			summ=paySumm-Math.min(paySumm,totalSumm); //если внесли большую сумму - спишем старые долги по клиенту
-			if (summ>0){
-				ArrayList<Demand> list=getDemandsWithoutPay(client, demandDAO, payDAO); //получили список заказов, не оплаченных, или оплаченных не полностью, отсортированный по дате (FIFO)
-				for (Demand demand:list){
-					double entrySumm=Math.min(summ, demand.getPrice());
-					if (entrySumm>0){
-						createEntry(entrySumm, demand.getDemand_id(), currentTime.getTime(), client, user, manufacturerDAO, infoDAO, payDAO, logDAO);
-						summ-=entrySumm;
-					}
-					if (summ<=0){
-						break;
-					}
-					
+		if (summ<totalSumm){ //сумма была меньше. Попытаемся списать старые предоплаты
+			summ=totalSumm-summ;
+			ArrayList<Pay> list=payDAO.getPrepayByContracter(client_id, new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)));
+			for (Pay pay:list){
+				double entrySumm=Math.min(summ, pay.getSumm());
+				if (entrySumm>0){
+					createEntry(entrySumm, storno, pay.getNumDoc(), demand_id, pay.getTime(), (Client)pay.getClient(), pay.getUser(), manufacturerDAO, infoDAO, payDAO, logDAO);
+					summ-=entrySumm;
+				}
+				double value=pay.getSumm()-entrySumm;
+				if (value<0.0001){
+					payDAO.deletePay(pay.getId());
+				}else{
+					payDAO.changeSumm(pay.getId(),value);
+				}
+				if (summ<=0.0001){
+					break;
 				}
 			}
-			if (summ>0){ //если ещё что-то осталось - сделаем предоплату
-				Pay pay=new Pay(0,currentTime.getTime(), user, "pay_"+timeDoc,""
-						,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
-						,false, summ, client);  //поставщику ничего платить не будем, бо рано ещё. Это сделаем после формирования заказа.
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
+		}
+		
+		summ=paySumm-Math.min(paySumm,totalSumm); //если внесли большую сумму - спишем старые долги по клиенту
+		if (summ>0){
+			ArrayList<Demand> list=getDemandsWithoutPay(client, infoDAO, demandDAO, payDAO); //получили список заказов, не оплаченных, или оплаченных не полностью, отсортированный по дате (FIFO)
+			for (Demand demand:list){
+				double entrySumm=Math.min(summ, demand.getPrice());
+				if (entrySumm>0.0001){
+					createEntry(entrySumm, storno, null, demand.getDemand_id(), currentTime.getTime(), client, user, manufacturerDAO, infoDAO, payDAO, logDAO);
+					summ-=entrySumm;
+				}
+				if (summ<=0.0001){
+					break;
+				}
+				
 			}
 		}
+		if (summ>0){ //если ещё что-то осталось - сделаем предоплату
+			Pay pay=new Pay(0,currentTime.getTime(), user, "pay_"+timeDoc,""
+					,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
+					,storno, summ, client);  //поставщику ничего платить не будем, бо рано ещё. Это сделаем после формирования заказа.
+			pay=payDAO.createPay(pay);
+			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
+		}
+
+	}
+	
+	public static ArrayList<Pay> getlistPays(Date dateBeginFilter, Date dateEndFilter, int firstElement, int elementsInList, User user, PayTemplate payDAO){
+		ArrayList<Pay> result=new ArrayList<Pay>();
+		
+		ArrayList<Pay> listDoc=null;
+		if ((dateBeginFilter.getYear()==0) & (dateEndFilter.getYear()==0)){
+			listDoc=payDAO.getPaysLast(1, elementsInList);
+		}else{
+			listDoc=payDAO.getPaysIn(dateBeginFilter, dateEndFilter,firstElement, elementsInList);
+		}
+		
+		for (Pay doc:listDoc){
+			boolean bFind=false;
+			for (Pay row:result){
+				if (row.getNumDoc().equals(doc.getNumDoc())){
+					row.setSumm(row.getSumm()+doc.getSumm());
+					bFind=true;
+				}
+			}
+			
+			if (!bFind){
+				result.add(new Pay(0, doc.getTime(), user, doc.getNumDoc(), "", doc.getManufacturer()
+						,doc.isStorno(), doc.getSumm(), doc.getClient()));
+			}
+		}
+		
+		return result;
+	}
+
+	public static void spreadDemand(String doc_id, InfoTemplate infoDAO, LogTemplate logDAO, PayTemplate payDAO
+			, DemandTemplate demandDAO, ManufacturerTemplate manufacturerDAO) {
+	
+		ArrayList<Demand> demands=demandDAO.getDemand(doc_id);
+		double totalSumm=0;
+		int client_id = 0;
+		for(Demand position:demands){
+			totalSumm+=position.getQuantity()*position.getPrice();
+			client_id=((Client)position.getClient()).getId();
+		}
+
+		ArrayList<Pay> list=payDAO.getPrepayByContracter(client_id, new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)));
+		for (Pay pay:list){
+			double entrySumm=Math.min(totalSumm, pay.getSumm());
+			if (entrySumm>0){
+				createEntry(entrySumm, false, pay.getNumDoc(), doc_id, pay.getTime(), (Client)pay.getClient(), pay.getUser(), manufacturerDAO, infoDAO, payDAO, logDAO);
+				totalSumm-=entrySumm;
+			}
+			double value=pay.getSumm()-entrySumm;
+			if (value<0.0001){
+				payDAO.deletePay(pay.getId());
+			}else{
+				payDAO.changeSumm(pay.getId(),value);
+			}
+			if (totalSumm<=0.0001){
+				break;
+			}
+		}
+	
+		
+	}
+
+	public static void createPays(String doc_id, Date time, Client client, double doc_summ, User user, InfoTemplate infoDAO,
+			LogTemplate logDAO, PayTemplate payDAO, DemandTemplate demandDAO, ManufacturerTemplate manufacturerDAO) {
+		
+		boolean storno=false;
+		if (doc_summ<0){
+			doc_summ=-doc_summ;
+			storno=true;
+		}
+		
+		if (doc_summ>0){
+			ArrayList<Demand> list=getDemandsWithoutPay(client, infoDAO, demandDAO, payDAO); //получили список заказов, не оплаченных, или оплаченных не полностью, отсортированный по дате (FIFO)
+			for (Demand demand:list){
+				double entrySumm=Math.min(doc_summ, demand.getPrice());
+				if (entrySumm>0.0001){
+					createEntry(entrySumm, storno, doc_id, demand.getDemand_id(), time, client, user, manufacturerDAO, infoDAO, payDAO, logDAO);
+					doc_summ-=entrySumm;
+				}
+				if (doc_summ<=0.0001){
+					break;
+				}
+				
+			}
+		}
+		if (doc_summ>0){ //если ещё что-то осталось - сделаем предоплату
+			Pay pay=new Pay(0,time, user, doc_id,""
+					,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
+					,storno, doc_summ, client);  //поставщику ничего платить не будем, бо рано ещё. Это сделаем после формирования заказа.
+			pay=payDAO.createPay(pay);
+			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
+		}
+	}
+
+	//-----------------------------------------------------------------------------------------
+	
+	public static int showDocInListDoc(String variant, String task, Date dateBeginFilter, Date dateEndFilter,
+			int currentPage, int elementsInList, User user, HttpServletRequest request, Model model, LinkedList<Basket>  basket,
+			DemandTemplate demandDAO, OfferTemplate offerDAO, PayTemplate payDAO, 
+			ManufacturerTemplate manufacturerDAO, InfoTemplate infoDAO, ClientTemplate clientDAO) {
+		int totalDoc=0;
+		
+		if ("Demand".equals(variant)){
+			ArrayList<Demand> listDoc=null;
+//			if (Service.isDate(dateBeginFilter,dateEndFilter)){
+//				listDoc=demandDAO.getDemandsLast(currentPage, elementsInList);
+//			}else{
+				listDoc=demandDAO.getDemandsIn(dateBeginFilter, dateEndFilter,currentPage, elementsInList
+						, (request.isUserInRole("ROLE_MANAGER_SALE")?0:user.getId()));
+//			}
+			
+			ArrayList<DocRow> table = new ArrayList<DocRow>(); 
+			for (Demand doc:listDoc){
+				boolean bFind=false;
+				for (DocRow row:table){
+					if (row.getNumDoc().equals(doc.getDemand_id())){
+						row.setQuantity(row.getQuantity()+doc.getQuantity());
+						row.setSumm(row.getSumm()+(doc.getQuantity()*doc.getPrice()));
+						row.setStatus(doc.getStatus());
+						bFind=true;
+					}
+				}
+				if (!bFind){
+					table.add(new DocRow(doc.getDemand_id(),doc.getTime(),doc.getBrakingFluid(),doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null, doc.getExecuter(), false)); //--!!!!
+				}
+			}
+			for (DocRow docRow:table){
+				ArrayList<Pay> pays= payDAO.getPayByDemandId(docRow.getNumDoc());
+				double summByDemand_id=0.0;
+				for (Pay docPay:pays){
+					summByDemand_id+=docPay.getSumm();
+				}
+				if (docRow.getSumm()==summByDemand_id){
+					docRow.setPaid(true);
+				}
+				
+			}
+			totalDoc = demandDAO.getCountRows(dateBeginFilter, dateEndFilter);
+			model.addAttribute("listDoc", table);
+			
+		}else if ("Offer".equals(variant)){
+			ArrayList<Offer> listDoc=null;
+//			if ((dateBeginFilter.getYear()==0) & (dateEndFilter.getYear()==0)){
+//				listDoc=offerDAO.getOffersLast(currentPage, elementsInList);
+//			}else{
+				listDoc=offerDAO.getOffersIn(dateBeginFilter, dateEndFilter,currentPage, elementsInList);
+			//}
+			
+			ArrayList<DocRow> table = new ArrayList<DocRow>(); 
+			for (Offer doc:listDoc){
+				boolean bFind=false;
+				for (DocRow row:table){
+					if (row.getNumDoc().equals(doc.getOffer_id())){
+						row.setQuantity(row.getQuantity()+doc.getQuantity());
+						row.setSumm(row.getSumm()+(doc.getQuantity()*doc.getPrice()));
+						bFind=true;
+					}
+				}
+				if (!bFind){
+					table.add(new DocRow(doc.getOffer_id(),doc.getTime(),doc.getBrakingFluid(), doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null,null, false)); //--!!!!
+				}
+			}
+			totalDoc = offerDAO.getCountRows(dateBeginFilter, dateEndFilter);
+			model.addAttribute("listDoc", table);
+		}else if ("Pay".equals(variant)){
+			if ("Создать".equals(task)){
+				GregorianCalendar currentTime = new GregorianCalendar();
+				model.addAttribute("pageInfo", "Создать новую оплату");
+				model.addAttribute("id", 0);
+				model.addAttribute("time", Service.getFormattedDate(currentTime.getTime()));
+				model.addAttribute("doc_id", variant+"_"+Service.getFormattedDate(currentTime.getTime())
+						+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds());
+				model.addAttribute("currentStatus", 1);
+				model.addAttribute("user_login", user.getLogin());
+				model.addAttribute("user_name", user.getName());
+				model.addAttribute("listClients", clientDAO.getClients());
+				model.addAttribute("currentClient", Service.ID_EMPTY_CLIENT);
+				model.addAttribute("currentManufacturer", manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM))));
+				model.addAttribute("listDoc", basket);
+				model.addAttribute("task", "New");
+				model.addAttribute("doc_summ", 0);
+				model.addAttribute("listDemands", new ArrayList<Pay>()); //список заявок, на которые распределилась сумма + предоплаты
+			}else{
+				ArrayList<Pay> listDoc=Service.getlistPays(dateBeginFilter, dateEndFilter, 1, elementsInList, user, payDAO);
+				model.addAttribute("listDoc", listDoc);
+				totalDoc=listDoc.size();
+			}
+		}
+		return totalDoc;
+	}
+
+	public static void showDocInInsertUpdateDoc(String variant, String task, String doc_id, Double doc_summ, GregorianCalendar currentTime
+			, User user, HttpServletRequest request,Model model, DemandTemplate demandDAO, OfferTemplate offerDAO, PayTemplate payDAO
+			, ManufacturerTemplate manufacturerDAO, InfoTemplate infoDAO, ClientTemplate clientDAO
+			, UserTemplate userDAO, OfferStatusTemplate offerStatusDAO) {
+		if ("Demand".equals(variant)){
+			model.addAttribute("pageInfo", "Редактировать заявку");
+			ArrayList<Demand> listDoc=demandDAO.getDemand(doc_id);
+			model.addAttribute("listDoc", listDoc);
+			model.addAttribute("currentStatus",  (listDoc.size()>0?((OfferStatus)listDoc.get(0).getStatus()).getId():offerStatusDAO.getOfferStatus(1)));
+			model.addAttribute("executer_id", (listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER));
+			model.addAttribute("userDoc", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getUser().getId():Service.ID_EXECUTER)));
+			model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
+			Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
+			model.addAttribute("client", currentClient);
+		}else if ("Offer".equals(variant)){
+			model.addAttribute("pageInfo", "Редактировать коммерческое предложение");
+			model.addAttribute("listDoc", offerDAO.getOffer(doc_id));
+		}else if ("Pay".equals(variant)){
+			model.addAttribute("pageInfo", "Редактировать оплату");
+			ArrayList<Pay> listDoc=payDAO.getPaysByNumDoc(doc_id);
+			model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
+			Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
+			model.addAttribute("currentManufacturer", manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM))));
+			model.addAttribute("user_login", (listDoc.size()>0?((User)listDoc.get(0).getUser()).getLogin():user.getLogin()));
+			model.addAttribute("user_name", (listDoc.size()>0?((User)listDoc.get(0).getUser()).getName():user.getName()));
+			ArrayList<Pay> listPays =  new ArrayList<Pay>();
+			if (listDoc.size()>0){
+				double summTotal=0;
+				listPays=payDAO.getPaysByNumDocOnleMarketing(doc_id,new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)));
+				for (Pay pay:listPays){
+					summTotal+=pay.getSumm();
+				}
+				model.addAttribute("summ", summTotal);
+			}else{
+				model.addAttribute("summ", doc_summ);
+			}
+			model.addAttribute("listDemands", listPays); //список заявок, на которые распределилась сумма + предоплаты
+			model.addAttribute("client", currentClient);
+			model.addAttribute("currentClient", currentClient.getId());
+		}
+	
+	
+	}
+	
+	public static double countBasket(LinkedList<Basket> basket){
+		double totalBasket=0;	
+		for (Basket current:basket){
+			BrakingFluid brFluid=current.getBrakingFluid();
+			totalBasket+=(brFluid.getPrice()*current.getQauntity());
+		}
+
+		return totalBasket;
 	}
 }

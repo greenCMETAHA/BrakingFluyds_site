@@ -57,7 +57,7 @@ public class Pay implements InterfacePay {
 	public Date getTime() {
 		return time;
 	}
-
+	
 	/**
 	 * @param time the time to set
 	 */

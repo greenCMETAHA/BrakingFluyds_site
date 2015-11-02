@@ -19,6 +19,26 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
+
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import java.net.URLDecoder.*;
+import java.util.*; 
+import java.util.StringTokenizer.*; 
+import java.io.*; 
+import java.net.*; 
+import javax.net.ssl.*;
+
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -67,6 +87,22 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.itextpdf.text.DocumentException;
+import com.paypal.api.payments.Address;
+import com.paypal.api.payments.Amount;
+import com.paypal.api.payments.CreditCard;
+import com.paypal.api.payments.Details;
+import com.paypal.api.payments.FundingInstrument;
+import com.paypal.api.payments.Item;
+import com.paypal.api.payments.ItemList;
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payer;
+import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.PaymentExecution;
+import com.paypal.api.payments.RedirectUrls;
+import com.paypal.api.payments.Transaction;
+import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.PayPalRESTException;
+import com.paypal.base.rest.PayPalResource;
 
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
@@ -84,12 +120,16 @@ import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.RoleTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
+import eftech.workingset.Services.GenerateAccessToken;
+import eftech.workingset.Services.ResultPrinter;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
+import eftech.workingset.beans.intefaces.InterfaceClient;
+import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
@@ -102,6 +142,7 @@ import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.Offer;
 import eftech.workingset.beans.OfferStatus;
+import eftech.workingset.beans.Pay;
 import eftech.workingset.beans.Price;
 import eftech.workingset.beans.Review;
 import eftech.workingset.beans.Role;
@@ -113,9 +154,10 @@ import eftech.workingset.beans.Role;
 @SessionAttributes({"user", "adminpanel", "basket", "wishlist", "compare", "manufacturersFilter", "fluidClassFilter", "elementsInList"
 	, "currentPriceFilter" , "currentBoilingTemperatureDryFilter" , "currentBoilingTemperatureWetFilter" , "currentValueFilter" 
 	, "currentViscosity40Filter" , "currentViscosity100Filter", "currentJudgementFilter"
-	,"dateBeginFilterOffer", "dateEndFilterOffer", "dateBeginFilterDemand", "dateEndFilterDemand" })
+	,"dateBeginFilterOffer", "dateEndFilterOffer", "dateBeginFilterDemand", "dateEndFilterDemand", "Payment_Amount", "Payment_Option" })
 public class HomeController{
 	
+	Map<String, String> map = new HashMap<String, String>();  //for paypal
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	@Autowired
@@ -182,13 +224,8 @@ public class HomeController{
 
 		wishlist = wishlistDAO.getWishList(user.getId());
 		model.addAttribute("wishlist", wishlist);
-		double totalBasket=0;	
-		int totalQauntity=0;
-		for (Basket current:basket){
-			BrakingFluid brFluid=current.getBrakingFluid();
-			totalBasket+=(brFluid.getPrice()*current.getQauntity());
-		}
-		model.addAttribute("totalBasket", totalBasket);  //ограничить 2 знаками после запятой.
+		
+		model.addAttribute("totalBasket", Service.countBasket(basket));  //ограничить 2 знаками после запятой.
 		model.addAttribute("totalQauntity", basket.size());  //ограничить 2 знаками после запятой.
 		return model;
 	}
@@ -385,7 +422,7 @@ public class HomeController{
 		if (variant.compareTo("deleteQuantityFromBasket")==0){  
 			for(Basket current: basket){
 				if (current.getBrakingFluid().getId()==id){
-					current.setQauntity((isChanging?current.getQauntity():0)+quantity);
+					current.setQauntity((isChanging?current.getQauntity():0)+(quantity==0?1:quantity));
 					if (current.getQauntity()<=0){
 						basket.remove(current);
 					}
@@ -398,7 +435,7 @@ public class HomeController{
 			for(Basket current: basket){
 				if (current.getBrakingFluid().getId()==id){
 					bFind=true;
-					current.setQauntity((isChanging?current.getQauntity():0)+quantity);
+					current.setQauntity((isChanging?current.getQauntity():0)+(quantity==0?1:quantity));
 					if (current.getQauntity()<=0){
 						basket.remove(current);
 					}
@@ -410,10 +447,9 @@ public class HomeController{
 			}
 		}
 		if (variant.compareTo("checkout")==0){
-			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование заказа на склад
 			Service.createDemandAndPay(user, basket, clientDAO, manufacturerDAO,
 					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO);
-			
+			basket.clear();  //здесь нужно обработать выдачу кассового чека и формирование заказа на склад
 		}
 		if (variant.compareTo("inWishlist")==0){
 			if (user.getId()!=0){
@@ -1709,6 +1745,7 @@ public class HomeController{
 			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
 			,@RequestParam(value = "currentPage", defaultValue="1", required=false) int currentPage
 			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "button", defaultValue="", required=false) String task
 			,@RequestParam(value = "dateBeginFilterString" , defaultValue="2015-01-01", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") Date dateBeginFilter //, defaultValue="", required=false) String dateBeginFilterString
 			,@RequestParam(value = "dateEndFilterString" , defaultValue="2015-12-31", required=false)  @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndFilter // defaultValue="", required=false) String dateEndFilterString
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
@@ -1729,6 +1766,7 @@ public class HomeController{
 		if (variant.compareTo("Заявка")==0){
 			variant="Demand";
 		}
+		String result="listDoc";
 		
 		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
 		if (basket==null){
@@ -1770,61 +1808,12 @@ public class HomeController{
 		}
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
-		int totalDoc=0;
-		
-		if ("Demand".equals(variant)){
-			ArrayList<Demand> listDoc=null;
-//			if (Service.isDate(dateBeginFilter,dateEndFilter)){
-//				listDoc=demandDAO.getDemandsLast(currentPage, elementsInList);
-//			}else{
-				listDoc=demandDAO.getDemandsIn(dateBeginFilter, dateEndFilter,currentPage, elementsInList
-						, (request.isUserInRole("ROLE_MANAGER_SALE")?0:user.getId()));
-//			}
-			
-			ArrayList<DocRow> table = new ArrayList<DocRow>(); 
-			for (Demand doc:listDoc){
-				boolean bFind=false;
-				for (DocRow row:table){
-					if (row.getNumDoc().equals(doc.getDemand_id())){
-						row.setQuantity(row.getQuantity()+doc.getQuantity());
-						row.setSumm(row.getSumm()+(doc.getQuantity()*doc.getPrice()));
-						row.setStatus(doc.getStatus());
-						bFind=true;
-					}
-				}
-				if (!bFind){
-					table.add(new DocRow(doc.getDemand_id(),doc.getTime(),doc.getBrakingFluid(),doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null, doc.getExecuter()));
-				}
-			}
-			totalDoc = demandDAO.getCountRows(dateBeginFilter, dateEndFilter);
-			model.addAttribute("listDoc", table);
-			
-		}else if ("Offer".equals(variant)){
-			ArrayList<Offer> listDoc=null;
-//			if ((dateBeginFilter.getYear()==0) & (dateEndFilter.getYear()==0)){
-//				listDoc=offerDAO.getOffersLast(currentPage, elementsInList);
-//			}else{
-				listDoc=offerDAO.getOffersIn(dateBeginFilter, dateEndFilter,currentPage, elementsInList);
-			//}
-			
-			ArrayList<DocRow> table = new ArrayList<DocRow>(); 
-			for (Offer doc:listDoc){
-				boolean bFind=false;
-				for (DocRow row:table){
-					if (row.getNumDoc().equals(doc.getOffer_id())){
-						row.setQuantity(row.getQuantity()+doc.getQuantity());
-						row.setSumm(row.getSumm()+(doc.getQuantity()*doc.getPrice()));
-						bFind=true;
-					}
-				}
-				if (!bFind){
-					table.add(new DocRow(doc.getOffer_id(),doc.getTime(),doc.getBrakingFluid(), doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null,null));
-				}
-			}
-			totalDoc = offerDAO.getCountRows(dateBeginFilter, dateEndFilter);
-			model.addAttribute("listDoc", table);
-
+		int totalDoc=Service.showDocInListDoc(variant,task,dateBeginFilter,dateEndFilter,currentPage,elementsInList,user,request,model,
+				basket,demandDAO,offerDAO,payDAO, manufacturerDAO,infoDAO,clientDAO);
+		if ("Создать".equals(task)){
+			result="InsertUpdateDoc";
 		}
+
 		model.addAttribute("dateBeginFilterString", Service.getFormattedDate(dateBeginFilter));
 		model.addAttribute("dateEndFilterString", Service.getFormattedDate(dateEndFilter));
 		model.addAttribute("currentPage", currentPage);
@@ -1847,7 +1836,7 @@ public class HomeController{
 		session.setAttribute("dateBeginFilter", dateBeginFilter);
 		session.setAttribute("dateEndFilter", dateEndFilter);
 		
-		return Service.isAdminPanel(session,request)+"listDoc";
+		return Service.isAdminPanel(session,request)+result;
 	}	 
  
 	 @RequestMapping(value = {"/InsertUpdateDoc","/adminpanel/InsertUpdateDoc"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -1855,10 +1844,12 @@ public class HomeController{
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "task", defaultValue="", required=false) String task
 			,@RequestParam(value = "id", defaultValue="0", required=false) String id
-			,@RequestParam(value = "time", defaultValue="0", required=false) String time
+			,@RequestParam(value = "time" , defaultValue="2015-01-01", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") Date time //,@RequestParam(value = "time", defaultValue="0", required=false) String time
 			,@RequestParam(value = "doc_id", defaultValue="", required=false) String doc_id
 			,@RequestParam(value = "status_id" , defaultValue="", required=false) String status_id
 			,@RequestParam(value = "executer_id" , defaultValue="", required=false) String executer_id
+			,@RequestParam(value = "login_name" , defaultValue="", required=false) String login_name
+			,@RequestParam(value = "doc_summ" , defaultValue="0", required=false) double doc_summ
 			,@RequestParam(value = "client_id" , defaultValue="0", required=false) int client_id
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		
 			,HttpServletRequest request,Locale locale, Model model) {
@@ -1914,141 +1905,98 @@ public class HomeController{
 		model.addAttribute("variant", variant);
 		model.addAttribute("statuslist", offerStatusDAO.getStatuses());
 		if (task.compareTo("New")==0){
-			model.addAttribute("pageInfo", "Создать нов"+("Demand".equals(variant)?"ую заявку":"ое коммерческое предложение"));
+			if ("Demand".equals(variant)){
+				model.addAttribute("pageInfo", "Создать новую заявку");
+			}else if ("Offer".equals(variant)){
+				model.addAttribute("pageInfo", "Создать новое коммерческое предложение");
+			}else if ("Pay".equals(variant)){
+				model.addAttribute("pageInfo", "Создать новую оплату");
+				model.addAttribute("currentManufacturer", manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM))));
+				model.addAttribute("user_login", user.getLogin());
+				model.addAttribute("user_name", user.getName());
+				model.addAttribute("listDemands", new ArrayList<Pay>()); //список заявок, на которые распределилась сумма + предоплаты
+			}
 			model.addAttribute("id", 0);
 			model.addAttribute("time", Service.getFormattedDate(currentTime.getTime()));
 			model.addAttribute("doc_id", variant+"_"+Service.getFormattedDate(currentTime.getTime())
 					+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds());
 			model.addAttribute("currentStatus", 1);
-			model.addAttribute("executer_id", Service.ID_EXECUTER);
-			model.addAttribute("executer_name", userDAO.getUser(Service.ID_EXECUTER).getName());
 			model.addAttribute("listClients", clientDAO.getClients());
 			model.addAttribute("currentClient", Service.ID_EMPTY_CLIENT);
 			model.addAttribute("listDoc", basket);
 			model.addAttribute("task", "New");
+			model.addAttribute("summ", 0);
 			result="InsertUpdateDoc";
 		}else if (task.compareTo("Open")==0){
-			model.addAttribute("pageInfo", ("Demand".equals(variant)?"Заявка":"Коммерческое предложение"));
+			if ("Demand".equals(variant)){
+				model.addAttribute("pageInfo", "Заявка");
+			}else if ("Offer".equals(variant)){
+				model.addAttribute("pageInfo", "Коммерческое предложение");
+			}else if ("Pay".equals(variant)){
+				model.addAttribute("pageInfo", "Оплата");
+			}
 			currentTime=new GregorianCalendar();
 			model.addAttribute("id", doc_id);
 			model.addAttribute("doc_id", doc_id);
 			model.addAttribute("task", "Open");
+			Service.showDocInInsertUpdateDoc(variant,task,doc_id, doc_summ, currentTime, user,request,model
+					,demandDAO,offerDAO,payDAO,manufacturerDAO,infoDAO,clientDAO,userDAO,offerStatusDAO);
 			result="InsertUpdateDoc";
-			if ("Demand".equals(variant)){
-				ArrayList<Demand> listDoc=demandDAO.getDemand(doc_id);
-				model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
-				model.addAttribute("currentStatus",  (listDoc.size()>0?((OfferStatus)listDoc.get(0).getStatus()).getId():offerStatusDAO.getOfferStatus(1)));
-				model.addAttribute("listDoc", listDoc);
-				model.addAttribute("executer_id", (listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER));
-				model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
-				model.addAttribute("userDoc", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getUser().getId():Service.ID_EXECUTER)));
-				Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
-				model.addAttribute("client", currentClient);
-			}else if ("Offer".equals(variant)){
-				ArrayList<Offer> listDoc=offerDAO.getOffer(doc_id);
-				model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
-				model.addAttribute("listDoc", listDoc);
-			}
 		}else if (task.compareTo("home")==0){
 			result=defaultHome(session, model, user, basket, wishlist, compare);
 		}else {
-			if ("Demand".equals(variant)){
-				ArrayList<Demand> listDoc=demandDAO.getDemand(doc_id);
-				if (listDoc.size()==0){
-					if (basket.size()>0){
-						demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(new Integer(status_id))
-								,userDAO.getUser(executer_id.isEmpty()?Service.ID_EXECUTER:new Integer(executer_id)), clientDAO.getClient(client_id));
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
-						model.addAttribute("listDoc", basket);
-					}						
-				}else{
-					demandDAO.changeStatus(doc_id, offerStatusDAO.getOfferStatus(new Integer(status_id)));
-					demandDAO.changeExecuter(doc_id, userDAO.getUser(new Integer(executer_id)));
-				}
-				model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
-			}else if ("Offer".equals(variant)){
-				ArrayList<Offer> listDoc=offerDAO.getOffer(doc_id);
-				if (listDoc.size()==0){
-					if (basket.size()>0){
-						offerDAO.createOffer(doc_id, basket, user);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение #"+doc_id));
-					}						
-				}
-				model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
-				model.addAttribute("listDoc", listDoc);
-			}
-			
-			
-			model.addAttribute("id", id);
-			model.addAttribute("doc_id", doc_id);
-			model.addAttribute("pageInfo", "Редактировать "+("Demand".equals(variant)?"заявку":"коммерческое предложение"));
-			
-			if ((task.compareTo("Save")==0) || (task.compareTo("Сохранить")==0)){
+			synchronized (this) {														//сохраняем
 				if ("Demand".equals(variant)){
 					ArrayList<Demand> listDoc=demandDAO.getDemand(doc_id);
+					if (listDoc.size()==0){
+						if (basket.size()>0){
+							demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(new Integer(status_id))
+									,userDAO.getUser(executer_id.isEmpty()?Service.ID_EXECUTER:new Integer(executer_id)), clientDAO.getClient(client_id));
+							Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
+							model.addAttribute("listDoc", basket);
+						}						
+					}else{
+						demandDAO.changeStatus(doc_id, offerStatusDAO.getOfferStatus(new Integer(status_id)));
+						demandDAO.changeExecuter(doc_id, userDAO.getUser(new Integer(executer_id)));
+					}
+					payDAO.clearPaysDemand_id(doc_id);
+					Service.spreadDemand(doc_id, infoDAO, logDAO, payDAO,demandDAO, manufacturerDAO);
+					model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
+				}else if ("Offer".equals(variant)){
+					ArrayList<Offer> listDoc=offerDAO.getOffer(doc_id);
+					if (listDoc.size()==0){
+						if (basket.size()>0){
+							offerDAO.createOffer(doc_id, basket, user);
+							Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение #"+doc_id));
+						}						
+					}
+					model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
 					model.addAttribute("listDoc", listDoc);
-					model.addAttribute("currentStatus",  (listDoc.size()>0?((OfferStatus)listDoc.get(0).getStatus()).getId():offerStatusDAO.getOfferStatus(1)));
-					model.addAttribute("executer_id", (listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER));
-					model.addAttribute("userDoc", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getUser().getId():Service.ID_EXECUTER)));
-					model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
-					Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
-					model.addAttribute("client", currentClient);
-				}else if ("Offer".equals(variant)){	
-					model.addAttribute("listDoc", offerDAO.getOffer(doc_id));
+				}else if ("Pay".equals(variant)){
+					ArrayList<Pay> listDoc=payDAO.getPaysByNumDoc(doc_id);
+					if (listDoc.size()==0){
+						time=new GregorianCalendar().getTime();
+					}else{
+						time=listDoc.get(0).getTime();
+					}
+					payDAO.deletePaysWithNumDoc(doc_id);
+					Client currentClient=clientDAO.getClient((client_id>0?client_id:Service.ID_EMPTY_CLIENT));
+					Service.createPays(doc_id, time, currentClient, doc_summ, user, infoDAO, logDAO, payDAO, demandDAO,manufacturerDAO);
+					model.addAttribute("time", time);
 				}
+			}
+			model.addAttribute("id", id);
+			model.addAttribute("doc_id", doc_id);
+		
+			if ((task.compareTo("Save")==0) || (task.compareTo("Сохранить")==0)){		//выводим на страницу
+				Service.showDocInInsertUpdateDoc(variant,task,doc_id, doc_summ, currentTime, user,request,model
+						,demandDAO,offerDAO,payDAO,manufacturerDAO,infoDAO,clientDAO,userDAO,offerStatusDAO);
 				
 				result="InsertUpdateDoc";
 			}else if ((task.compareTo("SaveAndList")==0) || (task.compareTo("СохранитьКСписку")==0)){
 				int elementsInList=Service.ELEMENTS_IN_LIST;
-				int totalDoc=0;
-
-				if ("Demand".equals(variant)){
-					ArrayList<Demand> listDoc=null;
-						listDoc=demandDAO.getDemandsIn(dateBeginFilter, dateEndFilter,1, elementsInList
-								, (request.isUserInRole("ROLE_MANAGER_SALE")?0:user.getId()));
-					
-					ArrayList<DocRow> table = new ArrayList<DocRow>(); 
-					for (Demand doc:listDoc){
-						boolean bFind=false;
-						for (DocRow row:table){
-							if (row.getNumDoc().equals(doc.getDemand_id())){
-								row.setQuantity(row.getQuantity()+doc.getQuantity());
-								row.setSumm(row.getSumm()+(doc.getQuantity()*doc.getPrice()));
-								row.setStatus(doc.getStatus());
-								bFind=true;
-							}
-						}
-						if (!bFind){
-							table.add(new DocRow(doc.getDemand_id(),doc.getTime(),doc.getBrakingFluid(),doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null, doc.getExecuter()));
-						}
-					}
-					model.addAttribute("listDoc", table);
-					totalDoc = demandDAO.getCountRows(dateBeginFilter, dateEndFilter);
-				}else if ("Offer".equals(variant)){
-					ArrayList<Offer> listDoc=null;
-					if ((dateBeginFilter.getYear()==0) & (dateEndFilter.getYear()==0)){
-						listDoc=offerDAO.getOffersLast(1, elementsInList);
-					}else{
-						listDoc=offerDAO.getOffersIn(dateBeginFilter, dateEndFilter,1, elementsInList);
-					}
-					
-					ArrayList<DocRow> table = new ArrayList<DocRow>(); 
-					for (Offer doc:listDoc){
-						boolean bFind=false;
-						for (DocRow row:table){
-							if (row.getNumDoc().equals(doc.getOffer_id())){
-								row.setQuantity(row.getQuantity()+doc.getQuantity());
-								row.setSumm(row.getSumm()+(doc.getQuantity()*doc.getPrice()));
-								bFind=true;
-							}
-						}
-						if (!bFind){
-							table.add(new DocRow(doc.getOffer_id(),doc.getTime(),doc.getBrakingFluid(), doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null,null));
-						}
-					}
-					model.addAttribute("listDoc", table);
-					totalDoc = offerDAO.getCountRows(dateBeginFilter, dateEndFilter);
-				}
+				int totalDoc=Service.showDocInListDoc(variant,task,dateBeginFilter,dateEndFilter,1,elementsInList,user,request,model,
+						basket,demandDAO,offerDAO,payDAO, manufacturerDAO,infoDAO,clientDAO);
 				result="listDoc";
 				model.addAttribute("dateBeginFilterString", Service.getFormattedDate(dateBeginFilter));
 				model.addAttribute("dateEndFilterString", Service.getFormattedDate(dateEndFilter));
@@ -2068,9 +2016,381 @@ public class HomeController{
 		return Service.isAdminPanel(session,request)+result;
 	}	
  
+	 @RequestMapping(value = {"/report","/adminpanel/listDoc"}, method = {RequestMethod.POST, RequestMethod.GET})
+	public String report(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "button", defaultValue="", required=false) String task
+			,@RequestParam(value = "dateBeginFilterString" , defaultValue="2015-01-01", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") Date dateBeginFilter //, defaultValue="", required=false) String dateBeginFilterString
+			,@RequestParam(value = "dateEndFilterString" , defaultValue="2015-12-31", required=false)  @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndFilter // defaultValue="", required=false) String dateEndFilterString
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,HttpServletRequest request
+			,Locale locale, Model model, Object ArrayList) {
+		
+	 	HttpSession session=request.getSession();
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO); 
+		
+		if (variant.compareTo("Заявка")==0){
+			variant="Demand";
+		}
+		String result="Report";
+		
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		int elementsInList = Service.ELEMENTS_IN_LIST;
+		if (session.getAttribute("elementsInList")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInList");
+		}
+		
+		if (dateBeginFilter==null){
+			dateBeginFilter = (Date) session.getAttribute("dateBeginFilter"+variant);
+			if (dateBeginFilter==null){
+				dateBeginFilter=createDateBeginFilterDemand();
+			}
+		}
+		if (dateEndFilter==null){
+			dateEndFilter = (Date) session.getAttribute("dateEndFilter"+variant);
+			if (dateEndFilter==null){
+				dateEndFilter=createDateEndFilterDemand();
+			}
+
+		}
+		
+		if (!"Demand".equals(variant)){  //если только в шапке
+			workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
+		}
+		
+		if ("Pay".equals(variant)){
+			ArrayList<Pay> listDoc = payDAO.getPaysForReport(dateBeginFilter,dateEndFilter
+					, new Integer(infoDAO.getInfo("marketingFirm")), new Integer(infoDAO.getInfo("mainFirm")));
+			model.addAttribute("listDoc", listDoc);
+		}
+
+		model.addAttribute("dateBeginFilterString", Service.getFormattedDate(dateBeginFilter));
+		model.addAttribute("dateEndFilterString", Service.getFormattedDate(dateEndFilter));
+	
+		model.addAttribute("user", user);
+		model.addAttribute("variant", variant);
+		
+		model=createHeader(model, user, basket, wishlist,compare);		 //method
+		session.setAttribute("user", user);
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+		session.setAttribute("dateBeginFilter", dateBeginFilter);
+		session.setAttribute("dateEndFilter", dateEndFilter);
+		
+		return Service.isAdminPanel(session,request)+result;
+	}	 
+	//------------------------------------------------------------------------------------------------------------Pay Pal
+	 public String createPaymentPayPal(HttpServletRequest req, HttpServletResponse resp, User user, LinkedList<Basket>  basket, LogTemplate logDAO
+			 ,Model model) {
+			Payment createdPayment = null;
+			APIContext apiContext = null;
+			String accessToken = null;
+			String returnURL=null;
+			String result="PayPal";
+
+			try {
+				accessToken = GenerateAccessToken.getAccessToken();
+				apiContext = new APIContext(accessToken);
+			} catch (PayPalRESTException e) {
+				req.setAttribute("error", e.getMessage());
+				System.out.println(e.getMessage());
+				model.addAttribute("variant", "Error");
+				model.addAttribute("errMessage", e.getMessage());
+			}
+			if (req.getParameter("PayerID") != null) {
+				Payment payment = new Payment();
+				if (req.getParameter("guid") != null) {
+					payment.setId(map.get(req.getParameter("guid")));
+				}
+
+				PaymentExecution paymentExecution = new PaymentExecution();
+				paymentExecution.setPayerId(req.getParameter("PayerID"));
+				try {
+					createdPayment = payment.execute(apiContext, paymentExecution);
+					ResultPrinter.addResult(req, resp, "Executed The Payment", Payment.getLastRequest(), Payment.getLastResponse(), null);
+				} catch (PayPalRESTException e) {
+					ResultPrinter.addResult(req, resp, "Executed The Payment", Payment.getLastRequest(), null, e.getMessage());
+					System.out.println(e.getMessage());
+					model.addAttribute("variant", "Error");
+					model.addAttribute("errMessage", e.getMessage());
+				}
+			} else {
+
+				Details details = new Details();
+				details.setShipping("0");
+				details.setSubtotal(""+Service.countBasket(basket));
+				details.setTax("0");
+
+				Amount amount = new Amount();
+				amount.setCurrency("USD");
+				amount.setTotal(""+Service.countBasket(basket));
+				amount.setDetails(details);
+
+				Transaction transaction = new Transaction();
+				transaction.setAmount(amount);
+				transaction.setDescription("This is the payment transaction description.");
+				
+				List<Item> items = new ArrayList<Item>();
+				for (Basket current:basket){
+					Item item = new Item();
+					item.setName(current.getBrakingFluid().getName()).setQuantity(""+current.getQauntity())
+						.setCurrency("USD").setPrice(""+current.getBrakingFluid().getPrice());
+					items.add(item);
+				}
+				ItemList itemList = new ItemList();
+				itemList.setItems(items);
+				
+				transaction.setItemList(itemList);
+
+				List<Transaction> transactions = new ArrayList<Transaction>();
+				transactions.add(transaction);
+
+				Payer payer = new Payer();
+				payer.setPaymentMethod("paypal");
+				
+				Payment payment = new Payment();
+				payment.setIntent("sale");
+				payment.setPayer(payer);
+				payment.setTransactions(transactions);
+
+				// ###Redirect URLs
+				RedirectUrls redirectUrls = new RedirectUrls();
+				String guid = UUID.randomUUID().toString().replaceAll("-", "");
+				redirectUrls.setCancelUrl(req.getScheme() + "://"
+						+ req.getServerName() + ":" + req.getServerPort()
+						+ req.getContextPath() + "/paymentwithpaypal?guid=" + guid);
+				redirectUrls.setReturnUrl(req.getScheme() + "://"
+						+ req.getServerName() + ":" + req.getServerPort()
+						+ req.getContextPath() + "/paymentwithpaypal?guid=" + guid);
+				payment.setRedirectUrls(redirectUrls);
+
+				try {
+					createdPayment = payment.create(apiContext); 
+					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
+							, "Создана оплата с id = " + createdPayment.getId() + " и статусом = "+ createdPayment.getState()));
+					Iterator<Links> links = createdPayment.getLinks().iterator();
+					while (links.hasNext()) {
+						Links link = links.next();
+						if (link.getRel().equalsIgnoreCase("approval_url")) {
+							returnURL= link.getHref();
+							req.setAttribute("redirectURL", link.getHref());
+						} 
+					}
+					ResultPrinter.addResult(req, resp, "Payment with PayPal", Payment.getLastRequest(), Payment.getLastResponse(), null);
+					map.put(guid, createdPayment.getId()); 
+				} catch (PayPalRESTException e) {
+					ResultPrinter.addResult(req, resp, "Payment with PayPal", Payment.getLastRequest(), null, e.getMessage());
+					System.out.println(e.getMessage());
+					model.addAttribute("variant", "Error");
+					model.addAttribute("errMessage", e.getMessage());
+
+				}
+			}
+			if (returnURL!=null){
+				try {
+					resp.sendRedirect(returnURL);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					model.addAttribute("variant", "Error");
+					model.addAttribute("errMessage", e.getMessage());
+
+				}
+			}else{
+				model.addAttribute("variant", "Confirm");
+			}
+			
+			return result;
+		}	
+
+
+		public String createPaymentCard(String lastName, String firstName, String city, String address, String countryCode, String stateCode
+				, String zip, String card, String cardNumber, String cardMonth, String cardYear
+				,HttpServletRequest req,HttpServletResponse resp, User user, LinkedList<Basket> basket, LogTemplate logDAO
+				,Model model) {
+			String returnURL=null;
+			String result="PayPal";
+			
+			Address billingAddress = new Address();
+			billingAddress.setCity(city.trim());
+			billingAddress.setCountryCode(countryCode.trim());
+			billingAddress.setLine1(address.trim());
+			billingAddress.setPostalCode(zip.trim());
+			billingAddress.setState(stateCode.trim());
+
+			// ###CreditCard
+			// A resource representing a credit card that can be
+			// used to fund a payment.
+			CreditCard creditCard = new CreditCard();
+			creditCard.setBillingAddress(billingAddress);
+			creditCard.setCvv2(111);
+			creditCard.setExpireMonth(new Integer(cardMonth));
+			creditCard.setExpireYear(new Integer(cardYear));
+			creditCard.setFirstName(firstName);
+			creditCard.setLastName(lastName.trim());
+			creditCard.setNumber(cardNumber.trim());
+			creditCard.setType(card);
+
+			// ###Details
+			// Let's you specify details of a payment amount.
+			Details details = new Details();
+			details.setShipping("0");
+			details.setSubtotal(""+Service.countBasket(basket));
+			details.setTax("0");
+
+			// ###Amount
+			// Let's you specify a payment amount.
+			Amount amount = new Amount();
+			amount.setCurrency("USD");
+			// Total must be equal to sum of shipping, tax and subtotal.
+			amount.setTotal(""+Service.countBasket(basket));
+			amount.setDetails(details);
+			Transaction transaction = new Transaction();
+			transaction.setAmount(amount);
+			transaction.setDescription("This is the payment transaction description.");
+			List<Transaction> transactions = new ArrayList<Transaction>();
+			transactions.add(transaction);
+
+			FundingInstrument fundingInstrument = new FundingInstrument();
+			fundingInstrument.setCreditCard(creditCard);
+
+			List<FundingInstrument> fundingInstrumentList = new ArrayList<FundingInstrument>();
+			fundingInstrumentList.add(fundingInstrument);
+
+			Payer payer = new Payer();
+			payer.setFundingInstruments(fundingInstrumentList);
+			payer.setPaymentMethod("credit_card");
+
+			Payment payment = new Payment();
+			payment.setIntent("sale");
+			payment.setPayer(payer);
+			payment.setTransactions(transactions);
+			Payment createdPayment = null;
+			try {
+				String accessToken = GenerateAccessToken.getAccessToken();
+				APIContext apiContext = new APIContext(accessToken);
+
+				createdPayment = payment.create(apiContext);
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
+						, "Создана оплата с id = " + createdPayment.getId() + " и статусом = "+ createdPayment.getState()));
+				ResultPrinter.addResult(req, resp, "Payment with Credit Card",
+						Payment.getLastRequest(), Payment.getLastResponse(), null);
+			} catch (PayPalRESTException e) {
+				System.out.println(e.getMessage());
+				ResultPrinter.addResult(req, resp, "Payment with Credit Card",
+						Payment.getLastRequest(), null, e.getMessage());
+				model.addAttribute("variant", "Error");
+				model.addAttribute("errMessage", e.getMessage());
+
+			}
+			if (returnURL!=null){
+				try {
+					resp.sendRedirect(returnURL);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					model.addAttribute("variant", "Error");
+					model.addAttribute("errMessage", e.getMessage());
+
+				}
+			}else{
+				model.addAttribute("variant", "Confirm");
+//				resp.setHeader("Location", "http://localhost:8090/pp");
+//				try {
+//					resp.sendRedirect("http://localhost:8090/pp"+createdPayment);
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+			}
+			return result;
+			
+		}	 
+		
+		@RequestMapping(value = "/PayPal", method = {RequestMethod.GET, RequestMethod.POST})
+		public String systemPayPal(
+				@RequestParam(value = "variant", defaultValue="New", required=false) String variant
+				,@RequestParam(value = "id", defaultValue="0", required=false) int id
+				,@RequestParam(value = "lastName", defaultValue="", required=false) String lastName
+				,@RequestParam(value = "firstName", defaultValue="", required=false) String firstName
+				,@RequestParam(value = "city", defaultValue="", required=false) String city
+				,@RequestParam(value = "address", defaultValue="", required=false) String address
+				,@RequestParam(value = "countryCode", defaultValue="", required=false) String countryCode
+				,@RequestParam(value = "stateCode", defaultValue="", required=false) String stateCode
+				,@RequestParam(value = "zip", defaultValue="", required=false) String zip
+				,@RequestParam(value = "card", defaultValue="PayPal", required=false) String card
+				,@RequestParam(value = "cardNumber", defaultValue="", required=false) String cardNumber
+				,@RequestParam(value = "cardMonth", defaultValue="", required=false) String cardMonth
+				,@RequestParam(value = "cardYear", defaultValue="", required=false) String cardYear
+				,Locale locale, Model model, HttpServletRequest request, HttpServletResponse response) {
+			
+		    HttpSession session = request.getSession(true);
+		    
+			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+			
+			LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+			if (basket==null){
+				basket=createBasket();
+			}
+			LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+			if (wishlist==null){
+				wishlist=createWishlist();
+			}
+			if (user.getId()>0){
+				wishlist=wishlistDAO.getWishList(user.getId());
+			}
+			
+			LinkedList<BrakingFluid> compare = (LinkedList<BrakingFluid>) session.getAttribute("compare");
+			if (compare==null){
+				compare=createComparement();
+			}
+			
+			workWithList(id, 0, false, variant, user, basket, wishlist, compare, session,0,0);
+			model=createHeader(model, user, basket, wishlist,compare);		 //method
+			
+			session.setAttribute("basket", basket);
+			session.setAttribute("wishlist", wishlist);
+			session.setAttribute("compare", compare);	 
+			
+			session.setAttribute("Payment_Option", card);
+			session.setAttribute("Payment_Amount", ""+Service.countBasket(basket));
+			
+			InputStream is = HomeController.class.getResourceAsStream("/sdk_config.properties");
+			try { 
+				PayPalResource.initConfig(is); 
+			}
+			catch (PayPalRESTException e) {
+				System.out.println(e.getMessage());
+				//LOGGER.fatal(e.getMessage()); 
+			}
+		
+			if ( "PayPal".equals(card)){
+		    	createPaymentPayPal(request, response, user, basket, logDAO, model);
+			}else if ( "Visa".equals(card)){
+				createPaymentCard(lastName, firstName, city, address, countryCode, stateCode, zip, card, cardNumber, cardMonth, cardYear
+						,request, response, user, basket, logDAO, model);
+		    }
+			
+			return Service.isAdminPanel(session,request)+"PayPal";
+		}	
 	 
-	 
-	 
+	//------------------------------------------------------------------------------------------------------------Pay Pal 
 	 
 	 
 	 
@@ -2124,37 +2444,37 @@ public class HomeController{
 		return "errorPage";
      }
 	 
-	@ExceptionHandler(Exception.class)
-	public ModelAndView handleAllException(Exception ex
-//			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
-//			,@RequestParam(value = "id", defaultValue="0", required=false) int id
-			, HttpServletRequest request,Locale locale) {
-
-		ModelAndView model = new ModelAndView("errorPage");
-		model.addObject("errNumber", "Ошибка");
-		model.addObject("errMessage", ex.getMessage());
-		String strMessage=ex.getMessage();
-		if (strMessage.length()>185){
-			strMessage=strMessage.substring(0, 185);
-		}
-
-		try{
-			Service.sendTheErrorToAdmin(ex.getMessage(),infoDAO.getInfo(Service.ADMIN_EMAIL));
-		}catch(Exception e){
-			Service.sendTheErrorToAdmin(ex.getMessage(),"phylife@mail.ru");
-			
-		}
-		
-		try{
-			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
-			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
-		}catch(Exception e){
-			//---
-		}
-
-		return model;
-
-	}
+//	@ExceptionHandler(Exception.class)
+//	public ModelAndView handleAllException(Exception ex
+////			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+////			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+//			, HttpServletRequest request,Locale locale) {
+//
+//		ModelAndView model = new ModelAndView("errorPage");
+//		model.addObject("errNumber", "Ошибка");
+//		model.addObject("errMessage", ex.getMessage());
+//		String strMessage=ex.getMessage();
+//		if (strMessage.length()>185){
+//			strMessage=strMessage.substring(0, 185);
+//		}
+//
+//		try{
+//			Service.sendTheErrorToAdmin(ex.getMessage(),infoDAO.getInfo(Service.ADMIN_EMAIL));
+//		}catch(Exception e){
+//			Service.sendTheErrorToAdmin(ex.getMessage(),"phylife@mail.ru");
+//			
+//		}
+//		
+//		try{
+//			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+//			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
+//		}catch(Exception e){
+//			//---
+//		}
+//
+//		return model;
+//
+//	}
 	
 	@RequestMapping(value = "/error", method = {RequestMethod.POST, RequestMethod.GET})
 	public String errorGlobal(
@@ -2406,6 +2726,17 @@ public class HomeController{
 	@ModelAttribute("adminpanel") 
 	public boolean isAdminPanel(){
 		return false;
-	}		
+	}
+	
+	@ModelAttribute("Payment_Amount") 
+	public String setSummPayPal(){
+		return "0";
+	}			
+
+	@ModelAttribute("Payment_Option") 
+	public String setPaymentOption(){
+		return "PayPal";
+	}			
+	
 	
 }

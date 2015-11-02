@@ -47,6 +47,7 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home">Список товаров</a></li>
+		                        <li><a href="Basket">Корзина</a></li>
 		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
@@ -176,7 +177,7 @@
 					            
 					            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
 					                <div class="basket-item-count">
-					                    <span class="count"><c:out value="${requestScope.totalQauntity}"/></span>
+					                    <span class="count"><c:out value="${requestScope.basket.size()}"/></span>
 					                    <img src="resources/Ecommerce/assets/images/icon-cart.png" alt="" />
 					                </div>
 					
@@ -234,6 +235,7 @@
 					                        </div>
 					                    </div>
 					                </li>
+					
 					            </ul>
 					        </div><!-- /.basket -->
 					    </div><!-- /.top-cart-holder -->
@@ -243,224 +245,171 @@
 				
 			</div><!-- /.container -->
 		</header>
-      <!-- ============================================================= HEADER : END ============================================================= -->
-<c:set var="name" value="basket" />		
-<section id="cart-page">
-  <div class="container">
-        
-        <!-- ========================================= CONTENT ========================================= -->
-        <div class="col-xs-12 col-md-9 items-holder no-margin">
-            <c:forEach var="currentBasket" items="${sessionScope[name]}">
-				<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
-	            <div class="row no-margin cart-item">
-	              <div class="col-xs-12 col-sm-2 no-margin">
-	                <a href="ShowOne?id=${currentBFluid.getId()}" class="thumb-holder">
-	                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
-	                </a>
-	              </div>
-	              <div class="col-xs-12 col-sm-5 ">
-	                <div class="title">
-	                  <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}" /></a>
-	                </div>
-	                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
-	              </div>
-	          	  <div class="col-xs-12 col-sm-3 no-margin">
-	          	  <div class="quantity">
-	                
-	                  <div class="le-quantity">
-	          	  	      <c:url value="Basket" var="deleteFromBasket">
-							<c:param name="id" value="${currentBFluid.getId()}"/>
-							<c:param name="variant" value="deleteQuantityFromBasket"/>
-							<c:param name="quantity" value="${-1}"/>
-						  </c:url>
-	                      <a class="minus" href="${deleteFromBasket}"></a>
-	                      
-	                      <input name="quantity" readonly="readonly" type="text" value="${currentBasket.getQauntity()}" />   <!-- отображаем количество -->
+      <!-- ============================================================= HEADER : END ============================================================= -->		
 
-	                	  <c:url value="Basket" var="deleteFromBasket">
-							<c:param name="id" value="${currentBFluid.getId()}"/>
-							<c:param name="variant" value="deleteQuantityFromBasket"/>
-							<c:param name="quantity" value="${1}"/>
-						  </c:url>
-						  <a class="plus" href="${deleteFromBasket}"></a>
-	                  </div>
-	              
-	                
-	                  </div>
-	              </div>
-	          	  <div class="col-xs-12 col-sm-2 no-margin">
-	                <div class="price">
-	                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-	                  		$<c:out value="${currentBFluid.getPrice()*currentBasket.getQauntity()}" />
-	                  	</sec:authorize>
-	                </div>
-	                <c:url value="Basket" var="deleteFromBasket">
-						<c:param name="id" value="${currentBFluid.getId()}"/>
-						<c:param name="variant" value="deleteFromBasket"/>
-					</c:url>
-	                <a class="close-btn" href="${deleteFromBasket}"></a>
-	              </div>
-	            </div>
-	            <!-- /.cart-item -->
-          	</c:forEach>
-        </div>
-        <!-- ========================================= CONTENT : END ========================================= -->
-
-        <!-- ========================================= SIDEBAR ========================================= -->
-
-        <div class="col-xs-12 col-md-3 no-margin sidebar ">
-          <c:if test="${sessionScope[name].size()!=0}">
-					<!-- Paypal Button and Instant Payment Notification (IPN) Integration with Java
-					  http://codeoftheday.blogspot.com/2013/07/paypal-button-and-instant-payment_6.html	-->
-					
-					<form action="PayPal" method="post" target="_top">
-						<input checked type="radio"  name="card" value="PayPal" >PayPal<br>
-						<input type="radio"  name="card" value="Visa">Кредитная карта<br><br>
-						<input type="image" src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal ? The safer, easier way to pay online.">
-						<img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
-					</form>		  			 		
-          
-		          <form action="home" method="POST">
-		            <div class="widget cart-summary">
-		              <h1 class="border">В Корзине:</h1>
-		              <div class="body">
-		                <ul class="tabled-data no-border inverse-bold">
-		                  <li>
-		                    <label>Итого:</label>
-		                    <div class="value pull-right">
-			                   	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-			 	                 	$<c:out value="${requestScope.totalBasket}" />
-			                    </sec:authorize>
-		                    </div>
-		                  </li>
-		                  <li>
-		                    <label>Доставка:</label>
-		                    <div class="value pull-right">Самовывоз</div>
-		                  </li>
-		                </ul>
-		                <ul id="total-price" class="tabled-data inverse-bold no-border">
-		                  <li>
-		                    <label>Всего:</label>
-		                    <div class="value pull-right">
-			                    <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-			                    	$<c:out value="${requestScope.totalBasket}" />
-			                    </sec:authorize>
-			                </div>
-		                  </li>
-		                 </ul>
-		                 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-			                 <ul class="tabled-data no-border inverse-bold ">
-				                  <li>
-				                    <label>Введите сумму оплаты:</label>
-				                    <div class="value">
-					                    <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-					                    	$<input type="text" class="input" name="paySumm" value="${requestScope.totalBasket}" />
-					                    </sec:authorize>
-					                </div>
-				                  </li>
-				                  <li>
-				                    <label>Выберите клиента:</label>
-				                    
-				                    <div class="value pull-left">
-										<select class="select" size="1" name="client_id" id="input-one">
-						                    <option disabled>Выберите получателя</option>	
-											<c:forEach var="punct" items="${requestScope.listClients}">
-												<option value="${punct.getId()}"><c:out value="${punct.getName()}" /></option>
-											</c:forEach>
-						                </select>
-									</div>
-									<br> <br>
-				                  </li>
-			                </ul>
-			                
-		                </sec:authorize>
-		                <div class="buttons-holder">
-		                	<button class="le-button" type="submit" name="variant" value="checkout">Оплатить</button>
-		                  <a class="simple-link block" href="home" >Продолжить</a>
+	
+    <div id="single-product">
+    
+      <c:if test="requestScope.variant=='Error'">
+		  <main id="faq" class="inner">
+		        <div class="container">
+		          <div class="row">
+		            <div class="col-md-8 center-block">
+		              <div class="info-404 text-center">
+		                <h3 class="primary-color inner-bottom-xs"><c:out value="Невозможно произвести оплату"/></h3>
+		                <p class="lead"><c:out value="${requestScope.errMessage}"/></p>
+		                <div class="sub-form-row inner-top-xs inner-bottom-xs">
+		                </div>
+		                <div class="text-center">
+		                  <a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
 		                </div>
 		              </div>
 		            </div>
-		             
-		       		</form>
-       		</c:if>
-          </div>
-          <c:if test="${sessionScope[name].size()!=0}">
-          <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR')">
-	          <h1 class="border">Коммерческое предложение</h1>
-	          <div class="row">
-	  			 <div class="items-holder">
-					<div class="container-fluid wishlist_table">
-						<div class="row cart-item cart_item" id="yith-wcwl-row-1">
-							<div class="col-xs-12 col-sm-4 no-margin">Распечатать коммерческое предложение:
-							</div>
-							<div class="col-xs-12 col-sm-2 no-margin">
-							</div>
-							<div class="col-xs-12 col-sm-3 no-margin">
-								<div class="text-right">
-									<div class="add-cart-button">
-										<a class="le-button add_to_cart_button product_type_simple" href="Basket?variant=Show">Распечатать</a>
-										<a class="le-button add_to_cart_button product_type_simple" href="InsertUpdateDoc?variant=Offer&task=New">Сохранить</a>
-									</div>							
-								</div>
-							</div>
-		              	</div>
-	               	 </div>
-	              </div>
-	            </div>
- 
-	            <div class="row">
-	  			 <div class="items-holder">
-					<div class="container-fluid wishlist_table">
-						<div class="col-xs-12 col-sm-4 no-margin">Отправить по электронной почте:
-						</div>
-						
-						<form action="Basket" method="POST">
-							<div class="col-xs-12 col-sm-5 no-margin">
-								<select class="select" size="1" name="client" id="input-one">
-				                    <option disabled>Выберите получателя</option>	
-									<c:forEach var="punct" items="${requestScope.listClients}">
-										<option value="${punct.getId()}"><c:out value="${punct.getName()}" />(<c:out value="${punct.getEmail()}" />)</option>
-									</c:forEach>
-				                </select>
-							</div>
-							<div class="col-xs-12 col-sm-3 no-margin">
-			                    <div class="buttons-holder">
-		                            <button class="le-button" type="submit" name="variant" value="Send">Отправить</button>
-		                        </div>
-	                        </div>
-	                    </form>
-	               	 </div>
-	              </div>
-	            </div> 
-	            </sec:authorize>
-	            <sec:authorize access="(!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE')) or (hasAnyRole('ROLE_ADMIN'))">
-				<div class="row">
-	  			 <div class="items-holder">
-					<div class="container-fluid wishlist_table">
-						<div class="row cart-item cart_item" id="yith-wcwl-row-1">
-							<div class="col-xs-12 col-sm-4 no-margin">Создать заявку:
-							</div>
-							<div class="col-xs-12 col-sm-2 no-margin">
-							</div>
-							<div class="col-xs-12 col-sm-3 no-margin">
-								<div class="text-right">
-									<div class="add-cart-button">
-										<a class="le-button add_to_cart_button product_type_simple" href="Basket?variant=Demand">Заявка</a>
-										<a class="le-button add_to_cart_button product_type_simple" href="InsertUpdateDoc?variant=Demand&task=New">Сохранить</a>
-									</div>							
-								</div>
-							</div>
-		              	</div>
-	               	 </div>
-	              </div>
-	            </div>
-	            </sec:authorize>
-	       </c:if>	            
-		</div>
-	</section>
+		          </div>
+		        </div>
+		      </main>    
+      </c:if>
+      
+	  <c:if test="requestScope.variant=='Confirm'">
+		  <main id="faq" class="inner">
+		        <div class="container">
+		          <div class="row">
+		            <div class="col-md-8 center-block">
+		              <div class="info-404 text-center">
+		                <h4 class="primary-color inner-bottom-xs"><c:out value="Оптата произведена"/></h4>
+		                <p class="lead"><c:out value="Спасибо, что выбрали наш магазин"/></p>
+		                <div class="sub-form-row inner-top-xs inner-bottom-xs">
+		                </div>
+		                <div class="text-center">
+		                  <a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
+		                </div>
+		              </div>
+		            </div>
+		          </div>
+		        </div>
+		      </main>    
+      </c:if>	      	
+    
+      <c:if test="requestScope.variant=='New'">
+        <div class="container">
+        <h1 class="border">Введить данные для оплаты кредитной картой:</h1>
+    	  <form action="PayPal" method="POST">
+    	  	<input name="variant" type="hidden" value="${requestScope.variant}" >
+    	  	
+    	  	<h4 class="border">Данные владельца:</h4><br> 
+            <div class="no-margin col-xs-12 col-sm-7 body-holder">
+              <ul class="tabled-data">
+                 <li>
+                   <label>Фамилия:</label>
+                   <div class="value"><input type="text" class="input" value="" name="lastName" />
+					</div>
+                 </li>
+                 <li>
+                   <label>Имя:</label>
+                   <div class="value"><input type="date" class="input" value="" name="firstName" />
+				   </div>
+                 </li>
+                 <li>
+                   <label>Город:</label>
+                   <div class="value"><input type="date" class="input" value="" name="city" />
+				   </div>
+                 </li>
+                 <li>
+                   <label>Адрес:</label>
+                   <div class="value"><input type="date" class="input" value="" name="address" />
+				   </div>
+                 </li>
+                 <li>
+                   <label>Код страны:</label>
+                   <div class="value"><input type="date" class="input" value="" name="countryCode" />
+				   </div>
+                 </li>	                 
+                 <li>
+                   <label>Код штата:</label>
+                   <div class="value"><input type="date" class="input" value="" name="stateCode" />
+				   </div>
+                 </li>	                 
+                 <li>
+                   <label>Почтовый индекс:</label>
+                   <div class="value"><input type="date" class="input" value="" name="zip" />
+				   </div>
+                 </li>	                 
+              </ul>
+            </div>
+            <h4 class="border">Данные кредитной карты:</h4><br>
+ 			<div class="no-margin col-xs-12 col-sm-7 body-holder">
+              <ul class="tabled-data">
+                 <li>
+                   <label>Вид карты:</label>
+                   <div class="value">
+                   		<select size="1" name="card"  class="le-select">
+ 							<option >Выберите вид карты</option>
+ 							<option selected value="Visa">Visa</option>
+ 						</select>
+			            <div class="col-xs-12 col-sm-6 no-margin">
+			                <div class="payment-methods ">
+			                    <ul>
+			                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-visa.png"></li>
+<!-- 			                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-master.png"></li> -->
+<!-- 			                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-paypal.png"></li> -->
+<!-- 			                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-skrill.png"></li> -->
+			                    </ul>
+			                </div><!-- /.payment-methods -->
+			            </div>
+				   </div>
+                 </li>
+                 <li>
+                   <label>Номер карты:</label>
+                   <div class="value"><input type="date" class="input" value="" name="cardNumber" />
+				   </div>
+                 </li>	   
+                 <li>
+                   <label>Дата карты:</label>
+                   <div class="value">
+                   		<input type="text" class="input" value="" name="cardMonth" />
+                   		<input type="text" class="input" value="" name="cardYear" />
+					</div>
+                 </li>
+              </ul>
+           </div>
+		   <div class="col-xs-12 col-sm-3 no-margin">
+            <div class="buttons-holder">
+               <button class="le-button" type="submit" name="task" value="Save">Оплатить</button>
+            </div>
+	       </div>
+			
+		</form>
+      	</div>
+       </c:if>
+       <div class="text-center">
+        <a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
+      </div>
+    </div>
 	
-	    
-   </div>
+	<!-- ============================================================= FOOTER ============================================================= -->
+<footer id="footer" class="color-bg">
+    <div class="copyright-bar">
+        <div class="container">
+            <div class="col-xs-12 col-sm-6 no-margin">
+                <div class="copyright">
+                    &copy; <a href="index">Media Center</a> - all rights reserved
+                </div><!-- /.copyright -->
+            </div>
+            <div class="col-xs-12 col-sm-6 no-margin">
+                <div class="payment-methods ">
+                    <ul>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-visa.png"></li>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-master.png"></li>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-paypal.png"></li>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-skrill.png"></li>
+                    </ul>
+                </div><!-- /.payment-methods -->
+            </div>
+        </div><!-- /.container -->
+    </div><!-- /.copyright-bar -->
+
+</footer><!-- /#footer -->
+<!-- ============================================================= FOOTER : END ============================================================= -->	</div><!-- /.wrapper -->
     <!-- /.wrapper -->
     <!-- JavaScripts placed at the end of the document so the pages load faster -->
     <script src="resources/Ecommerce/assets/js/jquery-1.10.2.min.js"></script>
@@ -496,5 +445,7 @@
     </script>
     <!-- For demo purposes вЂ“ can be removed on production : End -->
     <script src="http://w.sharethis.com/button/buttons.js"></script>
+    
   </body>
 </html>
+

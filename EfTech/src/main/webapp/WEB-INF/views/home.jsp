@@ -284,7 +284,8 @@
                   	</c:if>
                   
                   <!-- ================================== TOP NAVIGATION ================================== -->
-                  <c:if test="${(requestScope.manufacturersFilter.size()-isSearch)>0}">
+                  <c:set var="manufacturersFilterSize" value="${requestScope.manufacturersFilter.size()}"/>
+                  <c:if test="${(manufacturersFilterSize-isSearch)>0}">
 		            <div class="side-menu animate-dropdown" tabindex="-1" >
 		              <nav class="yamm megamenu-horizontal" role="navigation" >
 		                <ul class="nav">
@@ -347,7 +348,8 @@
                   		По всем
                   	  </c:if>
                   	   <!-- ================================== TOP NAVIGATION ================================== -->
-                  	   <c:if test="${(requestScope.fluidClassFilter.size()-isSearch)>0}">
+                  	   <c:set var="fluidClassFilterSize" value="${requestScope.fluidClassFilter.size()}"/>
+                  	   <c:if test="${(fluidClassFilterSize-isSearch)>0}">
 		            <div class="side-menu animate-dropdown" tabindex="-1" >
 		              <nav class="yamm megamenu-horizontal" role="navigation" >
 		                <ul class="nav">
