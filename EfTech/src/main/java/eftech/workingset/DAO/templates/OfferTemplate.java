@@ -225,7 +225,7 @@ public class OfferTemplate implements InterfaceOfferDAO{
 			dataDoc=offer.getTime();
 			boolean bFind=false;
 			for (Basket currentFluid:basket){
-				if ((((BrakingFluid)offer.getBrakingFluid()).getId()==((BrakingFluid)currentFluid.getBrakingFluid()).getId())){
+				if ((((BrakingFluid)offer.getBrakingFluid()).getId()==((BrakingFluid)currentFluid.getGood()).getId())){
 					bFind=true;
 					result.add(offer);
 					basket.remove(currentFluid);
@@ -237,11 +237,11 @@ public class OfferTemplate implements InterfaceOfferDAO{
 		for (Basket currentFluid:basket){			//добавим новые...
 			Offer offer=new Offer();
 			offer.setOffer_id(offer_id);
-			offer.setPrice(((BrakingFluid)currentFluid.getBrakingFluid()).getPrice());
+			offer.setPrice(((BrakingFluid)currentFluid.getGood()).getPrice());
 			offer.setQuantity(currentFluid.getQauntity());
 			offer.setTime(dataDoc);
 			offer.setUser(user);
-			offer.setBrakingFluid((BrakingFluid)currentFluid.getBrakingFluid());
+			offer.setBrakingFluid((BrakingFluid)currentFluid.getGood());
 			
 			result.add(offer);
 		}

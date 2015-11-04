@@ -343,7 +343,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			dataDoc=demand.getTime();
 			boolean bFind=false;
 			for (Basket currentFluid:copyBasket){
-				if ((((BrakingFluid)demand.getBrakingFluid()).getId()==((BrakingFluid)currentFluid.getBrakingFluid()).getId())){
+				if ((((BrakingFluid)demand.getBrakingFluid()).getId()==((BrakingFluid)currentFluid.getGood()).getId())){
 					bFind=true;
 					result.add(demand);
 					basket.remove(currentFluid);
@@ -355,12 +355,12 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		for (Basket currentFluid:copyBasket){			//добавим новые...
 			Demand demand=new Demand();
 			demand.setDemand_id(demand_id);
-			demand.setPrice(((BrakingFluid)currentFluid.getBrakingFluid()).getPrice());
+			demand.setPrice(((BrakingFluid)currentFluid.getGood()).getPrice());
 			demand.setQuantity(currentFluid.getQauntity());
 			demand.setTime(dataDoc);
 			demand.setStatus(status);
 			demand.setUser(user);
-			demand.setBrakingFluid((BrakingFluid)currentFluid.getBrakingFluid());
+			demand.setBrakingFluid((BrakingFluid)currentFluid.getGood());
 			demand.setExecuter(executer);
 			demand.setClient(client);
 			

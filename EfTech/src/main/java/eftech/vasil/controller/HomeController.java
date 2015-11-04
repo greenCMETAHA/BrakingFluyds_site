@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -413,7 +414,7 @@ public class HomeController{
 		
 		if (variant.compareTo("deleteFromBasket")==0){  
 			for(Basket current: basket){
-				if (current.getBrakingFluid().getId()==id){
+				if (current.getGood().getId()==id){
 					basket.remove(current);
 					break;
 				}
@@ -421,7 +422,7 @@ public class HomeController{
 		}
 		if (variant.compareTo("deleteQuantityFromBasket")==0){  
 			for(Basket current: basket){
-				if (current.getBrakingFluid().getId()==id){
+				if (current.getGood().getId()==id){
 					current.setQauntity((isChanging?current.getQauntity():0)+(quantity==0?1:quantity));
 					if (current.getQauntity()<=0){
 						basket.remove(current);
@@ -433,7 +434,7 @@ public class HomeController{
 		if (variant.compareTo("inBasket")==0){
 			boolean bFind=false;                   //в корзине может быть несколько товаров одного вида 
 			for(Basket current: basket){
-				if (current.getBrakingFluid().getId()==id){
+				if (current.getGood().getId()==id){
 					bFind=true;
 					current.setQauntity((isChanging?current.getQauntity():0)+(quantity==0?1:quantity));
 					if (current.getQauntity()<=0){
@@ -556,8 +557,10 @@ public class HomeController{
 	}
 	
 	@RequestMapping(value = {"/home","/adminpanel/home"}, method = {RequestMethod.POST, RequestMethod.GET})
-	public String home(
-			@RequestParam(value = "selections", required=false ) int[] manufacturerSelections
+	public String _home(
+			@RequestParam(value = "good", defaultValue="", required=false) String good
+			
+			,@RequestParam(value = "selections", required=false ) int[] manufacturerSelections  //base (BrakingFluids)
 			,@RequestParam(value = "fluidClassselections", required=false ) int[] fluidClassselections
 			,@RequestParam(value = "currentPage", defaultValue="1", required=false) int currentPage
 			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
@@ -572,6 +575,10 @@ public class HomeController{
 			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
 			,@RequestParam(value = "paySumm", defaultValue="0.0", required=false) double paySumm
 			,@RequestParam(value = "client_id", defaultValue="0", required=false) int client_id
+			
+			,@RequestParam(value = "viscositySelections", required=false ) int[] viscositySelections  //MotorOils
+			,@RequestParam(value = "engineTypeSelections", required=false ) int[] engineTypeSelections
+			,@RequestParam(value = "oilStuffSelections", required=false ) int[] oilStuffSelections
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
@@ -2112,6 +2119,8 @@ public class HomeController{
 				System.out.println(e.getMessage());
 				model.addAttribute("variant", "Error");
 				model.addAttribute("errMessage", e.getMessage());
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
+
 			}
 			if (req.getParameter("PayerID") != null) {
 				Payment payment = new Payment();
@@ -2129,17 +2138,20 @@ public class HomeController{
 					System.out.println(e.getMessage());
 					model.addAttribute("variant", "Error");
 					model.addAttribute("errMessage", e.getMessage());
+					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
+
 				}
+				basket.clear();    //очистили корзину
 			} else {
 
 				Details details = new Details();
 				details.setShipping("0");
-				details.setSubtotal(""+Service.countBasket(basket));
+				details.setSubtotal(Service.strCountBasket(basket));
 				details.setTax("0");
 
 				Amount amount = new Amount();
 				amount.setCurrency("USD");
-				amount.setTotal(""+Service.countBasket(basket));
+				amount.setTotal(Service.strCountBasket(basket));
 				amount.setDetails(details);
 
 				Transaction transaction = new Transaction();
@@ -2149,8 +2161,10 @@ public class HomeController{
 				List<Item> items = new ArrayList<Item>();
 				for (Basket current:basket){
 					Item item = new Item();
-					item.setName(current.getBrakingFluid().getName()).setQuantity(""+current.getQauntity())
-						.setCurrency("USD").setPrice(""+current.getBrakingFluid().getPrice());
+					DecimalFormat decimalFormat = new DecimalFormat("#.00");
+					String strPrice = decimalFormat.format(current.getGood().getPrice());
+					item.setName(current.getGood().getName()).setQuantity(""+current.getQauntity())
+						.setCurrency("USD").setPrice(strPrice.replace(",", "."));
 					items.add(item);
 				}
 				ItemList itemList = new ItemList();
@@ -2199,6 +2213,8 @@ public class HomeController{
 					System.out.println(e.getMessage());
 					model.addAttribute("variant", "Error");
 					model.addAttribute("errMessage", e.getMessage());
+					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, e.getMessage()));
+
 
 				}
 			}
@@ -2251,7 +2267,7 @@ public class HomeController{
 			// Let's you specify details of a payment amount.
 			Details details = new Details();
 			details.setShipping("0");
-			details.setSubtotal(""+Service.countBasket(basket));
+			details.setSubtotal(""+Service.strCountBasket(basket));
 			details.setTax("0");
 
 			// ###Amount
@@ -2259,7 +2275,7 @@ public class HomeController{
 			Amount amount = new Amount();
 			amount.setCurrency("USD");
 			// Total must be equal to sum of shipping, tax and subtotal.
-			amount.setTotal(""+Service.countBasket(basket));
+			amount.setTotal(""+Service.strCountBasket(basket));
 			amount.setDetails(details);
 			Transaction transaction = new Transaction();
 			transaction.setAmount(amount);
@@ -2297,6 +2313,8 @@ public class HomeController{
 						Payment.getLastRequest(), null, e.getMessage());
 				model.addAttribute("variant", "Error");
 				model.addAttribute("errMessage", e.getMessage());
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
+						, e.getMessage()));
 
 			}
 			if (returnURL!=null){
@@ -2309,23 +2327,15 @@ public class HomeController{
 					model.addAttribute("errMessage", e.getMessage());
 
 				}
-			}else{
-				model.addAttribute("variant", "Confirm");
-//				resp.setHeader("Location", "http://localhost:8090/pp");
-//				try {
-//					resp.sendRedirect("http://localhost:8090/pp"+createdPayment);
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 			}
 			return result;
 			
 		}	 
 		
-		@RequestMapping(value = "/PayPal", method = {RequestMethod.GET, RequestMethod.POST})
+		@RequestMapping(value = {"/PayPal", "/paymentwithpaypal"}, method = {RequestMethod.GET, RequestMethod.POST})
 		public String systemPayPal(
 				@RequestParam(value = "variant", defaultValue="New", required=false) String variant
+				,@RequestParam(value = "task", defaultValue="", required=false) String task
 				,@RequestParam(value = "id", defaultValue="0", required=false) int id
 				,@RequestParam(value = "lastName", defaultValue="", required=false) String lastName
 				,@RequestParam(value = "firstName", defaultValue="", required=false) String firstName
@@ -2339,6 +2349,8 @@ public class HomeController{
 				,@RequestParam(value = "cardMonth", defaultValue="", required=false) String cardMonth
 				,@RequestParam(value = "cardYear", defaultValue="", required=false) String cardYear
 				,Locale locale, Model model, HttpServletRequest request, HttpServletResponse response) {
+			
+			variant=("PayPal".equals(task)?"Confirm":variant);
 			
 		    HttpSession session = request.getSession(true);
 		    
@@ -2379,16 +2391,39 @@ public class HomeController{
 				System.out.println(e.getMessage());
 				//LOGGER.fatal(e.getMessage()); 
 			}
-		
-			if ( "PayPal".equals(card)){
-		    	createPaymentPayPal(request, response, user, basket, logDAO, model);
-			}else if ( "Visa".equals(card)){
-				createPaymentCard(lastName, firstName, city, address, countryCode, stateCode, zip, card, cardNumber, cardMonth, cardYear
-						,request, response, user, basket, logDAO, model);
-		    }
 			
-			return Service.isAdminPanel(session,request)+"PayPal";
-		}	
+			String result="PayPal";
+			
+			if (("PayPal".equals(task)) || (task.length()==0)) {
+				if ( "PayPal".equals(card)){
+			    	createPaymentPayPal(request, response, user, basket, logDAO, model);
+				}else if ( "Visa".equals(card)){
+					model.addAttribute("variant",variant);
+					if ( !"New".equals(variant)){
+						model.addAttribute("variant","Confirm");
+						createPaymentCard(lastName, firstName, city, address, countryCode, stateCode, zip, card, cardNumber, cardMonth, cardYear
+							,request, response, user, basket, logDAO, model);
+					}else{															//для тестирования  //удалить потом  -->			
+						model.addAttribute("lastName","Shopper");  
+						model.addAttribute("firstName","Joe");
+						model.addAttribute("city","San Jose");
+						model.addAttribute("address","1 Main St");
+						model.addAttribute("countryCode","US");
+						model.addAttribute("stateCode","CA");
+						model.addAttribute("zip","95131");
+						model.addAttribute("cardNumber","4032038024150892");
+						model.addAttribute("cardMonth","11");
+						model.addAttribute("cardYear","2018");  					//для тестирования  //удалить потом  <--
+					}
+				}
+			}else{
+				result=task;
+			}
+			
+			return Service.isAdminPanel(session,request)+result;
+		}
+		
+	
 	 
 	//------------------------------------------------------------------------------------------------------------Pay Pal 
 	 

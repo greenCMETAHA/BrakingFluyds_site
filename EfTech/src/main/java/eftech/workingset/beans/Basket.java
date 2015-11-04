@@ -1,41 +1,55 @@
 package eftech.workingset.beans;
 
 import eftech.workingset.beans.intefaces.InterfaceBasket;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Basket implements InterfaceBasket {
-	private BrakingFluid brakingFluid;
+	private InterfaceGood good;
 	private int qauntity;
 	
 	public Basket() {
 		super();
-		brakingFluid=new BrakingFluid();
+		good=null;
 		qauntity=0;
 	}
 
 	public Basket(BrakingFluid brakingFluid, int qauntity) {
 		super();
-		this.brakingFluid = brakingFluid;
+		this.good = (InterfaceGood) brakingFluid;
 		this.qauntity = qauntity;
 	}
 	
+	public Basket(MotorOil motorOil, int qauntity) {
+		super();
+		this.good = motorOil;
+		this.qauntity = qauntity;
+	}	
+	
 	public Basket(BrakingFluid brakingFluid) {
 		super();
-		this.brakingFluid = brakingFluid;
+		this.good = (InterfaceGood) brakingFluid;
 		this.qauntity = 1;
 	}	
+	
+	public Basket(MotorOil motorOil) {
+		super();
+		this.good = motorOil;
+		this.qauntity = 1;
+	}	
+	
 
 	/**
 	 * @return the brakingFluid
 	 */
-	public BrakingFluid getBrakingFluid() {
-		return brakingFluid;
+	public InterfaceGood getGood() {
+		return good;
 	}
 
 	/**
 	 * @param brakingFluid the brakingFluid to set
 	 */
-	public void setBrakingFluid(BrakingFluid brakingFluid) {
-		this.brakingFluid = brakingFluid;
+	public void setGood(InterfaceGood good) {
+		this.good = good;
 	}
 
 	/**

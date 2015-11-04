@@ -143,6 +143,7 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	/**
 	 * @return the price
 	 */
+	@Override
 	public double getPrice() {
 		return price;
 	}
@@ -323,5 +324,6 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	public String toString() {
 		return "BrakingFluid [id=" + id + ", name=" + name + ", value=" + value + "]";
 	}
+
 
 }

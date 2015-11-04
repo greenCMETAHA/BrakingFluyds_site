@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
 import java.security.Principal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -58,6 +59,7 @@ import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.beans.*;
 import eftech.workingset.beans.intefaces.InterfaceClient;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -72,7 +74,7 @@ public class Service {
 	public static String PATH_TO_JPG="resources\\jpg\\";
 	public static byte VARIANT_PRODUCT = 1;
 	public static byte VARIANT_PRICES = 2;
-	public static String EMPTY="<emptry>";
+	public static String EMPTY="<empty>";
 	public static String PHONE="phone";  //for table "information" , bean infoDAO
 	public static String WEBSITE="website";
 	public static String ADMIN_EMAIL="adminEmail";
@@ -412,7 +414,7 @@ public class Service {
         table.addCell(cell);
         
         for (Basket currentBasket:basket) {
-        	BrakingFluid currentBR=currentBasket.getBrakingFluid();
+        	BrakingFluid currentBR=(BrakingFluid) currentBasket.getGood();
             table.addCell(new Phrase(currentBR.getName(),new Font(times,8)));
             table.addCell(new Phrase(((Manufacturer)currentBR.getManufacturer()).getName(),new Font(times,8)));
             table.addCell(new Phrase(((FluidClass)currentBR.getFluidClass()).getName(),new Font(times,8)));
@@ -716,7 +718,7 @@ public class Service {
 			
 		double totalSumm=0;
 		for (Basket position:basket){
-			totalSumm+=position.getQauntity()*position.getBrakingFluid().getPrice();
+			totalSumm+=position.getQauntity()*position.getGood().getPrice();
 		}
 		double summ=Math.min(paySumm,totalSumm); 			//вносимая сумма может быть не равна сумме к оплате: как от недостатка денег - так и из-за наличия не отгруженных старых платежей 
 			
@@ -1013,10 +1015,20 @@ public class Service {
 	public static double countBasket(LinkedList<Basket> basket){
 		double totalBasket=0;	
 		for (Basket current:basket){
-			BrakingFluid brFluid=current.getBrakingFluid();
+			InterfaceGood brFluid= current.getGood();
 			totalBasket+=(brFluid.getPrice()*current.getQauntity());
 		}
 
 		return totalBasket;
+	}
+	
+	public static String strCountBasket(LinkedList<Basket> basket){
+		String result=null;
+		
+		double totalBasket=countBasket(basket);
+		DecimalFormat decimalFormat = new DecimalFormat("#.00");
+		result = decimalFormat.format(totalBasket).replace(",", ".");
+
+		return result;
 	}
 }

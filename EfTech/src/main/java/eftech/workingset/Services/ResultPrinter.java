@@ -19,15 +19,15 @@ public class ResultPrinter {
 		addDataToAttributeList(req, "responses", response);
 		addDataToAttributeList(req, "errors", error);
 		if (error != null) {
-			try {
-				req.getRequestDispatcher("response.jsp").forward(req, resp);
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				req.getRequestDispatcher("response.jsp").forward(req, resp);
+//			} catch (ServletException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 	}
 

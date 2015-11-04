@@ -250,7 +250,7 @@
 	
     <div id="single-product">
     
-      <c:if test="requestScope.variant=='Error'">
+      <c:if test="${requestScope.variant=='Error'}">
 		  <main id="faq" class="inner">
 		        <div class="container">
 		          <div class="row">
@@ -260,37 +260,36 @@
 		                <p class="lead"><c:out value="${requestScope.errMessage}"/></p>
 		                <div class="sub-form-row inner-top-xs inner-bottom-xs">
 		                </div>
-		                <div class="text-center">
-		                  <a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
-		                </div>
 		              </div>
 		            </div>
 		          </div>
 		        </div>
+		        <div class="text-center">
+        			<a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
+      			</div>
 		      </main>    
       </c:if>
-      
-	  <c:if test="requestScope.variant=='Confirm'">
+	  <c:if test="${requestScope.variant=='Confirm'}">
 		  <main id="faq" class="inner">
 		        <div class="container">
 		          <div class="row">
 		            <div class="col-md-8 center-block">
 		              <div class="info-404 text-center">
-		                <h4 class="primary-color inner-bottom-xs"><c:out value="Оптата произведена"/></h4>
+		                <h4 class="primary-color inner-bottom-xs"><c:out value="Оплата произведена"/></h4>
 		                <p class="lead"><c:out value="Спасибо, что выбрали наш магазин"/></p>
 		                <div class="sub-form-row inner-top-xs inner-bottom-xs">
-		                </div>
-		                <div class="text-center">
-		                  <a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
 		                </div>
 		              </div>
 		            </div>
 		          </div>
 		        </div>
+		        <div class="text-center">
+        			<a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
+      			</div>
 		      </main>    
       </c:if>	      	
     
-      <c:if test="requestScope.variant=='New'">
+      <c:if test="${requestScope.variant=='New'}">
         <div class="container">
         <h1 class="border">Введить данные для оплаты кредитной картой:</h1>
     	  <form action="PayPal" method="POST">
@@ -301,43 +300,42 @@
               <ul class="tabled-data">
                  <li>
                    <label>Фамилия:</label>
-                   <div class="value"><input type="text" class="input" value="" name="lastName" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.lastName}" name="lastName" />
 					</div>
                  </li>
                  <li>
                    <label>Имя:</label>
-                   <div class="value"><input type="date" class="input" value="" name="firstName" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.firstName}" name="firstName" />
 				   </div>
                  </li>
                  <li>
                    <label>Город:</label>
-                   <div class="value"><input type="date" class="input" value="" name="city" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.city}" name="city" />
 				   </div>
                  </li>
                  <li>
                    <label>Адрес:</label>
-                   <div class="value"><input type="date" class="input" value="" name="address" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.address}" name="address" />
 				   </div>
                  </li>
                  <li>
                    <label>Код страны:</label>
-                   <div class="value"><input type="date" class="input" value="" name="countryCode" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.countryCode}" name="countryCode" />
 				   </div>
                  </li>	                 
                  <li>
                    <label>Код штата:</label>
-                   <div class="value"><input type="date" class="input" value="" name="stateCode" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.stateCode}" name="stateCode" />
 				   </div>
                  </li>	                 
                  <li>
                    <label>Почтовый индекс:</label>
-                   <div class="value"><input type="date" class="input" value="" name="zip" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.zip}" name="zip" />
 				   </div>
                  </li>	                 
               </ul>
-            </div>
+              <br><br><br>
             <h4 class="border">Данные кредитной карты:</h4><br>
- 			<div class="no-margin col-xs-12 col-sm-7 body-holder">
               <ul class="tabled-data">
                  <li>
                    <label>Вид карты:</label>
@@ -360,30 +358,30 @@
                  </li>
                  <li>
                    <label>Номер карты:</label>
-                   <div class="value"><input type="date" class="input" value="" name="cardNumber" />
+                   <div class="value"><input type="text" class="input" value="${requestScope.cardNumber}" name="cardNumber" />
 				   </div>
                  </li>	   
                  <li>
                    <label>Дата карты:</label>
                    <div class="value">
-                   		<input type="text" class="input" value="" name="cardMonth" />
-                   		<input type="text" class="input" value="" name="cardYear" />
+                   		<input type="text" class="input" value="${requestScope.cardMonth}" name="cardMonth" />
+                   		<input type="text" class="input" value="${requestScope.cardYear}" name="cardYear" />
 					</div>
                  </li>
+                 <div class="col-xs-12 col-sm-7 no-margin">
+		            <div class="buttons-holder">
+		               <button class="le-button" type="submit" name="task" value="PayPal">Оплатить</button>&nbsp&nbsp&nbsp
+		               <button class="le-button" type="submit" name="task" value="Basket">К корзине</button>&nbsp&nbsp&nbsp
+<!-- 		               <button class="le-button" type="submit" name="task" value="home">На главную</button> -->
+		            </div>
+			     </div>
+                 
               </ul>
            </div>
-		   <div class="col-xs-12 col-sm-3 no-margin">
-            <div class="buttons-holder">
-               <button class="le-button" type="submit" name="task" value="Save">Оплатить</button>
-            </div>
-	       </div>
 			
 		</form>
       	</div>
        </c:if>
-       <div class="text-center">
-        <a href="index" class="btn-lg huge"><i class="fa fa-home"></i> Перейти на главную страницу</a>
-      </div>
     </div>
 	
 	<!-- ============================================================= FOOTER ============================================================= -->

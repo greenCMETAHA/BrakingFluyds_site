@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +15,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import eftech.workingset.DAO.interfaces.InterfaceBrakingFluidDAO;
+import eftech.workingset.DAO.interfaces.InterfaceMotorOilDAO;
 import eftech.workingset.Services.Service;
-import eftech.workingset.beans.BrakingFluid;
-import eftech.workingset.beans.Country;
-import eftech.workingset.beans.FluidClass;
-import eftech.workingset.beans.FluidClassSelected;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
-import eftech.workingset.beans.Role;
+import eftech.workingset.beans.MotorOil;
 
-public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
+public class MotorOilTemplate implements InterfaceMotorOilDAO{
 	private NamedParameterJdbcTemplate jdbcTemplate;
 	
 	@Autowired
@@ -34,21 +30,21 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}	
 
 	@Override
-	public ArrayList<BrakingFluid> getBrakingFluids() {
-		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
+	public ArrayList<MotorOil> getMotorOils() {
+		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from MotorOils  as bf"
 				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ " left join manufacturer as man on bf.manufacturer=man.id ORDER BY bf.name";
 		
 		try{ 
-			return (ArrayList<BrakingFluid>)jdbcTemplate.query(sqlQuery,new BrakingFluidRowMapper());
+			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,new MotorOilRowMapper());
 		}catch (EmptyResultDataAccessException e){
-			return new ArrayList<BrakingFluid>();
+			return new ArrayList<MotorOil>();
 		}
 	}
 
 	@Override
-	public BrakingFluid getBrakingFluid(int id) {
-		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
+	public MotorOil getMotorOil(int id) {
+		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from MotorOils  as bf"
 				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ " left join manufacturer as man on bf.manufacturer=man.id"
 				+ " where (bf.id=:id)";
@@ -57,16 +53,16 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		params.addValue("id", id);
 
 		try{
-			return jdbcTemplate.queryForObject(sqlQuery, params, new BrakingFluidRowMapper());
+			return jdbcTemplate.queryForObject(sqlQuery, params, new MotorOilRowMapper());
 		}catch (EmptyResultDataAccessException e){
-			return new BrakingFluid();
+			return new MotorOil();
 		}
 
 	}
 	
 	@Override
-	public BrakingFluid getBrakingFluidByName(String name) {
-		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
+	public MotorOil getMotorOilByName(String name) {
+		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from MotorOils  as bf"
 				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ " left join manufacturer as man on bf.manufacturer=man.id"
 				+ " where (bf.name=:name)";
@@ -75,53 +71,50 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		params.addValue("name", name);
 		
 		try{
-			return jdbcTemplate.queryForObject(sqlQuery, params, new BrakingFluidRowMapper());
+			return jdbcTemplate.queryForObject(sqlQuery, params, new MotorOilRowMapper());
 		}catch (EmptyResultDataAccessException e){
-			return new BrakingFluid();
+			return new MotorOil();
 		}			
 	}		
 	
 	@Override
-	public BrakingFluid createBrakingFluid(BrakingFluid brFluid) {
-		BrakingFluid result=new BrakingFluid();
-		BrakingFluid currentBrFluid = null;
-		if (brFluid.getId()>0){
-			currentBrFluid=getBrakingFluid(brFluid.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
+	public MotorOil createMotorOil(MotorOil oil) {
+		MotorOil result=new MotorOil();
+		MotorOil currentOil = null;
+		if (oil.getId()>0){
+			currentOil=getMotorOil(oil.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}else{
-			currentBrFluid=getBrakingFluidByName(brFluid.getName());
+			currentOil=getMotorOilByName(oil.getName());
 		}
-		String sqlUpdate="insert into brakingfluids (name, boilingTemperatureDry, boilingTemperatureWet, description, fluidClass, judgement, manufacturer"
+		String sqlUpdate="insert into MotorOils (name, boilingTemperatureDry, boilingTemperatureWet, description, fluidClass, judgement, manufacturer"
 				+ ", photo, price, specification, value, viscosity40, viscosity100) Values (:name, :boilingTemperatureDry" 
 		 		+ ", :boilingTemperatureWet, :description, :fluidClass, :judgement, :manufacturer, :photo, :price, :specification, :value"
 		 		+ ", :viscosity40, :viscosity100)";
-		if (currentBrFluid.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update brakingfluids set name=:name, boilingTemperatureDry=:boilingTemperatureDry"
+		if (currentOil.getId()>0){ // В БД есть такой элемент
+			 sqlUpdate="update MotorOils set name=:name, boilingTemperatureDry=:boilingTemperatureDry"
 			 		+ ", boilingTemperatureWet=:boilingTemperatureWet, description=:description, fluidClass=:fluidClass, judgement=:judgement"
 			 		+ ", manufacturer=:manufacturer, photo=:photo, price=:price, specification=:specification, value=:value"
 			 		+ ", viscosity40=:viscosity40, viscosity100=:viscosity100 where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("name", brFluid.getName());
-		params.addValue("boilingTemperatureDry", brFluid.getBoilingTemperatureDry());
-		params.addValue("boilingTemperatureWet", brFluid.getBoilingTemperatureWet());
-		params.addValue("description", brFluid.getDescription());
+		params.addValue("name", oil.getName());
+		params.addValue("description", oil.getDescription());
 		
-		FluidClass fluidClass=(FluidClass)brFluid.getFluidClass();
+		FluidClass fluidClass=(FluidClass)oil.getFluidClass();
 		params.addValue("fluidClass", fluidClass.getId());
-		params.addValue("judgement", brFluid.getJudgement());
+		params.addValue("judgement", oil.getJudgement());
 		
-		Manufacturer manufacturer=(Manufacturer)brFluid.getManufacturer();
+		Manufacturer manufacturer=(Manufacturer)oil.getManufacturer();
 		params.addValue("manufacturer", manufacturer.getId());
 		
-		params.addValue("photo", brFluid.getPhoto());
-		params.addValue("price", brFluid.getPrice());
-		params.addValue("specification", brFluid.getSpecification());
-		params.addValue("value", brFluid.getValue());
-		params.addValue("viscosity40", brFluid.getViscosity40());
-		params.addValue("viscosity100", brFluid.getViscosity100());
-		if (currentBrFluid.getId()>0){ // В БД есть элемент
-			params.addValue("id", brFluid.getId());
+		params.addValue("photo", oil.getPhoto());
+		params.addValue("price", oil.getPrice());
+		params.addValue("specification", oil.getSpecification());
+		params.addValue("value", oil.getValue());
+		params.addValue("viscosity", oil.getViscosity());
+		if (currentOil.getId()>0){ // В БД есть элемент
+			params.addValue("id", oil.getId());
 		}
 		
 		KeyHolder keyHolder=new GeneratedKeyHolder(); 
@@ -130,56 +123,53 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		
 		try{
 			if (keyHolder.getKey()!=null) {
-				result=getBrakingFluid(keyHolder.getKey().intValue());
+				result=getMotorOil(keyHolder.getKey().intValue());
 			}
 					
 		}catch (EmptyResultDataAccessException e){
-			result = new BrakingFluid();
+			result = new MotorOil();
 		}		
 		
 		return result;
 	}
 	
 	@Override
-	public BrakingFluid createBrakingFluidWithoutPrice(BrakingFluid brFluid) {
-		BrakingFluid result=new BrakingFluid();
-		BrakingFluid currentBrFluid = null;
-		if (brFluid.getId()>0){
-			currentBrFluid=getBrakingFluid(brFluid.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
+	public MotorOil createMotorOilWithoutPrice(MotorOil oil) {
+		MotorOil result=new MotorOil();
+		MotorOil currentOil = null;
+		if (oil.getId()>0){
+			currentOil=getMotorOil(oil.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}else{
-			currentBrFluid=getBrakingFluidByName(brFluid.getName());
+			currentOil=getMotorOilByName(oil.getName());
 		}
-		String sqlUpdate="insert into brakingfluids (name, boilingTemperatureDry, boilingTemperatureWet, description, fluidClass, judgement, manufacturer"
+		String sqlUpdate="insert into MotorOils (name, boilingTemperatureDry, boilingTemperatureWet, description, fluidClass, judgement, manufacturer"
 				+ ", photo, specification, value, viscosity40, viscosity100) Values (:name, :boilingTemperatureDry" 
 		 		+ ", :boilingTemperatureWet, :description, :fluidClass, :judgement, :manufacturer, :photo, :specification, :value"
 		 		+ ", :viscosity40, :viscosity100)";
-		if (currentBrFluid.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update brakingfluids set name=:name, boilingTemperatureDry=:boilingTemperatureDry"
+		if (currentOil.getId()>0){ // В БД есть такой элемент
+			 sqlUpdate="update MotorOils set name=:name, boilingTemperatureDry=:boilingTemperatureDry"
 			 		+ ", boilingTemperatureWet=:boilingTemperatureWet, description=:description, fluidClass=:fluidClass, judgement=:judgement"
 			 		+ ", manufacturer=:manufacturer, photo=:photo, specification=:specification, value=:value"
 			 		+ ", viscosity40=:viscosity40, viscosity100=:viscosity100 where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("name", brFluid.getName());
-		params.addValue("boilingTemperatureDry", brFluid.getBoilingTemperatureDry());
-		params.addValue("boilingTemperatureWet", brFluid.getBoilingTemperatureWet());
-		params.addValue("description", brFluid.getDescription());
+		params.addValue("name", oil.getName());
+		params.addValue("description", oil.getDescription());
 		
-		FluidClass fluidClass=(FluidClass)brFluid.getFluidClass();
+		FluidClass fluidClass=(FluidClass)oil.getFluidClass();
 		params.addValue("fluidClass", fluidClass.getId());
-		params.addValue("judgement", brFluid.getJudgement());
+		params.addValue("judgement", oil.getJudgement());
 		
-		Manufacturer manufacturer=(Manufacturer)brFluid.getManufacturer();
+		Manufacturer manufacturer=(Manufacturer)oil.getManufacturer();
 		params.addValue("manufacturer", manufacturer.getId());
 		
-		params.addValue("photo", brFluid.getPhoto());
-		params.addValue("specification", brFluid.getSpecification());
-		params.addValue("value", brFluid.getValue());
-		params.addValue("viscosity40", brFluid.getViscosity40());
-		params.addValue("viscosity100", brFluid.getViscosity100());
-		if (currentBrFluid.getId()>0){ // В БД есть элемент
-			params.addValue("id", brFluid.getId());
+		params.addValue("photo", oil.getPhoto());
+		params.addValue("specification", oil.getSpecification());
+		params.addValue("value", oil.getValue());
+		params.addValue("viscosity", oil.getViscosity());
+		if (currentOil.getId()>0){ // В БД есть элемент
+			params.addValue("id", oil.getId());
 		}
 		
 		KeyHolder keyHolder=new GeneratedKeyHolder(); 
@@ -188,26 +178,26 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		
 		try{
 			if (keyHolder.getKey()!=null) {
-				result=getBrakingFluid(keyHolder.getKey().intValue());
+				result=getMotorOil(keyHolder.getKey().intValue());
 			}
 					
 		}catch (EmptyResultDataAccessException e){
-			result = new BrakingFluid();
+			result = new MotorOil();
 		}		
 		
 		return result;
 	}
 	
 	@Override
-	public BrakingFluid fillPrices(BrakingFluid brFluid) {
-		BrakingFluid result=new BrakingFluid();
-		BrakingFluid currentBrFluid = getBrakingFluidByName(brFluid.getName());
-		if (currentBrFluid.getId()>0){
-			String sqlUpdate="update brakingfluids set price=:price where id=:id";
+	public MotorOil fillPrices(MotorOil oil) {
+		MotorOil result=new MotorOil();
+		MotorOil currentOil = getMotorOilByName(oil.getName());
+		if (currentOil.getId()>0){
+			String sqlUpdate="update MotorOils set price=:price where id=:id";
 			
 			MapSqlParameterSource params = new MapSqlParameterSource();
-			params.addValue("id", brFluid.getId());
-			params.addValue("price", brFluid.getPrice());
+			params.addValue("id", oil.getId());
+			params.addValue("price", oil.getPrice());
 	
 			KeyHolder keyHolder=new GeneratedKeyHolder(); 
 			
@@ -215,10 +205,10 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			
 			try{
 				if (keyHolder.getKey()!=null) {
-					result=getBrakingFluid(keyHolder.getKey().intValue());
+					result=getMotorOil(keyHolder.getKey().intValue());
 				}
 			}catch (EmptyResultDataAccessException e){
-				result = new BrakingFluid();
+				result = new MotorOil();
 			}					
 		}
 			
@@ -229,7 +219,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	public double minData(String param){
 		double result = 0;
 		
-		String sqlQuery="select MIN("+param+") as "+param+" from brakingfluids";
+		String sqlQuery="select MIN("+param+") as "+param+" from MotorOils";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
 		try{
@@ -244,7 +234,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	public  double maxData(String param){
 		double result = 0;
 		
-		String sqlQuery="select MAX("+param+") as "+param+" from brakingfluids";
+		String sqlQuery="select MAX("+param+") as "+param+" from MotorOils";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
 		try{
@@ -318,7 +308,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		
 		}	
 		String sqlQuery="select count(*) from"
-				+ "(select bf.id as id from brakingfluids  as bf"
+				+ "(select bf.id as id from MotorOils  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ "		left join manufacturer as man on bf.manufacturer=man.id "
 				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice)"
@@ -356,7 +346,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}	
 	
 	@Override
-	public ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList
+	public ArrayList<MotorOil> getMotorOils(int currentPage, int elementsInList
 			,LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<FluidClassSelected>fluidClassFilter
 			,double minPrice, double maxPrice
 			,double currentMinBoilingTemperatureDryFilter,double currentMaxBoilingTemperatureDryFilter
@@ -420,7 +410,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 				+ ", bf.boilingTemperatureWet AS boilingTemperatureWet, bf.description AS description, bf.judgement AS judgement"
 				+ ", bf.photo AS photo, bf.specification AS specification, bf.viscosity40 AS viscosity40"
 				+ ", bf.viscosity100 AS viscosity100, bf.value AS value, bf.fluidclass AS fluidclass, bf.manufacturer AS manufacturer"
-				+ ", fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
+				+ ", fc.name as fc_name, man.name as man_name from MotorOils  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ "		left join manufacturer as man on bf.manufacturer=man.id "
 				+ "				where (bf.price>=:minPrice) and (bf.price<=:maxPrice) "
@@ -451,15 +441,15 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		
 		
 		try{ 
-			return (ArrayList<BrakingFluid>)jdbcTemplate.query(sqlQuery,params,new BrakingFluidRowMapper());
+			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,params,new MotorOilRowMapper());
 		}catch (EmptyResultDataAccessException e){
-			return new ArrayList<BrakingFluid>();
+			return new ArrayList<MotorOil>();
 		}		
 	}
 	
 	@Override
-	public ArrayList<BrakingFluid> getBrakingFluidsRecommended(){
-		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
+	public ArrayList<MotorOil> getMotorOilsRecommended(){
+		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from MotorOils  as bf"
 				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ " left join manufacturer as man on bf.manufacturer=man.id ORDER BY bf.judgement DESC LIMIT :firstRow, :number";
 		
@@ -468,39 +458,37 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		params.addValue("number", Service.ELEMENTS_IN_RECOMMENDED);		
 		
 		try{ 
-			return (ArrayList<BrakingFluid>)jdbcTemplate.query(sqlQuery,params,new BrakingFluidRowMapper());
+			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,params,new MotorOilRowMapper());
 		}catch (EmptyResultDataAccessException e){
-			return new ArrayList<BrakingFluid>();
+			return new ArrayList<MotorOil>();
 		}				
 	}
 	
 
-	private static final class BrakingFluidRowMapper implements RowMapper<BrakingFluid> {
+	private static final class MotorOilRowMapper implements RowMapper<MotorOil> {
 
 		@Override
-		public BrakingFluid mapRow(ResultSet rs, int rowNum) throws SQLException {
-			 BrakingFluid brFluid=new BrakingFluid();
+		public MotorOil mapRow(ResultSet rs, int rowNum) throws SQLException {
+			 MotorOil oil=new MotorOil();
 
-			 brFluid.setId(rs.getInt("id"));
-			 brFluid.setName(rs.getString("name"));
-			 brFluid.setBoilingTemperatureDry(rs.getDouble("boilingTemperatureDry"));
-			 brFluid.setBoilingTemperatureWet(rs.getDouble("boilingTemperatureWet"));
-			 brFluid.setDescription(rs.getString("description"));
-			 FluidClass fClass=new FluidClass(rs.getInt("fluidclass"),rs.getString("fc_name"));
-			 brFluid.setFluidClass(fClass);
-			 brFluid.setJudgement(rs.getDouble("judgement"));
+			 oil.setId(rs.getInt("id"));
+			 oil.setName(rs.getString("name"));
+			 oil.setDescription(rs.getString("description"));
+			 oil.setSpecification(rs.getString("Specification"));
+			 oil.setJudgement(rs.getDouble("judgement"));
+			 
 			 Manufacturer manufacturer =new Manufacturer();
 			 manufacturer.setId(rs.getInt("manufacturer"));
 			 manufacturer.setName(rs.getString("man_name"));
-			 brFluid.setManufacturer(manufacturer);
-			 brFluid.setPhoto(rs.getString("photo"));
-			 brFluid.setPrice(rs.getDouble("price"));
-			 brFluid.setSpecification(rs.getString("specification"));
-			 brFluid.setValue(rs.getDouble("value"));
-			 brFluid.setViscosity40(rs.getDouble("viscosity40"));
-			 brFluid.setViscosity100(rs.getDouble("viscosity100"));
+			 oil.setManufacturer(manufacturer);
 			 
-		 	 return brFluid;
+			 oil.setPhoto(rs.getString("photo"));
+			 oil.setPrice(rs.getDouble("price"));
+			 oil.setSpecification(rs.getString("specification"));
+			 oil.setValue(rs.getDouble("value"));
+			 oil.setViscosity(rs.getString("viscosity"));
+			 
+		 	 return oil;
 		 }
 	}
 	
