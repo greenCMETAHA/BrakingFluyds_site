@@ -135,7 +135,7 @@ public class EngineTypeTemplate implements InterfaceEngineTypeDAO{
 
 	@Override
 	public ArrayList<EngineType> getEngineTypes(int num, int nextRows) {
-		String sqlQuery="select * from EngineType order by name where engineType.name!=:empty"
+		String sqlQuery="select * from EngineType where engineType.name!=:empty order by name"
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();

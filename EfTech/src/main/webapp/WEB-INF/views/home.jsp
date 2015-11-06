@@ -57,10 +57,10 @@
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
 		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
-   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        	<li><a href="Download?variant=Product">Загрузить товар из Excel</a></li>
    		                        </sec:authorize>
    		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
-		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        	<li><a href="Download?variant=Price">Загрузить цены из Excel</a></li>
 		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
 		                        <li>

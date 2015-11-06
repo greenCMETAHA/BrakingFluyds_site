@@ -26,10 +26,13 @@ import com.itextpdf.text.DocumentException;
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
+import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
+import eftech.workingset.DAO.templates.MotorOilTemplate;
+import eftech.workingset.DAO.templates.OilStuffTemplate;
 import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.RoleTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
@@ -38,9 +41,11 @@ import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
+import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
+import eftech.workingset.beans.OilStuff;
 import eftech.workingset.beans.Role;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
@@ -87,6 +92,16 @@ public class AddEditElementController {
 	@Autowired
 	LogTemplate logDAO;
 	
+	@Autowired
+	OilStuffTemplate oilStuffDAO;
+	
+	@Autowired
+	EngineTypeTemplate engineTypeDAO;
+
+	@Autowired
+	MotorOilTemplate motorOilDAO;
+	
+	
 	@RequestMapping(value = "/ShowList", method = {RequestMethod.GET,RequestMethod.POST})
 	public String showList(@ModelAttribute User user
 			,@RequestParam(value="id", defaultValue="0", required=false) int id
@@ -107,7 +122,7 @@ public class AddEditElementController {
 		String page="AddEdit";
 		
 		if (task.isEmpty()){
-			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, new LinkedList<String>());
+			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
 			
 		}else if (task.compareTo("На главную")==0){
 			ArrayList<BrakingFluid> basket = new ArrayList<BrakingFluid>();
@@ -144,10 +159,14 @@ public class AddEditElementController {
 				clientDAO.deleteClient(id);
 			}else if ((variant.compareTo("wishlist")==0) || (variant.compareTo("Избранное")==0)){
 				wishlistDAO.deleteFromWishlist(id);
+			}else if ((variant.compareTo("oilStuff")==0) || (variant.compareTo("Состав масел")==0)){
+				oilStuffDAO.deleteOilStuff(id);
+			}else if ((variant.compareTo("engineType")==0) || (variant.compareTo("Тип двигателя")==0)){
+				engineTypeDAO.deleteEngineType(id);
 			}else if ((variant.compareTo("log")==0) || (variant.compareTo("Логирование")==0)){
 				logDAO.deleteLog(id);
 			}
-			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, new LinkedList<String>());
+			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
 		} else{
 			int totalRows = 0;
 			if ((variant.compareTo("user")==0) || (variant.compareTo("Пользователи")==0)){
@@ -176,6 +195,14 @@ public class AddEditElementController {
 				model.addAttribute("combobox_countris",countryDAO.getCountries());
 			}else if ((variant.compareTo("wishlist")==0) || (variant.compareTo("Избранное")==0)){
 				Wishlist current=wishlistDAO.getWishById(id);
+				model.addAttribute("current",current);
+				model.addAttribute("id",current.getId());
+			}else if ((variant.compareTo("oilStuff")==0) || (variant.compareTo("Состав масел")==0)){
+				OilStuff current=oilStuffDAO.getOilStuff(id);
+				model.addAttribute("current",current);
+				model.addAttribute("id",current.getId());
+			}else if ((variant.compareTo("engineType")==0) || (variant.compareTo("Тип двигателя")==0)){
+				EngineType current=engineTypeDAO.getEngineType(id);
 				model.addAttribute("current",current);
 				model.addAttribute("id",current.getId());
 			}else if ((variant.compareTo("log")==0) || (variant.compareTo("Логирование")==0)){
@@ -228,7 +255,8 @@ public class AddEditElementController {
 		LinkedList<String> errors=new LinkedList<String>();
 		
 		if (task.compareTo("К списку")==0){
-			page=Service.createAdminEdit(model, variant, 1, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, errors);
+			page=Service.createAdminEdit(model, variant, 1, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO
+					, oilStuffDAO, engineTypeDAO, errors);
 		}else {
 			synchronized (this) {
 				if (variant.compareTo("user")==0){
@@ -324,6 +352,31 @@ public class AddEditElementController {
 						current=fluidClassDAO.createFluidClass(current);
 						Log	log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Класс жидкости"));
 					}
+				}else if (variant.compareTo("oilStuff")==0){
+					OilStuff current=new OilStuff(id_current,name);
+					if (name.isEmpty()){
+						errors.add("нужно обязательно заполнить наименование!");
+					}
+					if (errors.size()>0){
+						model.addAttribute("current",current);
+						model.addAttribute("id",current.getId());
+					}else{
+						current=oilStuffDAO.createOilStuff(current);
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил состав масла"));
+					}
+				}else if (variant.compareTo("engineType")==0){
+					EngineType current=new EngineType(id_current,name);
+					if (name.isEmpty()){
+						errors.add("нужно обязательно заполнить наименование!");
+					}
+					if (errors.size()>0){
+						model.addAttribute("current",current);
+						model.addAttribute("id",current.getId());
+					}else{
+						current=engineTypeDAO.createEngineType(current);
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил тип двигателя"));
+					}
+					
 				}else if (variant.compareTo("client")==0){
 					Client current=new Client(id,name,email,address,countryDAO.getCountryByName(country_name));
 					if (name.isEmpty()){
@@ -361,7 +414,8 @@ public class AddEditElementController {
 				}
 			}
 			if (errors.size()==0){
-				page=Service.createAdminEdit(model, variant, 1, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, errors);
+				page=Service.createAdminEdit(model, variant, 1, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO
+						, oilStuffDAO, engineTypeDAO, errors);
 			}
 		}
 		return "adminpanel/"+page;	

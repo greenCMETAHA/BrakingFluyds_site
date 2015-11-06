@@ -109,18 +109,22 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.DemandTemplate;
+import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
+import eftech.workingset.DAO.templates.MotorOilTemplate;
 import eftech.workingset.DAO.templates.OfferStatusTemplate;
 import eftech.workingset.DAO.templates.OfferTemplate;
+import eftech.workingset.DAO.templates.OilStuffTemplate;
 import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.PriceTemplate;
 import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.RoleTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
+import eftech.workingset.Services.DownloadDataFromExcel;
 import eftech.workingset.Services.GenerateAccessToken;
 import eftech.workingset.Services.ResultPrinter;
 import eftech.workingset.Services.Service;
@@ -210,6 +214,16 @@ public class HomeController{
 
 	@Autowired
 	PayTemplate payDAO;
+	
+	@Autowired
+	OilStuffTemplate oilStuffDAO;
+
+	@Autowired
+	EngineTypeTemplate engineTypeDAO;
+
+	@Autowired
+	MotorOilTemplate motorOilDAO;
+	
 
 	private Model createHeader(Model model, User user, LinkedList<Basket>  basket, LinkedList<Wishlist>  wishlist, LinkedList<BrakingFluid>  compare){
 		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
@@ -1036,77 +1050,14 @@ public class HomeController{
 	}	
 	
 	
-	public ArrayList<String> downloadExcel(String variant,User user, MultipartFile fileEcxel, HttpSession session) {
-		ArrayList<String> errors=new ArrayList<String>();
-		
-		 if ("Product".equals(variant)){
-			String productFile=fileEcxel.getOriginalFilename().trim();
-			if (!Service.isFileExist(productFile)){
-				errors.add("Указанный Вами файл с номенклатурой не существует");
-    		}else{
-    			if (!productFile.contains(".xlsx")){
-    				errors.add("Указанный Вами файл с номенклатурой не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
-    			}else{
-    				ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelProduct(Service.convertMultipartFile(fileEcxel)
-    							,session.getServletContext().getRealPath("/"));
-    				
-    			    synchronized (listBrakingFluids){
-    		        	for (BrakingFluid currentBF:listBrakingFluids){
-    		        		if (!Service.isFileExist(currentBF.getPhoto())){
-    		        			errors.add("Указанный Вами файл c изображением не существует");
-    		        		}
-    		        		currentBF.setPhoto(Service.copyPhoto(currentBF.getPhoto(), session.getServletContext().getRealPath("/")));
-    		        		Manufacturer currentManufacturer=(Manufacturer)currentBF.getManufacturer();
-    		    			FluidClass currentFluidClass=(FluidClass)currentBF.getFluidClass();
-    		    			Country country=(Country)currentManufacturer.getCountry();
-    		    			if (country.getId()==0){
-    		    				country=countryDAO.createCountry(country.getName());
-    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),country, "Загрузили из Excel"));
-    		    				currentManufacturer.setCountry(country);
-    		    			}
-    		    			if (currentManufacturer.getId()==0){
-    		    				currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
-    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentManufacturer, "Загрузили из Excel"));
-    		    				currentBF.setManufacturer(currentManufacturer);
-    		    			}
-    		    			if (currentFluidClass.getId()==0){
-    		    				currentFluidClass=fluidClassDAO.createFluidClass(currentFluidClass.getName());
-    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentFluidClass, "Загрузили из Excel"));
-    		    				currentBF.setFluidClass(currentFluidClass);
-    		    			}		    			
-    		        		BrakingFluid value = brakingFluidDAO.createBrakingFluid(currentBF); //breakingFluidDAO		
-    		        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),value, "Загрузили из Excel"));
-		    			}
-		    		}
-					
-	        	}
-			}
-		}else if ("Price".equals(variant)){
-			String priceFile=fileEcxel.getOriginalFilename().trim();
-			if (!Service.isFileExist(priceFile)){
-				errors.add("Указанный Вами файл с ценами не существует");
-    		}else{
-    			if (!priceFile.contains(".xlsx")){
-    				errors.add("Указанный Вами файл с ценами не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
-    			}else{
-					ArrayList<BrakingFluid> listBrakingFluids = Service.importFromExcelPrices(Service.convertMultipartFile(fileEcxel));
-		 	        synchronized (listBrakingFluids){
-			         	for (BrakingFluid currentBF:listBrakingFluids){
-			        		BrakingFluid value = brakingFluidDAO.fillPrices(currentBF);
-			        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), value, "Загрузили из Excel, изменение цен"));
-			        	}
-					}			
-    			}
-    		}
-		}
-		
-		return errors;
-	}
+
 	
 	@RequestMapping(value = {"/Download","/adminpanel/Download"}, headers = "content-type=multipart/*", method = {RequestMethod.POST, RequestMethod.GET})
 	public String download(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
-			,@RequestParam(value="fileEcxel", defaultValue="", required=false) MultipartFile fileExcel
+			,@RequestParam(value="fileExcel",  required=false) MultipartFile fileExcel
+			,@RequestParam(value = "good", defaultValue="", required=false) String good
+			,@RequestParam(value = "task", defaultValue="", required=false) String task
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request,Locale locale, Model model) {
 
@@ -1149,10 +1100,13 @@ public class HomeController{
 		model=createHeader(model, user, basket, wishlist,compare);		 //method
 		
 		ArrayList<String> errors=new ArrayList<String>();
-		if (variant!=""){
-			errors=downloadExcel(variant,user,fileExcel,session);
+		if (variant!="download"){
+			errors=DownloadDataFromExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
+					oilStuffDAO, engineTypeDAO, motorOilDAO, logDAO, priceDAO, session);
 		}
 		
+		model.addAttribute("variant", variant);
+		model.addAttribute("task", variant);
 		model.addAttribute("errors", errors);
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
@@ -1241,13 +1195,13 @@ public class HomeController{
 			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
 			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
 			model.addAttribute("errors", new ArrayList<String>());
-			model.addAttribute("prices", priceDAO.getPrices(id));
+			model.addAttribute("prices", priceDAO.getPrices(id, Service.BRAKING_FLUID_PREFIX));
 			
 			return Service.isAdminPanel(session,request)+"InsertUpdate";
 		}else{
 			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
 			model.addAttribute("reviews", reviewDAO.getReviews(id));
-			model.addAttribute("prices", priceDAO.getPrices(id));
+			model.addAttribute("prices", priceDAO.getPrices(id, Service.BRAKING_FLUID_PREFIX));
 			
 			return "ShowOne";
 		}
@@ -1572,7 +1526,7 @@ public class HomeController{
 			model.addAttribute("pageInfo", pageInfo);
 			if (("Refresh".equals(variant)) || (errors.size()>0)){
 				if (formPhoto.getOriginalFilename().length()>0){
-					brFluid.setPhoto(Service.copyPhoto(Service.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
+					brFluid.setPhoto(Service.copyPhoto(DownloadDataFromExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
 				}
 				String photo="";
 				if (brFluid.hasPhoto()){
@@ -1611,7 +1565,7 @@ public class HomeController{
 						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentBrakingFluid, "Создан товар"));
 						if (currentBrakingFluid.getPrice()>0){
 							Price currentPrice = priceDAO.createPrice(new Price(currentBrakingFluid.getId(),new GregorianCalendar().getTime()
-									,brFluid.getPrice(),currentBrakingFluid,user));
+									,brFluid.getPrice(),currentBrakingFluid,user), Service.BRAKING_FLUID_PREFIX);
 							log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 									, "Создана цена для "+currentBrakingFluid.getId()+". "+currentBrakingFluid.getName()));
 						}
@@ -1627,7 +1581,7 @@ public class HomeController{
 					
 					if (oldBrakingFluid.getPrice()!=currentBrakingFluid.getPrice()){
 						Price currentPrice = priceDAO.createPrice(new Price(0,new GregorianCalendar().getTime()
-								,brFluid.getPrice(),currentBrakingFluid,user));
+								,brFluid.getPrice(),currentBrakingFluid,user), Service.BRAKING_FLUID_PREFIX);
 						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 								, "Создана цена для "+currentBrakingFluid.getId()+". "+currentBrakingFluid.getName()));
 					}
@@ -1742,7 +1696,8 @@ public class HomeController{
 			result="AddEdit";
 			
 		}else{
-			result=Service.createAdminEdit(model,task, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO, new LinkedList<String>());
+			result=Service.createAdminEdit(model,task, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO
+					, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
 		}
 		return "adminpanel/"+result;
 	}
@@ -2440,12 +2395,10 @@ public class HomeController{
 	 
 	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	 public String viewEdit(@PathVariable("name") final String name, Model model
-			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			 ,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			 ,@RequestParam(value = "task", defaultValue="", required=false) String task
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
-			 ,HttpServletRequest request) {
-		 if ("Download".equals(name)){  
-			 return "Download";
-		 }
+			,HttpServletRequest request,HttpServletResponse response) {
 	 
 		HttpSession session=request.getSession();
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
@@ -2473,10 +2426,17 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		model.addAttribute("errNumber", "404");
-		model.addAttribute("errMessage", "Извините, страница не может быть найдена.");
-		
-		return "errorPage";
+		 if ("Download".equals(name)){  
+			 model.addAttribute("variant", variant);
+			 model.addAttribute("task", task);
+			 return Service.isAdminPanel(session,request)+"Download";
+		 }else{
+			 model.addAttribute("errNumber", "404");
+			 model.addAttribute("errMessage", "Извините, страница не может быть найдена.");
+			
+			 return Service.isAdminPanel(session,request)+"errorPage";
+		 }
+
      }
 	 
 //	@ExceptionHandler(Exception.class)

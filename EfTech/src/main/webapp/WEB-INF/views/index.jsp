@@ -54,10 +54,10 @@
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
 		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
-   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        	<li><a href="Download?variant=download&task=Product">Загрузить товар из Excel</a></li>
    		                        </sec:authorize>
    		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
-		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        	<li><a href="Download?variant=download&task=Price">Загрузить цены из Excel</a></li>
 		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
 		                        <sec:authorize access="!isAnonymous()"> 
@@ -284,10 +284,10 @@
 			                        	<li><a href="Wishlist">Избранное</a></li>
 			                        </sec:authorize>		                        
 			                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
-	   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+	   		                        	<li><a href="Download?variant=download&task=Product">Загрузить товар из Excel</a></li>
 	   		                        </sec:authorize>
 	   		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
-			                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+			                        	<li><a href="Download?variant=download&task=Price">Загрузить цены из Excel</a></li>
 			                        </sec:authorize>
 			                        <li><a href="Comparison">Сравнить товары</a></li>
 			                        <sec:authorize access="!isAnonymous()">

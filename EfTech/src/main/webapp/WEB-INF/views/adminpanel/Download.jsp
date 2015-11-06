@@ -75,7 +75,13 @@
 	            <c:if test="${requestScope.variantDownload==2}">
 	            <div class="lab"><label for="file">Загрузить цены:</label></div>
 	            </c:if>
-	            <div class="con"><input type="file"  name="fileEcxel" class="upload-file" id="file" value=""/>  
+	            <br> <br>
+				<div>
+					<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br>
+					<input checked type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+				</div>
+	            <br><br>
+	            <div class="con"><input type="file"  name="fileExcel" class="upload-file" id="file" value=""/>  
 		     </fieldset>
 		     
            <div class="btn-submit"><!-- Submit form -->

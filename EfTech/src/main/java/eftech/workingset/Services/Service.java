@@ -49,12 +49,14 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.DemandTemplate;
+import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.OfferStatusTemplate;
 import eftech.workingset.DAO.templates.OfferTemplate;
+import eftech.workingset.DAO.templates.OilStuffTemplate;
 import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.beans.*;
@@ -88,171 +90,9 @@ public class Service {
 	public static String MARKETING_FIRM = "marketingFirm";  //эта фирма осуществляет продажу и забирает себе 5% от стоимости товара
 	public static String MAIN_FIRM = "mainFirm";  //эта фирма предоставляет товар (условно: оптовый склад)
 	public static int ID_EMPTY_CLIENT = 8;  //эта фирма предоставляет товар (условно: оптовый склад)
-	
-	@Autowired
-	static BrakingFluidTemplate brakingFluidDAO;
+	public static String BRAKING_FLUID_PREFIX = "BrF";
+	public static String MOTOR_OIL_PREFIX = "Oil";
 
-	@Autowired
-	UserTemplate userDAO;
-	
-	@Autowired
-	static	ManufacturerTemplate manufacturerDAO;
-
-	@Autowired
-	static FluidClassTemplate fluidClassDAO;
-	
-	@Autowired
-	ClientTemplate clientDAO;
-
-	@Autowired
-	static CountryTemplate countryDAO;
-		
-	
-	public static File convertMultipartFile(MultipartFile file){
-		File result = new File(file.getOriginalFilename());
-	    try {
-	    	result.createNewFile();
-		    FileOutputStream fos = new FileOutputStream(result); 
-		    fos.write(file.getBytes());
-		    fos.close(); 			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 	
-		
-	    return result;
-	}
-	
-	public static ArrayList<BrakingFluid> importFromExcelProduct(File path, String GlobalPath){
-		 //Только для .xlsx !!!!  .xls надо обрабаотывать через HSSF
-		
-        Workbook wb=null;
-		try {
-			wb = new XSSFWorkbook(new FileInputStream(path));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		ArrayList<BrakingFluid> listBrakingFluids = new ArrayList<BrakingFluid>();
-		
-        for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-            Sheet sheet = wb.getSheetAt(i);
-            for (Row row : sheet) {
-            	BrakingFluid currentBF = new  BrakingFluid();
-            	Manufacturer manufacturer = new Manufacturer();
-            	Country country = new Country();
-            	FluidClass fluidClass = new FluidClass();
-
-                for (Cell cell : row) { //перебираем значения строки
-                	switch (cell.getColumnIndex()) {
-					case 0:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							currentBF.setName(cell.getStringCellValue());
-						}
-						break;
-					}
-					case 1:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							manufacturer.setName(cell.getStringCellValue());
-						}
-						currentBF.setManufacturer(manufacturer);
-						break;
-					}
-					case 2:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							fluidClass.setName(cell.getStringCellValue());
-						}
-						currentBF.setFluidClass(fluidClass);
-						break;
-					}
-					case 3:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setBoilingTemperatureDry(cell.getNumericCellValue());
-						}
-						break;
-					}
-					case 4:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setBoilingTemperatureWet(cell.getNumericCellValue());
-						}
-						break;
-					}
-					case 5:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setValue(cell.getNumericCellValue());
-						}
-						break;
-					}
-					case 6:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							currentBF.setPhoto(cell.getStringCellValue());
-						}						
-						break;
-					}
-					case 7:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							currentBF.setDescription(cell.getStringCellValue());
-						}						
-						break;
-					}
-					case 8:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setViscosity40(cell.getNumericCellValue());
-						}						
-						break;
-					}
-					case 9:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setViscosity100(cell.getNumericCellValue());
-						}						
-						break;
-					}
-					case 10:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							currentBF.setSpecification(cell.getStringCellValue());
-						}						
-						break;
-					}
-					case 11:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setJudgement(cell.getNumericCellValue());
-						}							
-						break;
-					}
-					case 12:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							country.setName(cell.getStringCellValue());
-						}						
-						manufacturer.setCountry(country);
-						break;
-					}
-					default:
-						break;
-					}                	
-                }
-            	//теперь собираем список.
-            	
-            	//System.out.println(currentBF.toString());
-            	if (currentBF.getName().length()>0)
-            		listBrakingFluids.add(currentBF);
-            }
-        }
-//        try {
-//			wb.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-    
-		
-		return listBrakingFluids;
-	}
-	
 	public static boolean isFileExist(String file){
 		File oldFile=new File(file);
 		
@@ -309,66 +149,6 @@ public class Service {
 
 		return result;
 	}
-	
-	public static ArrayList<BrakingFluid> importFromExcelPrices(File path){
-		
-        Workbook wb=null;
-		try {
-			wb = new XSSFWorkbook(new FileInputStream(path));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		ArrayList<BrakingFluid> listBrakingFluids = new ArrayList<BrakingFluid>();
-		
-        for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-            Sheet sheet = wb.getSheetAt(i);
-            for (Row row : sheet) {
-            	BrakingFluid currentBF = new  BrakingFluid();
-            	Manufacturer manufacturer = new Manufacturer();
-            	Country country = new Country();
-            	FluidClass fluidClass = new FluidClass();
-
-                for (Cell cell : row) { //перебираем значения строки
-                	switch (cell.getColumnIndex()) {
-					case 0:{
-						if (cell.getCellType()==cell.CELL_TYPE_STRING){
-							currentBF.setName(cell.getStringCellValue());
-						}
-						break;
-					}
-					case 1:{
-						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
-							currentBF.setPrice(cell.getNumericCellValue());
-						}						
-						break;
-					}
-					default:
-						break;
-					}                	
-                }
-            	//теперь собираем список.
-            	
-            	//System.out.println(currentBF.toString());
-            	if (currentBF.getName().length()>0)	//пропустим строки, в которых не заполнено наименование
-            		listBrakingFluids.add(currentBF);
-            }
-        }
-//        try {
-//			wb.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
- 
-		return listBrakingFluids;
-	}
-	
 	
 	private static PdfPTable createTableOffer(LinkedList<Basket> basket,BaseFont times, String globalPath, User user) throws DocumentException, MalformedURLException, IOException {
         PdfPTable table = null;
@@ -513,7 +293,8 @@ public class Service {
 	
 	public static String createAdminEdit(Model model, String variant, int currentPage
 			, ManufacturerTemplate manufacturerDAO, FluidClassTemplate fluidClassDAO, CountryTemplate countryDAO
-			,ClientTemplate clientDAO, UserTemplate userDAO,LogTemplate logDAO, LinkedList<String> errors){
+			,ClientTemplate clientDAO, UserTemplate userDAO,LogTemplate logDAO, OilStuffTemplate oilStuffDAO, EngineTypeTemplate engineTypeDAO
+			, LinkedList<String> errors){
 		
 		String result="ShowList";
 		int totalRows=0;
@@ -549,6 +330,19 @@ public class Service {
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
 			model.addAttribute("list",userDAO.getUsers(currentPage, elementsInList));
 			model.addAttribute("variant", "user");
+
+		}else if ((variant.compareTo("Состав масел")==0) || (variant.compareTo("oilStuff")==0)){
+			totalRows=oilStuffDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",oilStuffDAO.getOilStuffs(currentPage, elementsInList));
+			model.addAttribute("variant", "oilStuff");
+
+		}else if ((variant.compareTo("Тип двигателя")==0) || (variant.compareTo("engineType")==0)){
+			totalRows=engineTypeDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",engineTypeDAO.getEngineTypes(currentPage, elementsInList));
+			model.addAttribute("variant", "engineType");
+
 			
 		}else if ((variant.compareTo("Логирование")==0) || (variant.compareTo("log")==0)){
 			totalRows=logDAO.getCountRows();

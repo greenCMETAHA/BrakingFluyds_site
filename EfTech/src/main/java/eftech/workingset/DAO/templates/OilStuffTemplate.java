@@ -18,7 +18,7 @@ import eftech.workingset.DAO.interfaces.InterfaceOilStuffDAO;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.OilStuff;
 
-public class OilSfuffTemplate implements InterfaceOilStuffDAO {
+public class OilStuffTemplate implements InterfaceOilStuffDAO {
 	private NamedParameterJdbcTemplate jdbcTemplate;
 
 	@Autowired
@@ -134,7 +134,7 @@ public class OilSfuffTemplate implements InterfaceOilStuffDAO {
 
 	@Override
 	public ArrayList<OilStuff> getOilStuffs(int num, int nextRows) {
-		String sqlQuery="select * from OilStuff order by name where OilStuff.name!=:empty"
+		String sqlQuery="select * from OilStuff where OilStuff.name!=:empty order by name"
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();

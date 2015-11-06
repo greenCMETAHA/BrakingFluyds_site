@@ -115,6 +115,8 @@
 		              <li><input type="submit" name="task" value="Страны"></li>
 		              <li><input type="submit" name="task" value="Клиенты"></li>
 		              <li><input type="submit" name="task" value="Пользователи"></li>
+		              <li><input type="submit" name="task" value="Состав масел"></li>
+		              <li><input type="submit" name="task" value="Тип двигателя"></li>
 		              <li><input type="submit" name="task" value="Логирование"></li>
 		            </ul>
 		          </li>
@@ -210,6 +212,16 @@
 					</td>
 	              </c:if> 
 	              <c:if test="${requestScope.variant=='fluidClass'}">
+	              	<td>
+						<a href="${UpdateCurrent}"  title="Редактировать элемент"> <c:out value="${current.getName()}"  /></a>
+					</td>
+	              </c:if> 
+	              <c:if test="${requestScope.variant=='oilStuff'}">
+	              	<td>
+						<a href="${UpdateCurrent}"  title="Редактировать элемент"> <c:out value="${current.getName()}"  /></a>
+					</td>
+	              </c:if> 
+	              <c:if test="${requestScope.variant=='engineType'}">
 	              	<td>
 						<a href="${UpdateCurrent}"  title="Редактировать элемент"> <c:out value="${current.getName()}"  /></a>
 					</td>

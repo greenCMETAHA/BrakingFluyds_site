@@ -118,6 +118,8 @@
 	              <li><input type="submit" name="task" value="Страны"></li>
 	              <li><input type="submit" name="task" value="Клиенты"></li>
 	              <li><input type="submit" name="task" value="Пользователи"></li>
+	              <li><input type="submit" name="task" value="Состав масел"></li>
+	              <li><input type="submit" name="task" value="Тип двигателя"></li>
 	              <li><input type="submit" name="task" value="Логирование"></li>
 	            </ul>
 	          </li>

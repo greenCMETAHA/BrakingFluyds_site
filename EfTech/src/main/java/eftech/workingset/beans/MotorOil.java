@@ -36,6 +36,13 @@ public class MotorOil implements InterfaceMotorOil{
 			description="";
 			specification="";
 			viscosity="";
+			
+			engineType = new EngineType();
+			engineType.setName("<empty>");
+			
+			oilStuff = new OilStuff();
+			oilStuff.setName("<empty>");
+			
 		}
 
 		public MotorOil(int id, String name, InterfaceManufacturer manufacturer, double price, InterfaceOilStuff oilStuff

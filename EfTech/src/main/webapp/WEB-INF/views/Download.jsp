@@ -242,54 +242,67 @@
       <!-- ============================================================= HEADER : END ============================================================= -->		
 		
        <h1 class="border">Импорт данных из Excel:</h1>
-       <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-         <div class="row">
-	         
-  			 <div class="items-holder">
-				<div class="container-fluid wishlist_table">
-					<div class="col-xs-12 col-sm-4 no-margin">Загрузить номерклатуру:
-					</div>
-					
-					<form action="Download" method="POST" enctype="multipart/form-data">
-						<div class="col-xs-12 col-sm-4 no-margin">
-							<input type="file"  name="fileEcxel" class="upload-file" id="file" value=""/>
+       
+<%--        <c:out value="${requestScope.variant}"/>:<c:out value="${requestScope.task}"/> --%>
+       
+       
+       <c:if test="${requestScope.task=='Product'}">
+	       <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
+	         <div class="row">
+		         
+	  			 <div class="items-holder">
+					<div class="container-fluid wishlist_table">
+						<div class="col-xs-12 col-sm-4 no-margin">Загрузить номерклатуру:
 						</div>
-						<div class="col-xs-12 col-sm-3 no-margin">
-		                    <div class="buttons-holder">
-	                            <button class="le-button" type="submit" name="variant" value="Product">Загрузить</button>
+						<form action="Download" method="POST" enctype="multipart/form-data">
+<%-- 							<input name="variant" type="hidden" value="${requestScope.variant}" > --%>
+							<div class="col-xs-12 col-sm-4 no-margin">
+								<input checked type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+								<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br><br>
+							</div>
+							<div class="col-xs-12 col-sm-4 no-margin">
+								<input type="file"  name="fileExcel" class="upload-file" id="file" value=""/>
+							</div>
+							<div class="col-xs-12 col-sm-3 no-margin">
+			                    <div class="buttons-holder">
+		                            <button class="le-button" type="submit" name="variant" value="Product">Загрузить</button>
+		                        </div>
 	                        </div>
-                        </div>
-                    </form>
-               	 </div>
-              </div>
-            </div> 
-       </sec:authorize>
+	                    </form>
+	               	 </div>
+	              </div>
+	            </div> 
+	       </sec:authorize>
+       </c:if>
             <br>
-       <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
-            <div class="row">
-  			 <div class="items-holder">
-				<div class="container-fluid wishlist_table">
-					<div class="col-xs-12 col-sm-4 no-margin">Загрузить цены:
-					</div>
-					
-					<form action="Download" method="POST" enctype="multipart/form-data">
-						<div class="col-xs-12 col-sm-4 no-margin">
-							<input type="file"  name="fileEcxel" class="upload-file" id="file" value=""/>  
+       <c:if test="${requestScope.task=='Price'}">
+	       <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
+	            <div class="row">
+	  			 <div class="items-holder">
+					<div class="container-fluid wishlist_table">
+						<div class="col-xs-12 col-sm-4 no-margin">Загрузить цены:
 						</div>
-						<div class="col-xs-12 col-sm-3 no-margin">
-		                    <div class="buttons-holder">
-	                            <button class="le-button" type="submit" name="variant" value="Price">Загрузить</button>
+						
+						<form action="Download" method="POST" enctype="multipart/form-data">
+<%-- 							<input name="variant" type="hidden" value="${requestScope.variant}" > --%>
+							<div class="col-xs-12 col-sm-4 no-margin">
+								<input checked type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+								<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br><br>
+							</div>
+							<div class="col-xs-12 col-sm-4 no-margin">
+								<input type="file"  name="fileExcel" class="upload-file" id="file" value=""/>  
+							</div>
+							<div class="col-xs-12 col-sm-3 no-margin">
+			                    <div class="buttons-holder">
+		                            <button class="le-button" type="submit" name="variant" value="Price">Загрузить</button>
+		                        </div>
 	                        </div>
-                        </div>
-                    </form>
-               	 </div>
-              </div>
-            </div> 
-	  </sec:authorize>	
-
-
-
-
+	                    </form>
+	               	 </div>
+	              </div>
+	            </div> 
+		  </sec:authorize>	
+  	  </c:if>
 
 	<!-- ============================================================= FOOTER ============================================================= -->
       <footer id="footer" class="color-bg">

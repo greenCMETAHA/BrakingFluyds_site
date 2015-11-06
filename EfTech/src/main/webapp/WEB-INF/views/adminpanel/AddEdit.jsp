@@ -115,6 +115,8 @@
 		              <li><input type="submit" name="task" value="Страны"></li>
 		              <li><input type="submit" name="task" value="Клиенты"></li>
 		              <li><input type="submit" name="task" value="Пользователи"></li>
+		              <li><input type="submit" name="task" value="Состав масел"></li>
+		              <li><input type="submit" name="task" value="Тип двигателя"></li>
 		              <li><input type="submit" name="task" value="Логирование"></li>
 		            </ul>
 		          </li>
@@ -161,6 +163,20 @@
               
               
               <c:if test="${requestScope.variant=='fluidClass'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              </c:if>
+
+              <c:if test="${requestScope.variant=='oilStuff'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              </c:if>
+
+              <c:if test="${requestScope.variant=='engineType'}">
               	<div class="clearfix">
 		         <div class="lab"><label for="input-three">Наименование:</label></div>
 		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
