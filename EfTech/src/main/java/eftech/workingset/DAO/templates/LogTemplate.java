@@ -27,14 +27,18 @@ import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
+import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Info;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
+import eftech.workingset.beans.MotorOil;
+import eftech.workingset.beans.OilStuff;
 import eftech.workingset.beans.Review;
 import eftech.workingset.beans.Role;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class LogTemplate implements InterfaceLogDAO {
 	private NamedParameterJdbcTemplate jdbcTemplate;
@@ -209,6 +213,10 @@ public class LogTemplate implements InterfaceLogDAO {
 				object=new BrakingFluid();
 				((BrakingFluid) object).setId(rs.getInt("object_id"));
 				((BrakingFluid) object).setName(rs.getString("object_name"));
+			}else if ("MotorOil".equals(strObj)){
+				object=new MotorOil();
+				((MotorOil) object).setId(rs.getInt("object_id"));
+				((MotorOil) object).setName(rs.getString("object_name"));
 			}else if ("Client".equals(strObj)){
 				object=new Client();
 				((Client) object).setId(rs.getInt("object_id"));
@@ -217,6 +225,14 @@ public class LogTemplate implements InterfaceLogDAO {
 				object=new Country();
 				((Country) object).setId(rs.getInt("object_id"));
 				((Country) object).setName(rs.getString("object_name"));
+			}else if ("OilStuff".equals(strObj)){
+				object=new OilStuff();
+				((OilStuff) object).setId(rs.getInt("object_id"));
+				((OilStuff) object).setName(rs.getString("object_name"));
+			}else if ("EngineType".equals(strObj)){
+				object=new EngineType();
+				((EngineType) object).setId(rs.getInt("object_id"));
+				((EngineType) object).setName(rs.getString("object_name"));
 			}else if ("FluidClass".equals(strObj)){
 				object=new FluidClass();
 				((FluidClass) object).setId(rs.getInt("object_id"));
@@ -240,9 +256,14 @@ public class LogTemplate implements InterfaceLogDAO {
 			}else if ("Wishlist".equals(strObj)){
 				object=new Wishlist();
 				((Wishlist) object).setId(rs.getInt("object_id"));
-				BrakingFluid currentBF=new BrakingFluid();
-				currentBF.setId(new Integer(rs.getInt("object_id")));
-				((Wishlist) object).setBrakingFluid(currentBF);
+				InterfaceGood currentGood=null;
+				if ("BrakingFluid".equals(strObj)){
+					currentGood=new BrakingFluid();
+				}else if ("MotorOil".equals(strObj)){
+					currentGood = new MotorOil();
+				}
+				currentGood.setName(rs.getString("object_name"));
+				((Wishlist) object).setGood(currentGood);
 			}
 			log.setObject(object);
 			User user=new User();

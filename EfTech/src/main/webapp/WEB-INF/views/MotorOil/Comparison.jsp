@@ -58,7 +58,6 @@
    		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
 		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
 		                        </sec:authorize>
-		                        <li><a href="Comparison">Сравнить товары</a></li>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -184,7 +183,7 @@
 					                <div class="total-price-basket"> 
 					                    <span class="lbl">Ваша корзина:</span>
 					                    <span class="total-price">
-					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+					                    	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">    	
 					                        	<span class="sign">$</span><span class="value"><c:out value="${requestScope.totalBasket}"/></span>
 					                        </sec:authorize>
 					                    </span>
@@ -245,262 +244,184 @@
 				
 			</div><!-- /.container -->
 		</header>
-      <!-- ============================================================= HEADER : END ============================================================= -->
-      <div id="single-product">
-        <div class="container">
-    	  <form action="InsertUpdate" method="POST"  enctype="multipart/form-data">
-    	    <c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"></c:set>
-			<input name="id_BrakeFluid" type="hidden" value="${currentBrakFluid.getId()}" >
-			<input name="pageInfo" type="hidden" value="${requestScope.pageInfo}" >
-			<c:set var="readOnly" value=""></c:set>
-			<c:set var="disabledValue" value=""></c:set>
-			<sec:authorize access="!hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-				<c:set var="readOnly" value="readonly"></c:set>
-				<c:set var="disabledValue" value="disabled"></c:set>
-			</sec:authorize>
-			
-			<h1 class="border"><c:out value="${requestScope.pageInfo}"/></h1>
-           
-			
- 	
-            <div class="no-margin col-xs-12 col-sm-7 body-holder">
-              <ul class="tabled-data">
-	            	<li>
-	                   <label></label>
-	                   <div class="value">
-			                <div class="star-holder inline">
-			                  <div class="star" data-score="${currentBrakFluid.getJudgement()}" id="Judgement" ></div>
-			                </div>
-		                </div>
-	                 </li>
-	                 <li>
-	                   <label>Наименование:</label>
-	                   <div class="value">
-	                   		<input <c:out value="${readOnly}"/> type="text" class="input" value="${currentBrakFluid.getName()}" name="name_BrakeFluid" />
-						</div>
-	                 </li>
-	           	  	 <li>
-	                   <label>Описание:</label>
-	                   <div class="value">
-	                   		<textarea name="Description"   <c:out value="${readOnly}"/>  cols="75" rows="7" class="textarea" ><c:out value="${currentBrakFluid.getDescription()}"  /></textarea>
-					   </div>
-	                 </li>
-	                 <li>
-	                   <label>Цена:</label>
-	                   <div class="value">
-	                   		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
-	                   			<input type="text" class="input" value="${currentBrakFluid.getPrice()}" name="Price" />
-	                   		</sec:authorize>
-	                   		<input name="photoBackUp" type="hidden" value="${requestScope.photoBackUp}" >
-					   </div>
-	                 </li>
-	        	 </ul>
-	           </div>
-	            <div class="col-xs-12 col-sm-3 no-margin">
-		         <div class="buttons-holder">
-		             <button class="le-button" type="submit" name="variant" value="Save">Сохранить</button>
-		         </div>
-		     </div>
+      <!-- ============================================================= HEADER : END ============================================================= -->		
+
+<!-- ============================================================= HEADER : END ============================================================= -->
+<div class="main-content" id="main-content">
+	<div class="container">
+        <div class="inner-xs">
+            <div class="page-header">
+                <h2 class="page-title">
+                    Сравним товары           
+                </h2>
             </div>
-            <!-- /.body -->
-          </div>
-          <!-- /.body-holder -->
-        </div>
-        <!-- /.container -->
-      </div>
-      <!-- /.single-product -->
-      <!-- ========================================= SINGLE PRODUCT TAB ========================================= -->
-      <section id="single-product-tab">
+            
+      	<c:set var="name" value="compare" />
+        </div><!-- /.section-page-title -->
+        <div class="table-responsive inner-bottom-xs inner-top-xs">
+             <table class="table table-bordered table-striped compare-list">
+                <thead>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <c:forEach var="current" items="${sessionScope[name]}">
+							<td class="text-center">
+								<div class="image-wrap">
+									<c:url value="Comparison" var="UpdateGood">
+										<c:param name="id" value="${current.getId()}"/>
+										<c:param name="variant" value="deleteFromCompare"/>
+									</c:url>
+	                                <a data-product_id="${current.getId()}" href="${UpdateGood}" class="remove-link"><i class="fa fa-times-circle"></i></a>
+	                                <img alt="${current.getName()}" class="attachment-yith-woocompare-image" src="resources/jpg/${current.getPhoto()}">                        
+	                            </div>
+								<c:url value="ShowOne" var="UpdateBrakingFluid">
+									<c:param name="id" value="${current.getId()}"/>
+								</c:url>	
+								<p><strong><a href="${UpdateGood}"> <c:out value="${current.getName()}"/></a></strong></p>
+							</td>
+						</c:forEach>
+                    </tr>
+                    <tr class="tr-add-to-cart">
+                        <td>&nbsp;</td>
+                         <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+							<td class="text-center">
+                            <div class="add-cart-button">
+                            	<c:url value="Comparison" var="UpdateGood">
+									<c:param name="id" value="${current.getId()}"/>
+									<c:param name="variant" value="inBasket"/>
+								</c:url>
+                                <a class="le-button add_to_cart_button  product_type_simple" href="${UpdateGood}">В корзину</a>
+                            </div>                    
+                            </td>                         
+                         </c:forEach>
+                    </tr>
+                </thead>
+                <tbody>
+                                                                                                     
+                    <tr class="comparison-item price">
+                        <th>Цена</th>
+                        <c:forEach var="current" items="${sessionScope[name]}">
+                        	<td class="comparison-item-cell odd product_${current.getId()}">
+                            	<span class="amount">
+                            		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+                            			$<c:out value="${current.getPrice()}"/>
+                            		</sec:authorize>		
+                            	</span>                        
+                        	</td>
+                        </c:forEach>
+                    </tr>
+                    <tr class="comparison-item description">
+                        <th>Производитель</th>
+                        <c:forEach var="current" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getManufacturer().getName()}"  /> </p>
+	                        </td>
+                        </c:forEach>
+                    </tr>
+                    <tr class="comparison-item description">
+                        <th>Тип двигателя</th>
+                        <c:forEach var="current" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getEngineType().getName()}"  /> </p>
+	                        </td>
+                        </c:forEach>
+                    </tr>
+	                <tr class="comparison-item description">
+                        <th>Тип масла:</th>
+                        <c:forEach var="current" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getOilStuff.getName()}"  /></p>
+	                        </td>
+                        </c:forEach>
+	                </tr> 
+	                <tr class="comparison-item description">
+                        <th>Вязкость:</th>
+                        <c:forEach var="current" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getViscosity}"  /></p>
+	                        </td>
+                        </c:forEach>
+	                </tr>   
+	                <tr class="comparison-item description">
+                        <th>Объём</th>
+                        <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getValue()}"  /></p>
+	                        </td>
+                        </c:forEach>
+	                </tr>                                                       
+                 	<tr class="comparison-item description">
+                        <th>Описание</th>
+                        <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getDescription()}"  /></p>
+	                        </td>
+                        </c:forEach>
+                    </tr>                    
+	                <tr class="comparison-item description">
+                        <th>Спецификация</th>
+                        <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getSpecification()}"  /></p>
+	                        </td>
+                        </c:forEach>
+	                </tr>                                                       
+                 	<tr class="comparison-item description">
+                        <th>Оценка покупателей</th>
+                        <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+	                        <td class="comparison-item-cell odd product_${current.getId()}">
+	                            <p><c:out value="${current.getJudgement()}"  /></p>
+	                        </td>
+                        </c:forEach>
+                    </tr>           
+                    <tr class="comparison-item stock">
+                        <th>В наличии</th>
+                        <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+                        	<td class="comparison-item-cell odd product_${current.getId()}">
+                            	<span class="label label-success"><span class="">В наличии</span></span>                        
+                        	</td>
+                        </c:forEach>
+                    </tr>
+                    <tr class="price repeated">
+                        <th>Цена</th>
+                        <c:forEach var="currentBFluid" items="${sessionScope[name]}">
+                        	<td class="odd product_${current.getId()}">
+                            	<span class="amount">
+                            		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+                            			$<c:out value="${current.getPrice()}"/>
+                            		</sec:authorize>
+                            	</span>                        
+                        	</td>
+                        </c:forEach>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div><!-- /.table-responsive -->
+    </div><!-- /.container -->	
+</div>		<!-- ============================================================= FOOTER ============================================================= -->
+<footer id="footer" class="color-bg">
+    <div class="copyright-bar">
         <div class="container">
-          <div class="tab-holder">
-            <ul class="nav nav-tabs simple" >
-              <li class="active"><a href="#description" data-toggle="tab">Описание</a></li>
-              <li><a href="#character" data-toggle="tab">Характеристики</a></li>
-              <li><a href="#additional-info" data-toggle="tab">Дополнительная информация</a></li>
-              <li><a href="#image" data-toggle="tab">Изображение</a></li>
-              <sec:authorize access="hasRole('ROLE_PRICE')">
-              	<li><a href="#prices" data-toggle="tab">История цены (<c:out value="${requestScope.prices.size()}"/>)</a></li>
-              </sec:authorize>
-            </ul>
-            <!-- /.nav-tabs -->
-            <div class="tab-content">
-	            <div class="tab-pane active" id="description">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Производитель:</label>
-	                    <div class="value">
-	                    	<select size="1" name="Manufacturer"  <c:out value="${disabledValue}"/> class="le-select">
-			                    <option >Выберите получателя</option>	
-									<c:forEach var="punct" items="${requestScope.combobox_Manufacturers}">
-									<c:if test="${currentBrakFluid.getManufacturer().getName() != punct.getName()}">
-										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-									<c:if test="${currentBrakFluid.getManufacturer().getName() == punct.getName()}">
-										<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-								</c:forEach>
-			                </select>
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Класс жидкости:</label>
-	                    <div class="value">
-	                    	<select size="1" name="FluidClass"  <c:out value="${disabledValue}"/>  class="le-select">
-			                    <option >Выберите класс жидкости</option>	
-									<c:forEach var="punct" items="${requestScope.combobox_FluidClasses}">
-									<c:if test="${currentBrakFluid.getFluidClass().getName() != punct.getName()}">
-										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-									<c:if test="${currentBrakFluid.getFluidClass().getName() == punct.getName()}">
-										<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-								</c:forEach>
-			                </select>
-						</div>
-	                  </li>
-	            	  <li>
-	                    <label>Объём:</label>
-	                    <div class="value">
-	                    	<input  <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getValue()}" name="Value" />
-						</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              
-	              <div class="tab-pane" id="character">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Температура кипения (сух.):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getBoilingTemperatureDry()}" name="BoilingTemperatureDry" />
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Температура кипения (вл.):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getBoilingTemperatureWet()}" name="BoilingTemperatureWet" />
-						</div>
-	                  </li>
-	            	  <li>
-	                    <label>Вязкость (при -40):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getViscosity40()}" name="Viscosity40" />
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Вязкость (при 100):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getViscosity100()}" name="Viscosity100" />
-						</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <div class="tab-pane" id="additional-info">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Спецификация:</label>
-	                    <div class="value">	
-	                    	<div class="excerpt">
-			                	<div><textarea name="Specification"  readonly="${readOnly}" cols="90" rows="7" class="textarea" ><c:out value="${currentBrakFluid.getSpecification()}"  /></textarea></div>
-            			  	</div>
-            			</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <div class="tab-pane" id="image">
-	                <ul class="tabled-data">
-	                  <li>
-		                <label></label>
-		                <div class="value">	
-		                	<c:if test="${currentBrakFluid.hasPhoto()}">
-						  		<img src="resources/jpg/<c:out value="${currentBrakFluid.getPhoto()}"  />" alt="${currentBrakFluid.getName()}">
-					    	</c:if><p>
-					    </div>
-					   </li>
-  	                   <li>
-	                    <label>Изменить изображение:</label>
-	                    <div class="value">	
-				            <div>
-				            	<input  type="file"  name="Photo" class="upload-file" id="file"/><p>
-				            	    <button class="le-button" type="submit" name="variant" value="Refresh">Обновить</button>
-		                	</div>
-		                	
-		                </div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <!-- /.tab-pane #description												 --> 
-	              <div class="tab-pane" id="prices">
-	                <!-- ========================================= CONTENT ========================================= -->
-			        <div class="col-xs-20 col-md-12 items-holder no-margin">
-			         	<ul class="tabled-data">
-			            <c:forEach var="price" items="${requestScope.prices}">
-				           	<li> <div class="row no-margin">
-				              <div class="col-xs-12 col-sm-5 no-margin">
-				                <c:out value="${price.getTime()}"/>
-				              </div>
-				              <div class="col-xs-12 col-sm-3 ">
-				                <c:out value="${price.getUser().getName()}"/>
-				              </div>
-				              <div class="col-xs-12 col-sm-4 ">
-				                <c:out value="${price.getPrice()}"/>
-				              </div>
-				            </div>
-				            </li>
-				       	</c:forEach>
-				       	</ul>
-			        </div>
-			        <!-- ========================================= CONTENT : END ========================================= -->
-	             </div>   
-                <!-- /.meta-row -->
-              </div>
-              
-              <!-- /.tab-pane #reviews -->
-            </div>
-            <!-- /.tab-content -->
-          </div>
-        </div>
-        <!-- /.container -->
-      </section>
-      <!-- /#single-product-tab -->
-    
-      <!-- ========================================= SINGLE PRODUCT TAB : END ========================================= -->
-
-		</form>
-      	</div>
-      </div>
-
-
-	<!-- ============================================================= FOOTER ============================================================= -->
-      <footer id="footer" class="color-bg">
-         <!-- /.link-list-row -->
-        <div class="copyright-bar">
-          <div class="container">
             <div class="col-xs-12 col-sm-6 no-margin">
-              <div class="copyright">
-                &copy; <a href="index">Media Center</a> - all rights reserved
-              </div>
-              <!-- /.copyright -->
+                <div class="copyright">
+                    &copy; <a href="index">Media Center</a> - all rights reserved
+                </div><!-- /.copyright -->
             </div>
             <div class="col-xs-12 col-sm-6 no-margin">
-              <div class="payment-methods ">
-                <ul>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-visa.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-master.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-paypal.png"></li>
-                  <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-skrill.png"></li>
-                </ul>
-              </div>
-              <!-- /.payment-methods -->
+                <div class="payment-methods ">
+                    <ul>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-visa.png"></li>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-master.png"></li>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-paypal.png"></li>
+                        <li><img alt="" src="resources/Ecommerce/assets/images/payments/payment-skrill.png"></li>
+                    </ul>
+                </div><!-- /.payment-methods -->
             </div>
-          </div>
-          <!-- /.container -->
-        </div>
-        <!-- /.copyright-bar -->
-      </footer>
-      <!-- /#footer -->
-      <!-- ============================================================= FOOTER : END ============================================================= -->	
-    </div>
+        </div><!-- /.container -->
+    </div><!-- /.copyright-bar -->
+
+</footer><!-- /#footer -->
+<!-- ============================================================= FOOTER : END ============================================================= -->	</div><!-- /.wrapper -->
     <!-- /.wrapper -->
     <!-- JavaScripts placed at the end of the document so the pages load faster -->
     <script src="resources/Ecommerce/assets/js/jquery-1.10.2.min.js"></script>
@@ -536,6 +457,7 @@
     </script>
     <!-- For demo purposes вЂ“ can be removed on production : End -->
     <script src="http://w.sharethis.com/button/buttons.js"></script>
+    
   </body>
 </html>
 

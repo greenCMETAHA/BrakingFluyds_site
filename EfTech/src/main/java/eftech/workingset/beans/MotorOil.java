@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceEngineType;
 import eftech.workingset.beans.intefaces.InterfaceManufacturer;
@@ -300,6 +301,11 @@ public class MotorOil implements InterfaceMotorOil{
 		@Override
 		public String toString() {
 			return "MotorOil [id=" + id + ", name=" + name + ", value=" + value + "]";
+		}
+
+		@Override
+		public String getGoodName() {
+			return Service.MOTOR_OIL_PREFIX;
 		}
 
 	

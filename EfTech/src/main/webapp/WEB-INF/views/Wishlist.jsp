@@ -259,24 +259,24 @@
               
                 <c:set var="name" value="wishlist" />
                 <c:forEach var="currentWishlist" items="${sessionScope[name]}">
-                    <c:set var="currentBFluid" value="${currentWishlist.getBrakingFluid()}" />
-					<div class="row cart-item cart_item" id="yith-wcwl-row-${currentBFluid.getId()}">
+                    <c:set var="currentGood" value="${currentWishlist.getGood()}" />
+					<div class="row cart-item cart_item" id="yith-wcwl-row-${currentGood.getId()}">
                   		<div class="col-xs-12 col-sm-1 no-margin">
-                  			<c:url value="Wishlist" var="UpdateBrakingFluid">
-								<c:param name="id" value="${currentBFluid.getId()}"/>
+                  			<c:url value="Wishlist" var="UpdateGood">
+								<c:param name="id" value="${currentGood.getId()}"/>
 								<c:param name="variant" value="deleteFromWishlist"/>
 							</c:url>	
-                    		<a title="Удалить из избранного" class="remove_from_wishlist remove-item" href="${UpdateBrakingFluid}">×</a>
+                    		<a title="Удалить из избранного" class="remove_from_wishlist remove-item" href="${UpdateGood}">×</a>
                   		</div>		
 						<div class="col-xs-12 col-sm-1 no-margin">
-                    		<a href="ShowOne?id=${currentBFluid.getId()}">
-                    		<img width="73" height="73" alt="${currentBFluid.getName()}" class="attachment-shop_thumbnail wp-post-image"
-                    			 src="resources/jpg/${currentBFluid.getPhoto()}">
+                    		<a href="ShowOne?id=${currentGood.getId()}">
+                    		<img width="73" height="73" alt="${currentGood.getName()}" class="attachment-shop_thumbnail wp-post-image"
+                    			 src="resources/jpg/${currentGood.getPhoto()}">
                     		</a>
                   		</div>
 						<div class="col-xs-12 col-sm-4 no-margin">
 		                    <div class="title">
-		                      <a href="ShowOne?id=${currentBFluid.getId()}">${currentBFluid.getName()}</a>
+		                      <a href="ShowOne?id=${currentGood.getId()}">${currentGood.getName()}</a>
 		                    </div>
 		                    <!-- /.title --> 
 		                    <div>
@@ -286,18 +286,18 @@
 		                 <div class="col-xs-12 col-sm-3 no-margin">
 		                 	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
 			                    <div class="price">
-			                      <span class="amount">$<c:out value="${currentBFluid.getPrice()}" /></span>							
+			                      <span class="amount">$<c:out value="${currentGood.getPrice()}" /></span>							
 			                    </div>
 			                </sec:authorize>
 		                  </div>
 						  <div class="col-xs-12 col-sm-3 no-margin">
 		                    <div class="text-right">
 		                      <div class="add-cart-button">
-			                    <c:url value="Wishlist" var="UpdateBrakingFluid">
+			                    <c:url value="Wishlist" var="UpdateGood">
 									<c:param name="id" value="${currentBFluid.getId()}"/>
 									<c:param name="variant" value="inBasket"/>
 								</c:url>
-		                        <a class="le-button add_to_cart_button product_type_simple" href="${UpdateBrakingFluid}">В корзину</a>
+		                        <a class="le-button add_to_cart_button product_type_simple" href="${UpdateGood}">В корзину</a>
 		                      </div>
 		                    </div>
 		                  </div>

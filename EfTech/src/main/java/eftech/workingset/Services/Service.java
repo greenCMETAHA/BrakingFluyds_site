@@ -54,11 +54,13 @@ import eftech.workingset.DAO.templates.FluidClassTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
+import eftech.workingset.DAO.templates.MotorOilTemplate;
 import eftech.workingset.DAO.templates.OfferStatusTemplate;
 import eftech.workingset.DAO.templates.OfferTemplate;
 import eftech.workingset.DAO.templates.OilStuffTemplate;
 import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
+import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.beans.*;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
@@ -805,6 +807,176 @@ public class Service {
 	
 	
 	}
+	
+	public static Model createHeader(Model model, User user, LinkedList<Basket>  basket, LinkedList<Wishlist>  wishlist, LinkedList<InterfaceGood>  compare
+			,InfoTemplate infoDAO, WishlistTemplate wishlistDAO){
+		model.addAttribute("phone", infoDAO.getInfo(Service.PHONE));
+		model.addAttribute("email_part1", "");
+		model.addAttribute("email_part2", "");
+		String email=infoDAO.getInfo(Service.EMAIL).trim();
+		if (email.length()>0){
+			if (email.indexOf("@")>0){
+				model.addAttribute("email_part1", email.substring(0, email.indexOf("@")));
+				model.addAttribute("email_part2", email.substring(email.indexOf("@")+1, email.length()));
+			}
+		}
+
+		wishlist = wishlistDAO.getWishList(user.getId());
+		model.addAttribute("wishlist", wishlist);
+		
+		model.addAttribute("totalBasket", Service.countBasket(basket));  //ограничить 2 знаками после зап€той.
+		model.addAttribute("totalQauntity", basket.size());  //ограничить 2 знаками после зап€той.
+		return model;
+	}	
+	
+	//isChanging - это дл€  орзины. если = false - просто устанавливаем quantity. ≈сли нет - смещаем на +/-1. если <=0 - удалим из корзины
+	public static void workWithList(int id, String goodPrefix, int quantity, boolean isChanging, String variant, User user, LinkedList<Basket>  basket
+			, LinkedList<Wishlist>  wishlist, LinkedList<InterfaceGood>  compare
+			,BrakingFluidTemplate brakingFluidDAO, MotorOilTemplate motorOilDAO, LogTemplate logDAO, ClientTemplate clientDAO
+			, ManufacturerTemplate manufacturerDAO,OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO
+			, PayTemplate payDAO, WishlistTemplate wishlistDAO			
+			, HttpSession session, double paySumm, int client_id){  
+	
+		if (variant.compareTo("Demand")==0){
+			LinkedList<Basket>  listBasket = null; 
+			if (id==0){ 
+				listBasket = (LinkedList<Basket>) session.getAttribute("basket");
+			}else{
+				listBasket=new LinkedList<Basket>();
+				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					listBasket.add(new Basket(brakingFluidDAO.getBrakingFluid(id)));
+				}else if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					listBasket.add(new Basket(motorOilDAO.getMotorOil(id)));
+				}
+			} 
+		
+			try {
+				Service.createPDF_Demand(listBasket, session.getServletContext().getRealPath("/"), user);
+				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "—оздана за€вка"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+			
+		}
+		
+		if (variant.compareTo("deleteFromBasket")==0){  
+			for(Basket current: basket){
+				if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
+					basket.remove(current);
+					break;
+				}
+			}
+		}
+		if (variant.compareTo("deleteQuantityFromBasket")==0){  
+			for(Basket current: basket){
+				if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
+					current.setQauntity((isChanging?current.getQauntity():0)+(quantity==0?1:quantity));
+					if (current.getQauntity()<=0){
+						basket.remove(current);
+					}
+					break;
+				}
+			}
+		}
+		if (variant.compareTo("inBasket")==0){
+			boolean bFind=false;                   //в корзине может быть несколько товаров одного вида 
+			for(Basket current: basket){
+				if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
+					bFind=true;
+					current.setQauntity((isChanging?current.getQauntity():0)+(quantity==0?1:quantity));
+					if (current.getQauntity()<=0){
+						basket.remove(current);
+					}
+					break;
+				}
+			}
+			if (!bFind){
+				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					basket.add(new Basket(brakingFluidDAO.getBrakingFluid(id),(quantity==0?1:quantity)));
+				}else if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					basket.add(new Basket(motorOilDAO.getMotorOil(id),(quantity==0?1:quantity)));
+				}
+			}
+		}
+		if (variant.compareTo("checkout")==0){
+			Service.createDemandAndPay(user, basket, clientDAO, manufacturerDAO,
+					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO);
+			basket.clear();  //здесь нужно обработать выдачу кассового чека
+		}
+		if (variant.compareTo("inWishlist")==0){
+			if (user.getId()!=0){
+				boolean bFind=false;
+				for(Wishlist current: wishlist){
+					if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
+						bFind=true;
+						break;
+					}
+				}
+				if (!bFind){
+					synchronized (variant) {
+						Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id, goodPrefix));
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentWish, "ƒобавили в избранное"));
+						wishlist.add(currentWish);
+					}
+				}
+			}  
+		}
+		if (variant.compareTo("deleteFromWishlist")==0){
+			for(Wishlist current: wishlist){
+				if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
+					wishlist.remove(current);
+					synchronized (variant) {
+						wishlistDAO.deleteFromWishlist(current);
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), wishlist, "”далили из избранного"));
+					}
+					break;
+				}
+			}
+		}
+
+		
+		if (variant.compareTo("inCompare")==0){
+			boolean bFind=false;
+			boolean bAnotherTypeOfGoods=false;
+			for(InterfaceGood current: compare){
+				if (!goodPrefix.equals(current.getGoodName())){
+					bAnotherTypeOfGoods=true;
+					break;
+				}
+				if ((current.getId()==id) & (goodPrefix.equals(current.getGoodName()))){
+					bFind=true;
+					break;
+				}
+			}
+			if (bAnotherTypeOfGoods){    //не храним в сравнении товар разных видов!!!!
+				compare.clear();
+			}
+			if (!bFind){
+				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					compare.add(brakingFluidDAO.getBrakingFluid(id));
+				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+					compare.add(motorOilDAO.getMotorOil(client_id));
+				}
+			}
+		}
+		if (variant.compareTo("deleteFromCompare")==0){
+			for(InterfaceGood current: compare){
+				if ((current.getId()==id) & (goodPrefix.equals(current.getGoodName()))){
+					compare.remove(current);
+					break;
+				}
+			}
+		}			
+	}	
+	
 	
 	public static double countBasket(LinkedList<Basket> basket){
 		double totalBasket=0;	

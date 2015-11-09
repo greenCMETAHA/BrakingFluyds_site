@@ -3,7 +3,9 @@ package eftech.workingset.DAO.templates;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -240,217 +242,309 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 
 	}
 	
+	@Override
+	public ArrayList<String> getMotorOilViscosities() {
+		String sqlQuery="select distinct(viscosity) from MotorOils order by viscosity";
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		
+		try{
+			ArrayList<String> result=(ArrayList<String>) jdbcTemplate.queryForList(sqlQuery,params,String.class);
+			return result;
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<String>();
+		}				
+	}
+		
+	
 	//@Override
-//	public  int getCountRows(int currentPage, int elementsInList
-//			, LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<FluidClassSelected>fluidClassFilter
-//			,double minPrice, double maxPrice
-//			,double currentMinBoilingTemperatureDryFilter,double currentMaxBoilingTemperatureDryFilter
-//			,double currentMinBoilingTemperatureWetFilter,double currentMaxBoilingTemperatureWetFilter
-//			,double currentMinValueFilter,double currentMaxValueFilter
-//			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
-//			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
-//			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
-//		int result = 0;
-//		
-//		StringBuilder strManufacturerFilter=new StringBuilder();
-//		if (manufacturersSelected.size()>0){
-//			boolean bFind=false;
-//			for (ManufacturerSelected currentMan:manufacturersSelected){
-//				if (currentMan.isSelected()){
-//					bFind=true;
-//					break;
-//				}
-//			}
-//			if (bFind){
-//				for (ManufacturerSelected currentMan:manufacturersSelected){
-//					if (currentMan.isSelected()){
-//						if (strManufacturerFilter.length()!=0){
-//							strManufacturerFilter.append(", ");
-//						}
-//
-//						strManufacturerFilter.append(currentMan.getId());
-//					}
-//				}
-//				strManufacturerFilter.insert(0, " and (man.id IN (");
-//				strManufacturerFilter.append("))");
-//			}
-//		
-//		}
-//		
-//		StringBuilder strFluidClassFilter=new StringBuilder();
-//		if (fluidClassFilter.size()>0){
-//			boolean bFind=false;
-//			for (FluidClassSelected currentFC:fluidClassFilter){
-//				if (currentFC.isSelected()){
-//					bFind=true;
-//					break;
-//				}
-//			}
-//			if (bFind){
-//				for (FluidClassSelected currentFC:fluidClassFilter){
-//					if (currentFC.isSelected()){
-//						if (strFluidClassFilter.length()!=0){
-//							strFluidClassFilter.append(", ");
-//						}
-//
-//						strFluidClassFilter.append(currentFC.getId());
-//					}
-//				}
-//				strFluidClassFilter.insert(0, " and (fc.id IN (");
-//				strFluidClassFilter.append("))");
-//			}
-//		
-//		}	
-//		String sqlQuery="select count(*) from"
-//				+ "(select mo.id as id from MotorOils  as mo"
-//				+ "		left join fluidclass as fc on (mo.fluidclass=fc.id)"
-//				+ "		left join manufacturer as man on mo.manufacturer=man.id "
-//				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
-//				+ "				 and  (mo.Value>=:currentMinValueFilter) and (mo.Value<=:currentMaxValueFilter)"
-//				+ "				 and  (mo.Viscosity>=:currentMinViscosity40Filter) and (mo.Viscosity40<=:currentMaxViscosity40Filter)"
-//				+ "				 and  (mo.Viscosity100>=:currentMinViscosity100Filter) and (mo.Viscosity100<=:currentMaxViscosity100Filter)"
-//				+ "				 and  (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
-//				+ " "+strFluidClassFilter+strManufacturerFilter+" ORDER BY mo.name ) as rez";
-//		
-//		MapSqlParameterSource params = new MapSqlParameterSource();
-//		params.addValue("minPrice", minPrice);
-//		params.addValue("maxPrice", maxPrice);		
-//		params.addValue("currentMinValueFilter", currentMinValueFilter);
-//		params.addValue("currentMaxValueFilter", currentMaxValueFilter);
-//		params.addValue("currentMinViscosity40Filter", currentMinViscosity40Filter);
-//		params.addValue("currentMaxViscosity40Filter", currentMaxViscosity40Filter);		
-//		params.addValue("currentMinViscosity100Filter", currentMinViscosity100Filter);		
-//		params.addValue("currentMaxViscosity100Filter", currentMaxViscosity100Filter);
-//		params.addValue("currentMinJudgementFilter", currentMinJudgementFilter);		
-//		params.addValue("currentMaxJudgementFilter", currentMaxJudgementFilter);
-//		
-//		try{
-//			result=jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
-//			return result;
-//		}catch (EmptyResultDataAccessException e){
-//			return 0;
-//		}				
-//
-//	}	
-//	
-//	@Override
-//	public ArrayList<MotorOil> getMotorOils(int currentPage, int elementsInList
-//			,LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<FluidClassSelected>fluidClassFilter
-//			,double minPrice, double maxPrice
-//			,double currentMinBoilingTemperatureDryFilter,double currentMaxBoilingTemperatureDryFilter
-//			,double currentMinBoilingTemperatureWetFilter,double currentMaxBoilingTemperatureWetFilter
-//			,double currentMinValueFilter,double currentMaxValueFilter
-//			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
-//			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
-//			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
-//		StringBuilder strManufacturerFilter=new StringBuilder();
-//		if (manufacturersSelected.size()>0){
-//			boolean bFind=false;
-//			for (ManufacturerSelected currentMan:manufacturersSelected){
-//				if (currentMan.isSelected()){
-//					bFind=true;
-//					break;
-//				}
-//			}
-//			if (bFind){
-//				for (ManufacturerSelected currentMan:manufacturersSelected){
-//					if (currentMan.isSelected()){
-//						if (strManufacturerFilter.length()!=0){
-//							strManufacturerFilter.append(", ");
-//						}
-//
-//						strManufacturerFilter.append(currentMan.getId());
-//					}
-//				}
-//				strManufacturerFilter.insert(0, "and (man.id IN (");
-//				strManufacturerFilter.append("))");
-//			}
-//		
-//		}
-//		
-//		StringBuilder strFluidClassFilter=new StringBuilder();
-//		if (fluidClassFilter.size()>0){
-//			boolean bFind=false;
-//			for (FluidClassSelected currentFC:fluidClassFilter){
-//				if (currentFC.isSelected()){
-//					bFind=true;
-//					break;
-//				}
-//			}
-//			if (bFind){
-//				for (FluidClassSelected currentFC:fluidClassFilter){
-//					if (currentFC.isSelected()){
-//						if (strFluidClassFilter.length()!=0){
-//							strFluidClassFilter.append(", ");
-//						}
-//
-//						strFluidClassFilter.append(currentFC.getId());
-//					}
-//				}
-//				strFluidClassFilter.insert(0, " and (fc.id IN (");
-//				strFluidClassFilter.append("))");
-//			}
-//		
-//		}
-//		
-//		String sqlQuery="select * from"
-//				+ "(select mo.id as id, mo.name as name, mo.price as price, mo.boilingTemperatureDry AS boilingTemperatureDry"
-//				+ ", mo.boilingTemperatureWet AS boilingTemperatureWet, mo.description AS description, mo.judgement AS judgement"
-//				+ ", mo.photo AS photo, mo.specification AS specification, mo.viscosity40 AS viscosity40"
-//				+ ", mo.viscosity100 AS viscosity100, mo.value AS value, mo.fluidclass AS fluidclass, mo.manufacturer AS manufacturer"
-//				+ ", fc.name as fc_name, man.name as man_name from MotorOils  as mo"
-//				+ "		left join fluidclass as fc on (mo.fluidclass=fc.id)"
-//				+ "		left join manufacturer as man on mo.manufacturer=man.id "
-//				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice) "
-//				+ ""
-//				+ ""
-//				+ ""
-//				+ ""
-//				+ ""+strFluidClassFilter+strManufacturerFilter+" ORDER BY mo.name ) as rez"
-//				+ " LIMIT :firstRow, :number";
-//		
-//		MapSqlParameterSource params = new MapSqlParameterSource();
-//		params.addValue("firstRow", (currentPage-1)*elementsInList);
-//		params.addValue("number", elementsInList);		
-//		params.addValue("minPrice", minPrice);
-//		params.addValue("maxPrice", maxPrice);	
-//		params.addValue("currentMinBoilingTemperatureDryFilter", currentMinBoilingTemperatureDryFilter);
-//		params.addValue("currentMaxBoilingTemperatureDryFilter", currentMaxBoilingTemperatureDryFilter);		
-//		params.addValue("currentMinBoilingTemperatureWetFilter", currentMinBoilingTemperatureWetFilter);
-//		params.addValue("currentMaxBoilingTemperatureWetFilter", currentMaxBoilingTemperatureWetFilter);		
-//		params.addValue("currentMinValueFilter", currentMinValueFilter);
-//		params.addValue("currentMaxValueFilter", currentMaxValueFilter);
-//		params.addValue("currentMinViscosity40Filter", currentMinViscosity40Filter);
-//		params.addValue("currentMaxViscosity40Filter", currentMaxViscosity40Filter);		
-//		params.addValue("currentMinViscosity100Filter", currentMinViscosity100Filter);		
-//		params.addValue("currentMaxViscosity100Filter", currentMaxViscosity100Filter);
-//		params.addValue("currentMinJudgementFilter", currentMinJudgementFilter);		
-//		params.addValue("currentMaxJudgementFilter", currentMaxJudgementFilter);
-//		
-//		
-//		try{ 
-//			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,params,new MotorOilRowMapper());
-//		}catch (EmptyResultDataAccessException e){
-//			return new ArrayList<MotorOil>();
-//		}		
-//	}
-//	
-//	@Override
-//	public ArrayList<MotorOil> getMotorOilsRecommended(){
-//		String sqlQuery="select *, fc.name as fc_name, man.name as man_name from MotorOils  as mo"
-//				+ " left join fluidclass as fc on (mo.fluidclass=fc.id)"
-//				+ " left join manufacturer as man on mo.manufacturer=man.id ORDER BY mo.judgement DESC LIMIT :firstRow, :number";
-//		
-//		MapSqlParameterSource params = new MapSqlParameterSource();
-//		params.addValue("firstRow", 0);
-//		params.addValue("number", Service.ELEMENTS_IN_RECOMMENDED);		
-//		
-//		try{ 
-//			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,params,new MotorOilRowMapper());
-//		}catch (EmptyResultDataAccessException e){
-//			return new ArrayList<MotorOil>();
-//		}				
-//	}
+	public  int getCountRows(int currentPage, int elementsInList
+			, LinkedList<ManufacturerSelected> manufacturersSelected,  LinkedList<EngineType>engineTypeFilter, LinkedList<OilStuff>oilStuffFilter
+			,HashMap<String,Boolean> viscosityFilter, double minPrice, double maxPrice, double currentMinValueFilter,double currentMaxValueFilter
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
+		int result = 0;
+		
+		StringBuilder strManufacturerFilter=new StringBuilder();
+		if (manufacturersSelected.size()>0){
+			boolean bFind=false;
+			for (ManufacturerSelected currentMan:manufacturersSelected){
+				if (currentMan.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (ManufacturerSelected currentMan:manufacturersSelected){
+					if (currentMan.isSelected()){
+						if (strManufacturerFilter.length()!=0){
+							strManufacturerFilter.append(", ");
+						}
+
+						strManufacturerFilter.append(currentMan.getId());
+					}
+				}
+				strManufacturerFilter.insert(0, " and (man.id IN (");
+				strManufacturerFilter.append("))");
+			}
+		
+		}
+		
+		StringBuilder strEngineTypeFilter=new StringBuilder();
+		if (engineTypeFilter.size()>0){
+			boolean bFind=false;
+			for (EngineType current:engineTypeFilter){
+				if (current.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (EngineType current:engineTypeFilter){
+					if (current.isSelected()){
+						if (strEngineTypeFilter.length()!=0){
+							strEngineTypeFilter.append(", ");
+						}
+
+						strEngineTypeFilter.append(current.getId());
+					}
+				}
+				strEngineTypeFilter.insert(0, " and (fc.id IN (");
+				strEngineTypeFilter.append("))");
+			}
+		
+		}	
+
+		StringBuilder strOilStuffFilter=new StringBuilder();
+		if (oilStuffFilter.size()>0){
+			boolean bFind=false;
+			for (OilStuff current:oilStuffFilter){
+				if (current.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (OilStuff current:oilStuffFilter){
+					if (current.isSelected()){
+						if (strOilStuffFilter.length()!=0){
+							strOilStuffFilter.append(", ");
+						}
+
+						strOilStuffFilter.append(current.getId());
+					}
+				}
+				strOilStuffFilter.insert(0, " and (fc.id IN (");
+				strOilStuffFilter.append("))");
+			}
+		
+		}	
+		
+		StringBuilder strViscosityFilter=new StringBuilder();
+		if (viscosityFilter.size()>0){
+			boolean bFind=false;
+			for (Map.Entry<String, Boolean> current:viscosityFilter.entrySet()){
+				if (current.getValue()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (Map.Entry<String, Boolean> current:viscosityFilter.entrySet()){
+					if (current.getValue()){
+						if (strViscosityFilter.length()!=0){
+							strViscosityFilter.append(", ");
+						}
+
+						strViscosityFilter.append(current.getKey());
+					}
+				}
+				strViscosityFilter.insert(0, " and (fc.id IN (");
+				strViscosityFilter.append("))");
+			}
+		
+		}				
+		
+		String sqlQuery="select count(*) from"
+				+ "(select mo.id as id from MotorOils  as mo"
+				+ " 	LEFT JOIN oilstuff AS os ON (mo.oilStuff=os.id)"
+				+ " 	LEFT JOIN engineType AS et ON (mo.engineType=et.id)"
+				+ "		left join manufacturer as man on mo.manufacturer=man.id "
+				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
+				+ "				 and  (mo.Value>=:currentMinValueFilter) and (mo.Value<=:currentMaxValueFilter)"
+				+ "				 and  (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
+				+ " "+strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+" ORDER BY mo.name ) as rez";
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("minPrice", minPrice);
+		params.addValue("maxPrice", maxPrice);		
+		params.addValue("currentMinValueFilter", currentMinValueFilter);
+		params.addValue("currentMaxValueFilter", currentMaxValueFilter);
+		params.addValue("currentMinJudgementFilter", currentMinJudgementFilter);		
+		params.addValue("currentMaxJudgementFilter", currentMaxJudgementFilter);
+		
+		try{
+			result=jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
+			return result;
+		}catch (EmptyResultDataAccessException e){
+			return 0;
+		}				
+
+	}	
+	
+	@Override
+	public ArrayList<MotorOil> getMotorOils(int currentPage, int elementsInList
+			,LinkedList<ManufacturerSelected> manufacturersSelected,  LinkedList<EngineType>engineTypeFilter, LinkedList<OilStuff>oilStuffFilter
+			,HashMap<String,Boolean> viscosityFilter, double minPrice, double maxPrice, double currentMinValueFilter,double currentMaxValueFilter
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
+		
+		StringBuilder strManufacturerFilter=new StringBuilder();
+		if (manufacturersSelected.size()>0){
+			boolean bFind=false;
+			for (ManufacturerSelected currentMan:manufacturersSelected){
+				if (currentMan.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (ManufacturerSelected currentMan:manufacturersSelected){
+					if (currentMan.isSelected()){
+						if (strManufacturerFilter.length()!=0){
+							strManufacturerFilter.append(", ");
+						}
+
+						strManufacturerFilter.append(currentMan.getId());
+					}
+				}
+				strManufacturerFilter.insert(0, " and (man.id IN (");
+				strManufacturerFilter.append("))");
+			}
+		
+		}
+		
+		StringBuilder strEngineTypeFilter=new StringBuilder();
+		if (engineTypeFilter.size()>0){
+			boolean bFind=false;
+			for (EngineType current:engineTypeFilter){
+				if (current.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (EngineType current:engineTypeFilter){
+					if (current.isSelected()){
+						if (strEngineTypeFilter.length()!=0){
+							strEngineTypeFilter.append(", ");
+						}
+
+						strEngineTypeFilter.append(current.getId());
+					}
+				}
+				strEngineTypeFilter.insert(0, " and (fc.id IN (");
+				strEngineTypeFilter.append("))");
+			}
+		
+		}	
+
+		StringBuilder strOilStuffFilter=new StringBuilder();
+		if (oilStuffFilter.size()>0){
+			boolean bFind=false;
+			for (OilStuff current:oilStuffFilter){
+				if (current.isSelected()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (OilStuff current:oilStuffFilter){
+					if (current.isSelected()){
+						if (strOilStuffFilter.length()!=0){
+							strOilStuffFilter.append(", ");
+						}
+
+						strOilStuffFilter.append(current.getId());
+					}
+				}
+				strOilStuffFilter.insert(0, " and (fc.id IN (");
+				strOilStuffFilter.append("))");
+			}
+		
+		}	
+		
+		StringBuilder strViscosityFilter=new StringBuilder();
+		if (viscosityFilter.size()>0){
+			boolean bFind=false;
+			for (Map.Entry<String, Boolean> current:viscosityFilter.entrySet()){
+				if (current.getValue()){
+					bFind=true;
+					break;
+				}
+			}
+			if (bFind){
+				for (Map.Entry<String, Boolean> current:viscosityFilter.entrySet()){
+					if (current.getValue()){
+						if (strViscosityFilter.length()!=0){
+							strViscosityFilter.append(", ");
+						}
+
+						strViscosityFilter.append(current.getKey());
+					}
+				}
+				strViscosityFilter.insert(0, " and (fc.id IN (");
+				strViscosityFilter.append("))");
+			}
+		
+		}				
+		
+		String sqlQuery="select * from"
+				+ "(select mo.id as id, mo.name as name, mo.price as price"
+				+ ", mo.engineType SA engineType, et.name AS et_name, mo.oilStuff SA oilStuff, os.name SA os_name"
+				+ ", mo.description AS description, mo.judgement AS judgement"
+				+ ", mo.photo AS photo, mo.specification AS specification, mo.viscosity AS viscosity"
+				+ ", mo.value AS value, mo.manufacturer AS manufacturer, man.name as man_name "
+				+ "   from MotorOils  as mo"
+				+ " 	LEFT JOIN oilstuff AS os ON (mo.oilStuff=os.id)"
+				+ " 	LEFT JOIN engineType AS et ON (mo.engineType=et.id)"
+				+ "		left join manufacturer as man on mo.manufacturer=man.id "
+				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice) "
+				+ strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+" ORDER BY mo.name ) as rez"
+				+ " LIMIT :firstRow, :number";
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("firstRow", (currentPage-1)*elementsInList);
+		params.addValue("number", elementsInList);		
+		params.addValue("minPrice", minPrice);
+		params.addValue("maxPrice", maxPrice);	
+		params.addValue("currentMinValueFilter", currentMinValueFilter);
+		params.addValue("currentMaxValueFilter", currentMaxValueFilter);
+		params.addValue("currentMinJudgementFilter", currentMinJudgementFilter);		
+		params.addValue("currentMaxJudgementFilter", currentMaxJudgementFilter);
+		
+		
+		try{ 
+			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,params,new MotorOilRowMapper());
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<MotorOil>();
+		}		
+	}
+	
+	@Override
+	public ArrayList<MotorOil> getMotorOilsRecommended(){
+		String sqlQuery="select *, os.name as os_name, et.name as et_name, man.name as man_name from MotorOils  as mo"
+				+ " LEFT JOIN oilstuff AS os ON (mo.oilStuff=os.id)"
+				+ " LEFT JOIN engineType AS et ON (mo.engineType=et.id)"
+				+ " left join manufacturer as man on mo.manufacturer=man.id ORDER BY mo.judgement DESC LIMIT :firstRow, :number";
+		
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("firstRow", 0);
+		params.addValue("number", Service.ELEMENTS_IN_RECOMMENDED);		
+		
+		try{ 
+			return (ArrayList<MotorOil>)jdbcTemplate.query(sqlQuery,params,new MotorOilRowMapper());
+		}catch (EmptyResultDataAccessException e){
+			return new ArrayList<MotorOil>();
+		}				
+	}
 	
 
 	private static final class MotorOilRowMapper implements RowMapper<MotorOil> {
@@ -488,5 +582,6 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 		 	 return oil;
 		 }
 	}
-	
+
+
 }

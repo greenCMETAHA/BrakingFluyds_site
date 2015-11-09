@@ -17,5 +17,6 @@ public interface InterfaceGood {
 	
 	String getDescription();
 	String getSpecification();
-
+	
+	String getGoodName();
 }

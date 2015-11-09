@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceFluidClass;
 import eftech.workingset.beans.intefaces.InterfaceManufacturer;
@@ -323,6 +324,11 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	@Override
 	public String toString() {
 		return "BrakingFluid [id=" + id + ", name=" + name + ", value=" + value + "]";
+	}
+
+	@Override
+	public String getGoodName() {
+		return Service.BRAKING_FLUID_PREFIX;
 	}
 
 

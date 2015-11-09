@@ -192,30 +192,30 @@
 					
 					            <ul class="dropdown-menu">
 					            	<c:forEach var="currentBasket" items="${requestScope.basket}">
-					            		<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
+					            		<c:set  var="currentGood" value="${currentBasket.getGood()}" />
 					            		<div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
+					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentGood.getPhoto()}"  />"/>
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title">
-					                                	<c:out value="${currentBFluid.getName()}"/>
+					                                	<c:out value="${currentGood.getName()}"/>
 					                                	<c:if test="${currentBasket.getQauntity()>1}">
 					                                		(<c:out value="${currentBasket.getQauntity()}"/> шт.)
 					                                	</c:if>
 					                                </div>
 					                                <div class="price">
 					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-					                                		$<c:out value="${currentBFluid.getPrice()}"/>
+					                                		$<c:out value="${currentGood.getPrice()}"/>
 					                                	</sec:authorize>		
 					                                </div>
 					                            </div>
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
-												<c:param name="id" value="${currentBFluid.getId()}"/>
+												<c:param name="id" value="${currentGood.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
@@ -251,25 +251,25 @@
         <!-- ========================================= CONTENT ========================================= -->
         <div class="col-xs-12 col-md-9 items-holder no-margin">
             <c:forEach var="currentBasket" items="${sessionScope[name]}">
-				<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
+				<c:set  var="currentGood" value="${currentBasket.getGood()}" />
 	            <div class="row no-margin cart-item">
 	              <div class="col-xs-12 col-sm-2 no-margin">
-	                <a href="ShowOne?id=${currentBFluid.getId()}" class="thumb-holder">
-	                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+	                <a href="ShowOne?id=${currentGood.getId()}" class="thumb-holder">
+	                <img class="lazy" height="73" width="73" alt="${currentGood.getName()}" src="resources/jpg/${currentGood.getPhoto()}" />
 	                </a>
 	              </div>
 	              <div class="col-xs-12 col-sm-5 ">
 	                <div class="title">
-	                  <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}" /></a>
+	                  <a href="ShowOne?id=${currentGood.getId()}"><c:out value="${currentGood.getName()}" /></a>
 	                </div>
-	                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
+	                <div class="brand"><c:out value="${currentGood.getManufacturer().getName()}"/></div>
 	              </div>
 	          	  <div class="col-xs-12 col-sm-3 no-margin">
 	          	  <div class="quantity">
 	                
 	                  <div class="le-quantity">
 	          	  	      <c:url value="Basket" var="deleteFromBasket">
-							<c:param name="id" value="${currentBFluid.getId()}"/>
+							<c:param name="id" value="${currentGood.getId()}"/>
 							<c:param name="variant" value="deleteQuantityFromBasket"/>
 							<c:param name="quantity" value="${-1}"/>
 						  </c:url>
@@ -278,7 +278,7 @@
 	                      <input name="quantity" readonly="readonly" type="text" value="${currentBasket.getQauntity()}" />   <!-- отображаем количество -->
 
 	                	  <c:url value="Basket" var="deleteFromBasket">
-							<c:param name="id" value="${currentBFluid.getId()}"/>
+							<c:param name="id" value="${currentGood.getId()}"/>
 							<c:param name="variant" value="deleteQuantityFromBasket"/>
 							<c:param name="quantity" value="${1}"/>
 						  </c:url>
@@ -291,11 +291,11 @@
 	          	  <div class="col-xs-12 col-sm-2 no-margin">
 	                <div class="price">
 	                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-	                  		$<c:out value="${currentBFluid.getPrice()*currentBasket.getQauntity()}" />
+	                  		$<c:out value="${currentGood.getPrice()*currentBasket.getQauntity()}" />
 	                  	</sec:authorize>
 	                </div>
 	                <c:url value="Basket" var="deleteFromBasket">
-						<c:param name="id" value="${currentBFluid.getId()}"/>
+						<c:param name="id" value="${currentGood.getId()}"/>
 						<c:param name="variant" value="deleteFromBasket"/>
 					</c:url>
 	                <a class="close-btn" href="${deleteFromBasket}"></a>

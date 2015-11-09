@@ -1,28 +1,29 @@
 package eftech.workingset.beans;
 
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceUser;
 import eftech.workingset.beans.intefaces.InterfaceWishlist;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Wishlist implements InterfaceWishlist{
 	private int id;
 	private InterfaceUser user;
-	private InterfaceBrakingFluid brakingFluid;
+	private InterfaceGood good;
 	
 	public Wishlist(){
 		id=0;
 		user=new User();
-		brakingFluid=new BrakingFluid();
 	}
 
-	public Wishlist(int id, InterfaceUser user, InterfaceBrakingFluid brakingFluid) {
+	public Wishlist(int id, InterfaceUser user, InterfaceGood good) {
 		super();
 		this.id = id;
 		this.user = user;
-		this.brakingFluid = brakingFluid;
+		this.good = good;
 	}
 	
-	public Wishlist(int id, int user, int brakingFluid) {
+	public Wishlist(int id, int user, int goodId, String goodPrefix) {
 		super();
 		this.id = id;
 
@@ -30,12 +31,17 @@ public class Wishlist implements InterfaceWishlist{
 		currentUser.setId(user);
 		this.user = currentUser;
 
-		BrakingFluid currentBrakingFluid=new BrakingFluid();
-		currentBrakingFluid.setId(brakingFluid);
-		this.brakingFluid = currentBrakingFluid;
+		InterfaceGood currentGood=null;
+		if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+			currentGood=new BrakingFluid();
+		}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+			currentGood=new MotorOil();
+		}
+		currentGood.setId(goodId);
+		this.good = currentGood;
 	}
 
-	public Wishlist(int user, int brakingFluid) {
+	public Wishlist(int user, int goodId, String goodPrefix) {
 		super();
 		this.id = 0;
 
@@ -43,10 +49,15 @@ public class Wishlist implements InterfaceWishlist{
 		currentUser.setId(user);
 		this.user = currentUser;
 
-		BrakingFluid currentBrakingFluid=new BrakingFluid();
-		currentBrakingFluid.setId(brakingFluid);
-		this.brakingFluid = currentBrakingFluid;
-	}
+		InterfaceGood currentGood=null;
+		if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+			currentGood=new BrakingFluid();
+		}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+			currentGood=new MotorOil();
+		}
+		currentGood.setId(goodId);
+		this.good = currentGood;
+		}
 	
 	/**
 	 * @return the id
@@ -79,14 +90,14 @@ public class Wishlist implements InterfaceWishlist{
 	/**
 	 * @return the brakingFluid
 	 */
-	public InterfaceBrakingFluid getBrakingFluid() {
-		return brakingFluid;
+	public InterfaceGood getGood() {
+		return good;
 	}
 
 	/**
 	 * @param brakingFluid the brakingFluid to set
 	 */
-	public void setBrakingFluid(InterfaceBrakingFluid brakingFluid) {
-		this.brakingFluid = brakingFluid;
+	public void setGood(InterfaceGood good) {
+		this.good = good;
 	}	
 }

@@ -245,62 +245,77 @@
 				
 			</div><!-- /.container -->
 		</header>
-      <!-- ============================================================= HEADER : END ============================================================= -->
+      <!-- ============================================================= HEADER : END ============================================================= -->		
+		
       <div id="single-product">
         <div class="container">
-    	  <form action="InsertUpdate" method="POST"  enctype="multipart/form-data">
-    	    <c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"></c:set>
-			<input name="id_BrakeFluid" type="hidden" value="${currentBrakFluid.getId()}" >
-			<input name="pageInfo" type="hidden" value="${requestScope.pageInfo}" >
-			<c:set var="readOnly" value=""></c:set>
-			<c:set var="disabledValue" value=""></c:set>
-			<sec:authorize access="!hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-				<c:set var="readOnly" value="readonly"></c:set>
-				<c:set var="disabledValue" value="disabled"></c:set>
-			</sec:authorize>
-			
-			<h1 class="border"><c:out value="${requestScope.pageInfo}"/></h1>
-           
-			
- 	
-            <div class="no-margin col-xs-12 col-sm-7 body-holder">
-              <ul class="tabled-data">
-	            	<li>
-	                   <label></label>
-	                   <div class="value">
-			                <div class="star-holder inline">
-			                  <div class="star" data-score="${currentBrakFluid.getJudgement()}" id="Judgement" ></div>
-			                </div>
-		                </div>
-	                 </li>
-	                 <li>
-	                   <label>Наименование:</label>
-	                   <div class="value">
-	                   		<input <c:out value="${readOnly}"/> type="text" class="input" value="${currentBrakFluid.getName()}" name="name_BrakeFluid" />
-						</div>
-	                 </li>
-	           	  	 <li>
-	                   <label>Описание:</label>
-	                   <div class="value">
-	                   		<textarea name="Description"   <c:out value="${readOnly}"/>  cols="75" rows="7" class="textarea" ><c:out value="${currentBrakFluid.getDescription()}"  /></textarea>
-					   </div>
-	                 </li>
-	                 <li>
-	                   <label>Цена:</label>
-	                   <div class="value">
-	                   		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
-	                   			<input type="text" class="input" value="${currentBrakFluid.getPrice()}" name="Price" />
-	                   		</sec:authorize>
-	                   		<input name="photoBackUp" type="hidden" value="${requestScope.photoBackUp}" >
-					   </div>
-	                 </li>
-	        	 </ul>
-	           </div>
-	            <div class="col-xs-12 col-sm-3 no-margin">
-		         <div class="buttons-holder">
-		             <button class="le-button" type="submit" name="variant" value="Save">Сохранить</button>
-		         </div>
-		     </div>
+          <div class="no-margin col-xs-12 col-sm-6 col-md-5 gallery-holder">
+            <div class="product-item-holder size-big single-product-gallery small-gallery">
+              <div id="owl-single-product">
+<!--                 <div class="single-product-gallery-item" id="slide1"> -->
+                  <img class="img-responsive" alt="" src="resources/jpg/${requestScope.currentMotorOil.getPhoto()}" />
+<!--                 </div> -->
+                <!-- /.single-product-gallery-item -->
+              </div>
+              <!-- /.single-product-slider -->
+            </div>
+            <!-- /.single-product-gallery -->
+          </div>
+          <!-- /.gallery-holder -->        
+          <div class="no-margin col-xs-12 col-sm-7 body-holder">
+            <div class="body">
+              <div class="star-holder inline">
+                <div class="star" data-score="${requestScope.currentMotorOil.getJudgement()}"></div>
+              </div>
+              <div class="availability"><label>Доступно:</label><span class="available"> на складе</span></div>
+              <div class="title"><c:out value="${requestScope.currentMotorOil.getName()}"/></div>
+              <div class="brand"><c:out value="${requestScope.currentMotorOil.getManufacturer().getName()}"/></div>
+              
+              <div class="buttons-holder">
+   		        <div class="wish-compare">
+   		        	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
+		                <c:url value="MotorOil" var="UpdateGood">
+							<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+							<c:param name="variant" value="inWishlist"/>
+						</c:url>
+		          		<a class="btn-add-to-wishlist" href="${UpdateGood}">В избранное</a>
+	          		</sec:authorize>
+		            <c:url value="MotorOil" var="UpdateGood">
+						<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+						<c:param name="variant" value="inCompare"/>
+					</c:url>              
+                	<a class="btn-add-to-compare" href="${UpdateGood}">Сравнить</a>
+              </div>
+              <div class="excerpt">
+                <p><c:out value="${requestScope.currentMotorOil.getDescription()}"/></p>
+              </div>
+              <div class="prices">
+              	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+                	<div class="price-current">$<c:out value="${requestScope.currentMotorOil.getPrice()}"/></div>
+                </sec:authorize>
+              </div>
+              <div class="qnt-holder">
+<!--                 <div class="le-quantity"> -->
+<!--                   <form> -->
+<!--                     <a class="minus" href="#reduce"></a> -->
+<!--                     <input name="quantity" readonly="readonly" type="text" value="1" /> -->
+<!--                     <a class="plus" href="#add"></a> -->
+<!--                   </form> -->
+<!--                 </div> -->
+                <c:url value="MotorOil" var="UpdateBrakingFluid">
+					<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+					<c:param name="variant" value="inBasket"/>
+				</c:url>      
+                <a id="addto-cart" href="${UpdateGood}" class="le-button huge">В Корзину</a>
+                <sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
+	                <c:url value="ShowOneMotorOil" var="UpdateBrakingFluid">
+						<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+						<c:param name="variant" value="Demand"/>
+					</c:url>      
+	                <a id="addto-cart" href="${UpdateGood}" class="le-button huge">Заявка</a>
+                </sec:authorize>
+              </div>
+              <!-- /.qnt-holder -->
             </div>
             <!-- /.body -->
           </div>
@@ -315,161 +330,197 @@
           <div class="tab-holder">
             <ul class="nav nav-tabs simple" >
               <li class="active"><a href="#description" data-toggle="tab">Описание</a></li>
-              <li><a href="#character" data-toggle="tab">Характеристики</a></li>
               <li><a href="#additional-info" data-toggle="tab">Дополнительная информация</a></li>
-              <li><a href="#image" data-toggle="tab">Изображение</a></li>
               <sec:authorize access="hasRole('ROLE_PRICE')">
               	<li><a href="#prices" data-toggle="tab">История цены (<c:out value="${requestScope.prices.size()}"/>)</a></li>
               </sec:authorize>
+              <li><a href="#reviews" data-toggle="tab">Отзывы (<c:out value="${requestScope.reviews.size()}"/>)</a></li>
             </ul>
             <!-- /.nav-tabs -->
             <div class="tab-content">
-	            <div class="tab-pane active" id="description">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Производитель:</label>
-	                    <div class="value">
-	                    	<select size="1" name="Manufacturer"  <c:out value="${disabledValue}"/> class="le-select">
-			                    <option >Выберите получателя</option>	
-									<c:forEach var="punct" items="${requestScope.combobox_Manufacturers}">
-									<c:if test="${currentBrakFluid.getManufacturer().getName() != punct.getName()}">
-										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-									<c:if test="${currentBrakFluid.getManufacturer().getName() == punct.getName()}">
-										<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-								</c:forEach>
-			                </select>
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Класс жидкости:</label>
-	                    <div class="value">
-	                    	<select size="1" name="FluidClass"  <c:out value="${disabledValue}"/>  class="le-select">
-			                    <option >Выберите класс жидкости</option>	
-									<c:forEach var="punct" items="${requestScope.combobox_FluidClasses}">
-									<c:if test="${currentBrakFluid.getFluidClass().getName() != punct.getName()}">
-										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-									<c:if test="${currentBrakFluid.getFluidClass().getName() == punct.getName()}">
-										<option selected value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
-									</c:if>
-								</c:forEach>
-			                </select>
-						</div>
-	                  </li>
-	            	  <li>
-	                    <label>Объём:</label>
-	                    <div class="value">
-	                    	<input  <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getValue()}" name="Value" />
-						</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              
-	              <div class="tab-pane" id="character">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Температура кипения (сух.):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getBoilingTemperatureDry()}" name="BoilingTemperatureDry" />
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Температура кипения (вл.):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getBoilingTemperatureWet()}" name="BoilingTemperatureWet" />
-						</div>
-	                  </li>
-	            	  <li>
-	                    <label>Вязкость (при -40):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getViscosity40()}" name="Viscosity40" />
-						</div>
-	                  </li>
-	                  <li>
-	                    <label>Вязкость (при 100):</label>
-	                    <div class="value">
-	                    	<input <c:out value="${readOnly}"/> type="text" value="${currentBrakFluid.getViscosity100()}" name="Viscosity100" />
-						</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <div class="tab-pane" id="additional-info">
-		            <ul class="tabled-data">
-	                  <li>
-	                    <label>Спецификация:</label>
-	                    <div class="value">	
-	                    	<div class="excerpt">
-			                	<div><textarea name="Specification"  readonly="${readOnly}" cols="90" rows="7" class="textarea" ><c:out value="${currentBrakFluid.getSpecification()}"  /></textarea></div>
-            			  	</div>
-            			</div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <div class="tab-pane" id="image">
-	                <ul class="tabled-data">
-	                  <li>
-		                <label></label>
-		                <div class="value">	
-		                	<c:if test="${currentBrakFluid.hasPhoto()}">
-						  		<img src="resources/jpg/<c:out value="${currentBrakFluid.getPhoto()}"  />" alt="${currentBrakFluid.getName()}">
-					    	</c:if><p>
-					    </div>
-					   </li>
-  	                   <li>
-	                    <label>Изменить изображение:</label>
-	                    <div class="value">	
-				            <div>
-				            	<input  type="file"  name="Photo" class="upload-file" id="file"/><p>
-				            	    <button class="le-button" type="submit" name="variant" value="Refresh">Обновить</button>
-		                	</div>
-		                	
-		                </div>
-	                  </li>
-	         		</ul>
-	              </div>
-	              <!-- /.tab-pane #description												 --> 
-	              <div class="tab-pane" id="prices">
-	                <!-- ========================================= CONTENT ========================================= -->
-			        <div class="col-xs-20 col-md-12 items-holder no-margin">
-			         	<ul class="tabled-data">
-			            <c:forEach var="price" items="${requestScope.prices}">
-				           	<li> <div class="row no-margin">
-				              <div class="col-xs-12 col-sm-5 no-margin">
-				                <c:out value="${price.getTime()}"/>
-				              </div>
-				              <div class="col-xs-12 col-sm-3 ">
-				                <c:out value="${price.getUser().getName()}"/>
-				              </div>
-				              <div class="col-xs-12 col-sm-4 ">
-				                <c:out value="${price.getPrice()}"/>
-				              </div>
-				            </div>
-				            </li>
-				       	</c:forEach>
-				       	</ul>
-			        </div>
-			        <!-- ========================================= CONTENT : END ========================================= -->
-	             </div>   
+              <div class="tab-pane active" id="description">
+                <p><c:out value="${requestScope.currentMotorOil.getDescription()}"/></p>
+                <div class="meta-row">
+                  <div class="inline">
+                    <label>SKU:</label>
+                    <span>не назначено</span>
+                  </div>
+                  <!-- /.inline -->
+                  <span class="seperator">/</span>
+                  <div class="inline">
+                    <label>Разделы:</label>
+                    <span><a href="motorOil">Масла</a>,</span>
+                  </div>
+                  <!-- /.inline -->
+                  <span class="seperator">/</span>
+                  <div class="inline">
+                    <label>тэги:</label>
+                    <span><a href="motorOil">Масла</a>,</span>
+                  </div>
+                  <!-- /.inline -->
+                </div>
                 <!-- /.meta-row -->
               </div>
               
+              <!-- /.tab-pane #description -->
+              <div class="tab-pane" id="additional-info">
+                <ul class="tabled-data">
+                  <li>
+                    <label>Тип двигателя</label>
+                    <div class="value"><c:out value="${requestScope.currentMotorOil.getEngineType().getName()}"/></div>
+                  </li>
+                  <li>
+                    <label>Тип масла</label>
+                    <div class="value"><c:out value="${requestScope.currentMotorOil.getOilStuff().getName()}"/></div>
+                  </li>
+                  <li>
+                    <label>Вязкость</label>
+                    <div class="value"><c:out value="${requestScope.currentMotorOil.getViscosity().getName()}"/></div>
+                  </li>
+                  <li>
+                    <label>Объём:</label>
+                    <div class="value"><c:out value="${requestScope.currentMotorOil.getValue()}"/></div>
+                  </li>
+                  <li>
+                    <label>Спецификация:</label>
+                    <div class="value"><c:out value="${requestScope.currentMotorOil.getSpecification()}"/></div>
+                  </li>
+                </ul>
+                
+                <!-- /.tabled-data -->
+                <div class="meta-row">
+                  <div class="inline">
+                    <label>SKU:</label>
+                    <span>не назначено</span>
+                  </div>
+                  <!-- /.inline -->
+                  <span class="seperator">/</span>
+                  <div class="inline">
+                    <label>категории:</label>
+                    <span><a href="motorOil">Тормозные жидкости</a>,</span>
+                  </div>
+                  <!-- /.inline -->
+                  <span class="seperator">/</span>
+                  <div class="inline">
+                    <label>тэги:</label>
+                    <span><a href="motorOil">Тормозные жидкости</a>,</span>
+                  </div>
+                  <!-- /.inline -->
+                </div>
+                <!-- /.meta-row -->
+              </div>
+              
+              <!-- /.tab-pane #description													!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! --> 
+              <div class="tab-pane" id="prices">
+                <!-- ========================================= CONTENT ========================================= -->
+		        <div >
+		            <c:forEach var="price" items="${requestScope.prices}">
+			            <div class="row no-margin">
+			              <div class="col-xs-12 col-sm-4 no-margin">
+			                <c:out value="${price.showDate()}"/>
+			              </div>
+			              <div class="col-xs-12 col-sm-4 ">
+			                <c:out value="${price.getUser().getName()}"/>
+			              </div>
+			              <div class="col-xs-12 col-sm-2 ">
+			                <c:out value="${price.getPrice()}"/>
+			              </div>
+			            </div>
+			       	</c:forEach>
+		        </div>
+		        <!-- ========================================= CONTENT : END ========================================= -->
+             </div>   
+                
+              <!-- /.tab-pane #additional-info -->
+              <div class="tab-pane" id="reviews">
+                <div class="comments">
+                   <c:forEach var="review" items="${requestScope.reviews}">
+	                  <div class="comment-item">
+	                    <div class="row no-margin">
+	                      <div class="col-lg-1 col-xs-12 col-sm-2 no-margin">
+	                        <div class="avatar">
+	                          <img alt="avatar" src="resources/Ecommerce/assets/images/default-avatar.jpg">
+	                        </div><!-- 	                        /.avatar -->
+	                      </div><!-- 	                      /.col -->
+	                      <div class="col-xs-12 col-lg-11 col-sm-10 no-margin">
+	                        <div class="comment-body">
+	                          <div class="meta-info">
+	                            <div class="author inline">
+	                              <a href="${review.getEmail()}" class="bold"><c:out value="${review.getName()}"/></a>
+	                            </div>
+	                            <div class="star-holder inline">
+	                              <div class="star" data-score="${review.getJudgement()}"></div>
+	                            </div>
+	                            <div class="date inline pull-right">
+	                              ---
+	                            </div>
+	                          </div><!-- 	                          /.meta-info -->
+	                          <p class="comment-text">
+	                            <c:out value="${review.getReview()}"/>
+	                          </p><!-- 	                          /.comment-text -->
+	                        </div><!-- 	                        /.comment-body -->
+	                      </div><!-- 	                      /.col -->
+	                    </div><!-- 	                    /.row -->
+	                  </div><!-- 	                  /.comment-item -->
+                  </c:forEach>
+   
+                </div>
+                <!-- /.comments -->
+                <div class="add-review row">
+                  <div class="col-sm-8 col-xs-12">
+                    <div class="new-review-form">
+                      <h2>Добавьте отзыв:</h2>
+                      <c:set  var="name" value="user" />
+  					  <c:set var="currentUser" value="${sessionScope[name]}"></c:set>
+  					  
+                      <form action="ShowOneMotorOil" id="contact-form" class="contact-form" method="post" >
+                        <input type="hidden"  name="id" value="${requestScope.currentMotorOil.getId()}"> 
+                        <div class="row field-row">
+                          <div class="col-xs-12 col-sm-6">
+                            <label>Имя*</label>
+                            <input class="le-input" name="userLogin" value="${currentUser.getLogin()}">
+                          </div>
+                          <div class="col-xs-12 col-sm-6">
+                            <label>e-mail*</label>
+                            <input class="le-input" name="userEmail" value="${currentUser.getEmail()}">
+                          </div>
+                        </div>
+                        <!-- /.field-row -->
+                        <div class="field-row star-row">
+                          <label>Ваша оценка:</label>
+                          <div class="star-holder">
+                            <div class="star big" data-score="0" ></div>
+                          </div>
+                        </div>
+                        <!-- /.field-row -->
+                        <div class="field-row">
+                          <label>Ваш отзыв:</label>
+                          <textarea rows="8" class="le-input" name="userReviw"></textarea>
+                        </div>
+                        <!-- /.field-row -->
+                        <div class="buttons-holder">
+                          <button type="submit" class="le-button huge">Сохранить</button>
+                        </div>
+                        <!-- /.buttons-holder -->
+                      </form>
+                      <!-- /.contact-form -->
+                    </div>
+                    <!-- /.new-review-form -->
+                  </div>
+                  <!-- /.col -->
+                </div>
+                <!-- /.add-review -->
+              </div>
               <!-- /.tab-pane #reviews -->
             </div>
             <!-- /.tab-content -->
           </div>
+          <!-- /.tab-holder -->
         </div>
         <!-- /.container -->
       </section>
       <!-- /#single-product-tab -->
-    
       <!-- ========================================= SINGLE PRODUCT TAB : END ========================================= -->
-
-		</form>
-      	</div>
-      </div>
-
 
 	<!-- ============================================================= FOOTER ============================================================= -->
       <footer id="footer" class="color-bg">
