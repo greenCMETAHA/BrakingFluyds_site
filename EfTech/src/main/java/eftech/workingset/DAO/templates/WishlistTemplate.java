@@ -208,12 +208,13 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				+ " left join BrakingFluids AS bf ON (w.good=bf.id)"
 				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
 				+ " left join manufacturer as m on (bf.manufacturer=m.id) "
-				+ (User_id==0?"where u.id=:User_id":"")
+				+ " where w.goodPrefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("User_id", User_id);
+		params.addValue("goodPrefix", Service.BRAKING_FLUID_PREFIX);
 		
 		result=(ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper());
 		
@@ -229,12 +230,13 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				+ " left join OilStuff as os on (mo.oilstuff=os.id)"
 				+ " left join EngineType as et on (mo.engineType=et.id)"
 				+ " left join manufacturer as m on (mo.manufacturer=m.id) "
-				+ (User_id==0?"where u.id=:User_id":"")
+				+ " where w.goodPrefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		
 		
 		params = new MapSqlParameterSource();
 		params.addValue("User_id", User_id);
+		params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
 		
 		result.addAll((ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()));
 	

@@ -32,49 +32,55 @@
     <script src="resources/Ecommerce/assets/js/html5shiv.js"></script>
     <script src="resources/Ecommerce/assets/js/respond.min.js"></script>
     <![endif]-->
-    <style type="text/css">
-		.dropdown-menu:hover {
-		  display: block;
-		}
-    </style>
   </head>
   <body>
     <div class="wrapper">
       <!-- ============================================================= TOP NAVIGATION ============================================================= -->
-       <nav class="top-bar animate-dropdown">
+      <nav class="top-bar animate-dropdown">
 		    <div class="container">
 		        <div class="col-xs-12 col-sm-6 no-margin">
 		            <ul>
-		                <li><a href="index">В начало</a></li>
+		                <li><a href="">В начало</a></li>
 		                 <!-- <li><a href="contact.html">Contact</a></li>  -->
 		                <li class="dropdown">
 		                    <a class="dropdown-toggle" data-toggle="dropdown" href="#pages">Страницы</a>
 		                    <ul class="dropdown-menu" role="menu">
-		                        <li><a href="index">В начало</a></li>
+		                        <li><a href="">В начало</a></li>
+		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
+	 		                    <li><a href="motorOil">Список моторных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
 		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
 		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
-   		                        	<li><a href="Download?variant=Product">Загрузить товар из Excel</a></li>
+   		                        	<li><a href="Download?variant=download&task=Product">Загрузить товар из Excel</a></li>
    		                        </sec:authorize>
    		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
-		                        	<li><a href="Download?variant=Price">Загрузить цены из Excel</a></li>
+		                        	<li><a href="Download?variant=download&task=Price">Загрузить цены из Excel</a></li>
 		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
+		                        <sec:authorize access="!isAnonymous()"> 
+			                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+			                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+			                    </sec:authorize>
+		                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
+		                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
+		                        </sec:authorize>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
 		                        	
-								    <c:if test="${currentUser.isEmpty()}"> 
+									<c:if test="${currentUser.isEmpty()}"> 
 										<a href="login">Авторизируйтесь</a>
 						 			</c:if> 
 									<c:if test="${!currentUser.isEmpty()}"> 
 										<a href="j_spring_security_logout">Выйти</a>
 						 			</c:if> 
-
 		                        </li>
+		                        <sec:authorize access="hasRole('ROLE_ADMIN')">
+                      				<li><a href="home?adminpanel=true">Конфигурирование</a></li>
+                  				</sec:authorize>
 		                     </ul>
 		                </li>
 		            </ul>
@@ -95,7 +101,7 @@
 		                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Белорусские рубли (BYR)</a></li>
 		                    </ul>
 		                </li>
-                		<li>
+		                <li>
                         	<c:set  var="name" value="user" />
   							<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
                         	
@@ -108,14 +114,13 @@
 								<a href="j_spring_security_logout">Выйти</a>
 				 			</c:if> 
                         </li>
-
 		            </ul>
 		        </div><!-- /.col -->
 		    </div><!-- /.container -->
 		</nav><!-- /.top-bar -->
       <!-- /.top-bar -->
       <!-- ============================================================= TOP NAVIGATION : END ============================================================= -->		<!-- ============================================================= HEADER ============================================================= -->
-		<header>
+      <header>
 			<div class="container no-padding">
 				<div class="col-xs-12 col-sm-12 col-md-3 logo-holder">
 					<!-- ============================================================= LOGO ============================================================= -->
@@ -138,21 +143,17 @@
 					</div><!-- /.contact-row -->
 					<!-- ============================================================= SEARCH AREA ============================================================= -->
 					<div class="search-area">
-					    <form action="home" method="POST">
+					    <form action="home" method="GET">
 					        <div class="control-group">
 					            <input class="search-field" placeholder="Search for item" />
 					
 					            <ul class="categories-filter animate-dropdown">
 					                <li class="dropdown">
 					
-					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="home">Все категории</a>
-					                    
+					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="index">Все категории</a>
 					
 					                    <ul class="dropdown-menu" role="menu" >
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По наименованию</a></li>
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По классу жидкости</a></li>
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По производителю</a></li>
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">По описанию</a></li>
+					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
 					                    </ul>
 					                </li>
 					            </ul>
@@ -201,30 +202,30 @@
 					
 					            <ul class="dropdown-menu">
 					            	<c:forEach var="currentBasket" items="${requestScope.basket}">
-					            		<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
+					            		<c:set  var="currentGood" value="${currentBasket.getGood()}" />
 					            		<div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
+					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentGood.getPhoto()}"  />"/>
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title">
-					                                	<c:out value="${currentBFluid.getName()}"/>
+					                                	<c:out value="${currentGood.getName()}"/>
 					                                	<c:if test="${currentBasket.getQauntity()>1}">
 					                                		(<c:out value="${currentBasket.getQauntity()}"/> шт.)
 					                                	</c:if>
 					                                </div>
 					                                <div class="price">
 					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-					                                		$<c:out value="${currentBFluid.getPrice()}"/>
+					                                		$<c:out value="${currentGood.getPrice()}"/>
 					                                	</sec:authorize>		
 					                                </div>
 					                            </div>
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
-												<c:param name="id" value="${currentBFluid.getId()}"/>
+												<c:param name="id" value="${currentGood.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
@@ -253,13 +254,14 @@
 				
 			</div><!-- /.container -->
 		</header>
+
       <!-- ============================================================= HEADER : END ============================================================= -->		
       <section id="category-grid">
         <div class="container">
           <!-- ========================================= SIDEBAR ========================================= -->
           <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
             <!-- ========================================= PRODUCT FILTER ========================================= -->
-            <form action="home" method="POST">
+            <form action="motorOil" method="POST">
             <div class="widget">
               <h1>Фильтр по товарам</h1>
               <div class="body bordered">
@@ -279,9 +281,9 @@
                   		</li>
                   	</c:forEach>
                   </ul>
-                  	<c:if test="${isSearch==0}">
-                  		По всем
-                  	</c:if>
+                  <c:if test="${isSearch==0}">
+                 	По всем
+                  </c:if>
                   
                   <!-- ================================== TOP NAVIGATION ================================== -->
                   <c:set var="filterSize" value="${requestScope.manufacturersFilter.size()}"/>
@@ -324,171 +326,64 @@
                <div class="category-filter">
                   <h2>Тип двигателя:</h2>
                   <hr>
-                  <c:set var="isSearch" value="${0}"/>
                   <ul>
                   	<c:forEach var="current" items="${requestScope.engineTypeFilter}">
                   		<li>
                   			<c:if test="${current.isSelected()}">
-                  				<input checked="checked" type="checkbox" name="selections" value="${current.getId()}" class="le-checkbox"  />
-                  				<label><c:out value="${current.getName()}"  /> </label>
-                  				<c:set var="isSearch" value="${isSearch+1}"/>
-                  			</c:if>
+	               				<input checked="checked" type="checkbox" name="engineTypeSelections" value="${current.getId()}" class="le-checkbox"  />
+    	           				<label><c:out value="${current.getName()}"  /> </label>
+    	           			</c:if>
+                  			<c:if test="${!current.isSelected()}">
+	               				<input type="checkbox" name="engineTypeSelections" value="${current.getId()}" class="le-checkbox"  />
+    	           				<label><c:out value="${current.getName()}"  /> </label>
+    	           			</c:if>
                   		</li>
                   	</c:forEach>
                   </ul>
-                  <c:if test="${isSearch==0}">
-                	По всем
-                  </c:if>
-                  
-                  <!-- ================================== TOP NAVIGATION ================================== -->
-                  <c:set var="filterSize" value="${requestScope.engineTypeFilter.size()}"/>
-                  <c:if test="${(filterSize-isSearch)>0}">
-		            <div class="side-menu animate-dropdown" tabindex="-1" >
-		              <nav class="yamm megamenu-horizontal" role="navigation" >
-		                <ul class="nav">
-		                  <li class="dropdown menu-item">
-		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.engineTypeFilter.size()-isSearch}"/>  </a>
-		                    <ul class="dropdown-menu mega-menu">
-		                      <li class="yamm-content">
-		                      	<div class="row">
-		                            <div class="col-md-4">
-		                                <ul class="list-unstyled">
-		                                	<c:forEach var="current" items="${requestScope.engineTypeFilter}">
-		                                   		<li>
-													<c:if test="${!current.isSelected()}">
-                										<input type="checkbox" name="selections" value="${current.getId()}" class="le-checkbox"  />
-                										<label><c:out value="${current.getName()}"  /> </label>
-						                   			</c:if>
-												</li>
-		                                   </c:forEach>
-		                                </ul>
-		                            </div>
-		                        </div>
-		                      </li>
-		                    </ul>
-		                  </li>
-		                </ul>
-		                <!-- /.nav -->
-		              </nav>
-		              <!-- /.megamenu-horizontal -->
-		            </div>
-		            </c:if>
-		            <!-- /.side-menu -->
-		            <!-- ================================== TOP NAVIGATION : END ================================== -->		
                 </div>
                 <!-- /.category-filter -->   
                 
                 <div class="category-filter">
                   <h2>Состав масла:</h2>
                   <hr>
-                  <c:set var="isSearch" value="${0}"/>
                   <ul>
                   	<c:forEach var="current" items="${requestScope.oilStuffFilter}">
                   		<li>
                   			<c:if test="${current.isSelected()}">
-                  				<input checked="checked" type="checkbox" name="selections" value="${current.getId()}" class="le-checkbox"  />
+                  				<input checked="checked" type="checkbox" name="oilStuffSelections" value="${current.getId()}" class="le-checkbox"  />
                   				<label><c:out value="${current.getName()}"  /> </label>
                   				<c:set var="isSearch" value="${isSearch+1}"/>
                   			</c:if>
+							<c:if test="${!current.isSelected()}">
+                  				<input type="checkbox" name="oilStuffSelections" value="${current.getId()}" class="le-checkbox"  />
+                  				<label><c:out value="${current.getName()}"  /> </label>
+                  				<c:set var="isSearch" value="${isSearch+1}"/>
+                  			</c:if>                  			
                   		</li>
                   	</c:forEach>
                   </ul>
-                  <c:if test="${isSearch==0}">
-                	По всем
-                  </c:if>
-                  
-                  <!-- ================================== TOP NAVIGATION ================================== -->
-                  <c:set var="filterSize" value="${requestScope.oilStuffFilter.size()}"/>
-                  <c:if test="${(filterSize-isSearch)>0}">
-		            <div class="side-menu animate-dropdown" tabindex="-1" >
-		              <nav class="yamm megamenu-horizontal" role="navigation" >
-		                <ul class="nav">
-		                  <li class="dropdown menu-item">
-		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.oilStuffFilter.size()-isSearch}"/>  </a>
-		                    <ul class="dropdown-menu mega-menu">
-		                      <li class="yamm-content">
-		                      	<div class="row">
-		                            <div class="col-md-4">
-		                                <ul class="list-unstyled">
-		                                	<c:forEach var="current" items="${requestScope.oilStuffFilter}">
-		                                   		<li>
-													<c:if test="${!current.isSelected()}">
-                										<input type="checkbox" name="selections" value="${current.getId()}" class="le-checkbox"  />
-                										<label><c:out value="${current.getName()}"  /> </label>
-						                   			</c:if>
-												</li>
-		                                   </c:forEach>
-		                                </ul>
-		                            </div>
-		                        </div>
-		                      </li>
-		                    </ul>
-		                  </li>
-		                </ul>
-		                <!-- /.nav -->
-		              </nav>
-		              <!-- /.megamenu-horizontal -->
-		            </div>
-		            </c:if>
-		            <!-- /.side-menu -->
-		            <!-- ================================== TOP NAVIGATION : END ================================== -->		
                 </div>
                 <!-- /.category-filter -->                
                              
                 <div class="category-filter">
                   <h2>Вязкость:</h2>
                   <hr>
-                  <c:set var="isSearch" value="${0}"/>
+                  <c:set var="numValue" value="${0}"/>
                   <ul>
                   	<c:forEach var="current" items="${requestScope.viscosityFilter}">
                   		<li>
                   			<c:if test="${current.getValue()}">
-                  				<input checked="checked" type="checkbox" name="selections" value="${current.getKey()}" class="le-checkbox"  />
+                  				<input checked="checked" type="checkbox" name="viscositySelections" value="${numValue}" class="le-checkbox"  />
                   				<label><c:out value="${current.getKey()}"  /> </label>
-                  				<c:set var="isSearch" value="${isSearch+1}"/>
+                  			</c:if>
+                  			<c:if test="${!current.getValue()}">
+                  				<input type="checkbox" name="viscositySelections" value="${numValue}" class="le-checkbox"  />
+                  				<label><c:out value="${current.getKey()}"  /> </label>
                   			</c:if>
                   		</li>
+                  		<c:set var="numValue" value="${numValue+1}"/>
                   	</c:forEach>
                   </ul>
-                  <c:if test="${isSearch==0}">
-                	По всем
-                  </c:if>
-                  
-                  <!-- ================================== TOP NAVIGATION ================================== -->
-                  <c:set var="filterSize" value="${requestScope.viscosityFilter.size()}"/>
-                  <c:if test="${(filterSize-isSearch)>0}">
-		            <div class="side-menu animate-dropdown" tabindex="-1" >
-		              <nav class="yamm megamenu-horizontal" role="navigation" >
-		                <ul class="nav">
-		                  <li class="dropdown menu-item">
-		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.viscosityFilter.size()-isSearch}"/>  </a>
-		                    <ul class="dropdown-menu mega-menu">
-		                      <li class="yamm-content">
-		                      	<div class="row">
-		                            <div class="col-md-4">
-		                                <ul class="list-unstyled">
-		                                	<c:forEach var="current" items="${requestScope.viscosityFilter}">
-		                                   		<li>
-													<c:if test="${!current.getValue()}">
-					                  					<input checked="checked" type="checkbox" name="selections" value="${current.getKey()}" class="le-checkbox"  />
-					                  					<label><c:out value="${current.getKey()}"  /> </label>
-					                	  			</c:if>
-												</li>
-		                                   </c:forEach>
-		                                </ul>
-		                            </div>
-		                        </div>
-		                      </li>
-		                    </ul>
-		                  </li>
-		                </ul>
-		                <!-- /.nav -->
-		              </nav>
-		              <!-- /.megamenu-horizontal -->
-		            </div>
-		            </c:if>
-		            <!-- /.side-menu -->
-		            <!-- ================================== TOP NAVIGATION : END ================================== -->		
                 </div>
                 <!-- /.category-filter -->                    
                 
@@ -512,7 +407,7 @@
 	                  <h2>Объём</h2>
 	                  <hr>
 	                  <div class="price-range-holder">
-<						<input id="ex5" type="text" class="price-slider" value="" name="currentValueFilter" 
+						<input id="ex5" type="text" class="price-slider" value="" name="currentValueFilter" 
 							data-slider-min="${requestScope.MinValue}" data-slider-max="${requestScope.MaxValue}" 
 							data-slider-step="100" data-slider-value="[${requestScope.currentMinValueFilter},${requestScope.currentMaxValueFilter}]"/>
 	                    <span class="min-max">
@@ -530,13 +425,17 @@
             <!-- /.widget -->
             </form>
             <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-	            <div class="widget">
-	            	<div class="body bordered">
-		            	<div class="buttons-holder">
-		                  <a class="le-button big" href="InsertUpdate?variant=New" >Новый товар</a>
-		                </div>
-	            	</div>
-	            </div>
+            	<form action="InsertUpdateMotorOil" method="POST"  enctype="multipart/form-data">
+            		<input name="variant" type="hidden" value="New" >
+		            <div class="widget">
+		            	<div class="body bordered">
+			            	<div class="buttons-holder">
+			            	  <button class="le-button" type="submit" name="sss">Новый товар</button>	
+<!-- 			                  <a class="le-button big" href="InsertUpdateMotorOil?variant=New" >Новый товар</a> -->
+			                </div>
+		            	</div>
+		            </div>
+	            </form>
             </sec:authorize>            
                         
             <!-- ========================================= PRODUCT FILTER : END ========================================= -->
@@ -565,7 +464,7 @@
 			                    </div>
 			                    <div class="body">
 			                      <div class="title">
-			                        <a href="ShowOne?id=${current.getId()}"><c:out value="${current.getName()}"  /></a>
+			                        <a href="ShowOneMotorOil?id=${current.getId()}"><c:out value="${current.getName()}"  /></a>
 			                      </div>
 			                      <div class="brand"><c:out value="${current.getManufacturer().getName()}"/>
 			                      </div>
@@ -588,7 +487,7 @@
 			                      </div>
 			                      <div class="wish-compare">
 			                      	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
-				                        <c:url value="home" var="UpdateBrakingFluid">
+				                        <c:url value="MotorOil" var="UpdateGood">
 											<c:param name="id" value="${current.getId()}"/>
 											<c:param name="variant" value="inWishlist"/>
 											<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -597,7 +496,7 @@
 					                    <a class="btn-add-to-wishlist" href="${UpdateGood}">В избранное</a>
 				                    </sec:authorize>
 			                        <c:url value="motorOil" var="UpdateGood">
-										<c:param name="id" value="${currentBFluid.getId()}"/>
+										<c:param name="id" value="${current.getId()}"/>
 										<c:param name="variant" value="inCompare"/>
 										<c:param name="currentPage" value="${requestScope.currentPage}"/>
 									</c:url>
@@ -627,17 +526,17 @@
                   </div>
                   <div class="grid-list-buttons">
                     <ul>
-                      <li class="grid-list-button-item "><a data-toggle="tab" href="#list-view"><i class="fa fa-th-list"></i> Список</a></li>
+                      <li class="grid-list-button-item active"><a data-toggle="tab" href="#list-view"><i class="fa fa-th-list"></i> Список</a></li>	
                     </ul>
                   </div>
                 </div>
                 <!-- /.control-bar -->
                 <div class="tab-content">
-                  <div id="list-view" class="products-grid fade tab-pane ">
+                  <div id="list-view" class="products-grid fade tab-pane in active ">
                     <div class="products-list">
                         
                         
-						 <c:forEach var="current" items="${requestScope.list}">
+						 <c:forEach var="current" items="${requestScope.listMotorOils}">
 						    <div class="product-item product-item-holder">
                         		<div class="row">
 						 
@@ -651,7 +550,7 @@
 	                          <div class="no-margin col-xs-12 col-sm-5 body-holder">
 	                            <div class="body">
 	                              <div class="title">
-	                                <a href="ShowOne?id=${current.getId()}"><c:out value="${current.getName()}"  /></a>
+	                                <a href="ShowOneMotorOil?id=${current.getId()}"><c:out value="${current.getName()}"  /></a>
 	                              </div>
 	                              <div class="brand"><c:out value="${current.getManufacturer().getName()}"/></div>
 	                              <div class="excerpt">
@@ -686,7 +585,7 @@
 				                    <a href="${UpdateGood}" class="le-button">В корзину</a>
 		                            <div class="wish-compare">
 			                            <sec:authorize access="!isAnonymous()  and !hasRole('ROLE_ADMIN')">
-					                        <c:url value="home" var="UpdateBrakingFluid">
+					                        <c:url value="MotorOil" var="UpdateGood">
 												<c:param name="id" value="${current.getId()}"/>
 												<c:param name="variant" value="inWishlist"/>
 												<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -724,7 +623,7 @@
                           	    <li <c:out value="${current}"  />  ><a  href="${UpdateGood}"><c:out value="${page}"/></a></li>
                           	</c:forEach>
                           	<c:if test="${requestScope.totalPages>requestScope.currentPage}">
-	                          	<c:url value="home" var="UpdateBrakingFluid">
+	                          	<c:url value="motorOil" var="UpdateGood">
 									<c:param name="variant" value="home"/>
 									<c:param name="currentPage" value="${requestScope.currentPage+1}"/>
 								</c:url>

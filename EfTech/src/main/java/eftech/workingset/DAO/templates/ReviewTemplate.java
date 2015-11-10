@@ -20,7 +20,9 @@ import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.Info;
 import eftech.workingset.beans.Manufacturer;
+import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.Review;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class ReviewTemplate implements InterfaceReviewDAO {
 	private NamedParameterJdbcTemplate jdbcTemplate;
@@ -58,15 +60,15 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 	}	
 
 	@Override
-	public Review createReview(Review review) {
+	public Review createReview(Review review, String goodPrefix) {
 		Review result=new Review();
 		Review currentReview = review;
 		if (review.getId()>0){
 			currentReview=getReviewById(review.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}
-		String sqlUpdate="insert into review (name, email, judgement, review, brakingfluid) Values (:name, :email, :judgement, :review, :brakingfluid)";
+		String sqlUpdate="insert into review (name, email, judgement, review, good, goodPrefix) Values (:name, :email, :judgement, :review, :good, :goodPrefix)";
 		if (currentReview.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update review set name=:name, email=:email, judgement=:judgement, review=:review, brakingfluid=:brakingfluid where id=:id";
+			 sqlUpdate="update review set name=:name, email=:email, judgement=:judgement, review=:review, good=:good, goodPrefix=:goodPrefix where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -74,9 +76,8 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 		params.addValue("email", review.getEmail());
 		params.addValue("judgement", review.getJudgement());
 		params.addValue("review", review.getReview());
-		
-		BrakingFluid brFluid=(BrakingFluid)review.getBrakingFluid();
-		params.addValue("brakingfluid", brFluid.getId());
+		params.addValue("good", review.getGood().getId());
+		params.addValue("goodPrefix", review.getGood().getGoodName());
 		
 		KeyHolder keyHolder=new GeneratedKeyHolder(); 
 		
@@ -96,19 +97,25 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 
 
 	@Override
-	public ArrayList<Review> getReviews(int id) { //id brakingFluid
-		return getReviews(id,0,0);
+	public ArrayList<Review> getReviews(int id, String goodPrefix) { //id brakingFluid
+		return getReviews(id, goodPrefix,0,0);
 	}
 	
 	@Override
-	public ArrayList<Review> getReviews(int id, int num, int nextRows) {
-		String sqlQuery="select *, bf.name AS Bf_name  from review "
-				+ "left join brakingfluids as bf on  (bf.id=review.brakingfluid) "
-				+ (id==0?" where brakingfluid=:id ":"")
+	public ArrayList<Review> getReviews(int id, String goodPrefix, int num, int nextRows) {
+		String sqlQuery="select *, bf.name AS Bf_name  from review ";
+				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					sqlQuery+="left join brakingfluids as bf on  (bf.id=review.good) ";
+				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+					sqlQuery+="left join motorOils as bf on  (bf.id=review.good) ";
+				}
+					
+				sqlQuery+= (id>0?" where review.good=:id and review.goodPrefix=:goodPrefix":"")
 				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
+		params.addValue("goodPrefix", goodPrefix);
 
 		try{ 
 			return (ArrayList<Review>)jdbcTemplate.query(sqlQuery,params,new ReviewRowMapper());
@@ -144,10 +151,17 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 			result.setEmail(rs.getString("email"));
 			result.setReview(rs.getString("review"));
 			result.setJudgement(rs.getDouble("judgement"));
-			BrakingFluid brFluid=new BrakingFluid();
-			brFluid.setId(rs.getInt("brakingFluid"));
-			brFluid.setName(rs.getString("bf_name"));
-			result.setBrakingFluid(brFluid);
+
+			InterfaceGood good=null;
+			String goodPrefix=rs.getString("goodPrefix");
+			if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+				good=new BrakingFluid();
+			}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+				good=new MotorOil();
+			}
+			good.setId(rs.getInt("good"));
+			//good.setName(rs.getString("bf_name"));
+			result.setGood(good);
 			
 			return result;
 		}

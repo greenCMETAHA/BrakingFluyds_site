@@ -416,7 +416,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0);
 		
 		session.setAttribute("user", user);
@@ -536,7 +536,7 @@ public class HomeController{
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
  
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,paySumm, client_id);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -759,6 +759,7 @@ public class HomeController{
 	@RequestMapping(value = {"/Comparison","/adminpanel/Comparison"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String compare(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "task", defaultValue="BrF", required=false ) String task
 			,@RequestParam(value = "selections", required=false ) int[] fluidsSelection
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,HttpServletRequest request,Locale locale, Model model) {
@@ -779,20 +780,39 @@ public class HomeController{
 			basket=createBasket();
 		}
 		
-		if (variant.compareTo("Сравнить")==0){
-			if (fluidsSelection!=null){
-				basket.clear();
-				for (int i=0;i<fluidsSelection.length; i++){
-					basket.add(new Basket(brakingFluidDAO.getBrakingFluid(fluidsSelection[i])));
-				}
-				session.setAttribute("basket", basket);
-			}
+		String result=Service.isAdminPanel(session,request)+"Comparison";
 		
-			return Service.isAdminPanel(session,request)+"Comparison";
+		if (variant.compareTo("Сравнить")==0){
+			if ("BrF".equals(task)){
+				if (fluidsSelection!=null){
+					basket.clear();
+					for (int i=0;i<fluidsSelection.length; i++){
+						basket.add(new Basket(brakingFluidDAO.getBrakingFluid(fluidsSelection[i])));
+					}
+					session.setAttribute("basket", basket);
+				}
+			
+				result=Service.isAdminPanel(session,request)+"Comparison";
+			}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
+				if (fluidsSelection!=null){
+					basket.clear();
+					for (int i=0;i<fluidsSelection.length; i++){
+						basket.add(new Basket(motorOilDAO.getMotorOil(fluidsSelection[i])));
+					}
+					session.setAttribute("basket", basket);
+				}
+			
+				result="MotorOil/Comparison";
+			}
 		}
 		if (variant.compareTo("На главную")==0){
-			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
-			return Service.isAdminPanel(session,request)+"home";
+			if ("BrF".equals(task)){
+				model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+				result=Service.isAdminPanel(session,request)+"home";
+			}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
+				model.addAttribute("list", motorOilDAO.getMotorOils());
+				result="MotorOil/home";
+			}
 		}
 		
 		
@@ -808,7 +828,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, task, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -816,7 +836,18 @@ public class HomeController{
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		return Service.isAdminPanel(session,request)+"Comparison";
+		if (compare.size()>0){
+			task=compare.get(0).getGoodName();
+		}
+			
+		if ("BrF".equals(task)){
+			//return Service.isAdminPanel(session,request)+"Comparison";
+			result=Service.isAdminPanel(session,request)+"Comparison";
+		}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
+			result="MotorOil/Comparison";
+		}
+		
+		return result;
 	}	
 	
 	@RequestMapping(value = "/Wishlist", method = {RequestMethod.POST, RequestMethod.GET})
@@ -844,7 +875,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -898,7 +929,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		
 		createBussinessOffer(id, client, variant, user, basket, session);
@@ -958,7 +989,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -1026,11 +1057,11 @@ public class HomeController{
 			review.setReview(userReviw);
 			BrakingFluid brFluid=new BrakingFluid();
 			brFluid.setId(id);
-			review.setBrakingFluid(brFluid);
-			reviewDAO.createReview(review);
+			review.setGood(brFluid);
+			reviewDAO.createReview(review,Service.BRAKING_FLUID_PREFIX);
 		}		
 		
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -1064,7 +1095,7 @@ public class HomeController{
 			return Service.isAdminPanel(session,request)+"InsertUpdate";
 		}else{
 			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
-			model.addAttribute("reviews", reviewDAO.getReviews(id));
+			model.addAttribute("reviews", reviewDAO.getReviews(id,Service.BRAKING_FLUID_PREFIX));
 			model.addAttribute("prices", priceDAO.getPrices(id, Service.BRAKING_FLUID_PREFIX));
 			
 			return "ShowOne";
@@ -1232,7 +1263,7 @@ public class HomeController{
 	public String insertUpdate(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
-			,@RequestParam(value = "id_BrakeFluid" , defaultValue="", required=false) int id_BrakeFluid
+			,@RequestParam(value = "id_BrakeFluid" , defaultValue="0", required=false) int id_BrakeFluid
 			,@RequestParam(value = "name_BrakeFluid", defaultValue="", required=false) String name_BrakeFluid
 			,@RequestParam(value = "Manufacturer", defaultValue="", required=false) String manufacturer
 			,@RequestParam(value = "FluidClass", defaultValue="", required=false) String fluidClass
@@ -1240,7 +1271,7 @@ public class HomeController{
 			,@RequestParam(value = "BoilingTemperatureWet", defaultValue="0", required=false) String boilingTemperatureWet  //double
 			,@RequestParam(value = "Value", defaultValue="0", required=false) String value	//double
 			,@RequestParam(value = "Price", defaultValue="0", required=false) String price	//double
-			,@RequestParam(value = "Photo", defaultValue="", required=false) MultipartFile formPhoto
+			,@RequestParam(value = "Photo", required=false) MultipartFile formPhoto
 			,@RequestParam(value="photoBackUp", defaultValue="", required=false) String photoBackUp   //в MultipartFile невозможно получить значение, оказывается. Старое сохраним в элементе формы
 			,@RequestParam(value = "Description", defaultValue="", required=false) String description
 			,@RequestParam(value = "Viscosity40", defaultValue="0", required=false) String Viscosity40	//double
@@ -1291,7 +1322,7 @@ public class HomeController{
 		}
 		
 		
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -1426,7 +1457,12 @@ public class HomeController{
 					}	
 				
 					if (brFluid.getId()==0){
-						BrakingFluid currentBrakingFluid = brakingFluidDAO.createBrakingFluidWithoutPrice(brFluid);
+						BrakingFluid currentBrakingFluid = null;
+						if (request.isUserInRole("ROLE_PRICE") || request.isUserInRole("ROLE_ADMIN")){
+							currentBrakingFluid = brakingFluidDAO.createBrakingFluid(brFluid);
+						}else{
+							currentBrakingFluid = brakingFluidDAO.createBrakingFluidWithoutPrice(brFluid);
+						}
 						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentBrakingFluid, "Создан товар"));
 						if (currentBrakingFluid.getPrice()>0){
 							Price currentPrice = priceDAO.createPrice(new Price(currentBrakingFluid.getId(),new GregorianCalendar().getTime()
@@ -1485,7 +1521,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -1632,7 +1668,7 @@ public class HomeController{
 		}
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
-			Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		}
 
@@ -1726,7 +1762,7 @@ public class HomeController{
 		}
  		
 		if (task.length()==0){ //если task=="New/Open/Save" не нужно выводить pdf. Будет сформирован документ
-			Service.workWithList(new Integer(id), "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+			Service.workWithList(new Integer(id), Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		}
 		
@@ -1900,7 +1936,7 @@ public class HomeController{
 		}
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
-			Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		}
 		
@@ -2197,7 +2233,7 @@ public class HomeController{
 				compare=createComparement();
 			}
 			
-			Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 			model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 			
@@ -2289,7 +2325,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -2367,7 +2403,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -2406,7 +2442,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -2445,7 +2481,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -2610,20 +2646,23 @@ public class HomeController{
 	@ModelAttribute("viscosityFilter")
 	public HashMap<String,Boolean> createViscosityFilter(){
 		HashMap<String,Boolean> map = new HashMap<String,Boolean>();
+		for (String current: motorOilDAO.getMotorOilViscosities()){
+			map.put(current,false);
+		}
 		
 		return map;
 	}
 	
 	@ModelAttribute("engineTypeFilter")
 	public LinkedList<EngineType> createEngineTypeFilter(){
-		LinkedList<EngineType> list = new LinkedList<EngineType>();
+		LinkedList<EngineType> list = new LinkedList<EngineType>(engineTypeDAO.getEngineTypes());
 		
 		return list;
 	}
 	
 	@ModelAttribute("oilStuffFilter")
 	public LinkedList<OilStuff> createOilStuffFilter(){
-		LinkedList<OilStuff> list = new LinkedList<OilStuff>();
+		LinkedList<OilStuff> list = new LinkedList<OilStuff>(oilStuffDAO.getOilStuffs());
 		
 		return list;
 	}

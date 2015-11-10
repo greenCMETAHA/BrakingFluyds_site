@@ -36,41 +36,51 @@
   <body>
     <div class="wrapper">
       <!-- ============================================================= TOP NAVIGATION ============================================================= -->
-       <nav class="top-bar animate-dropdown">
+      <nav class="top-bar animate-dropdown">
 		    <div class="container">
 		        <div class="col-xs-12 col-sm-6 no-margin">
 		            <ul>
-		                <li><a href="index">В начало</a></li>
+		                <li><a href="">В начало</a></li>
 		                 <!-- <li><a href="contact.html">Contact</a></li>  -->
 		                <li class="dropdown">
 		                    <a class="dropdown-toggle" data-toggle="dropdown" href="#pages">Страницы</a>
 		                    <ul class="dropdown-menu" role="menu">
-		                        <li><a href="index">В начало</a></li>
-		                        <li><a href="home">Список товаров</a></li>
+		                        <li><a href="">В начало</a></li>
+		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
+	 		                    <li><a href="motorOil">Список моторных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
 		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>
 		                        </sec:authorize>		                        
 		                        <li><a href="About">О нас</a></li>
 		                        <sec:authorize access="hasAnyRole('ROLE_PRODUCT','ROLE_ADMIN')">
-   		                        	<li><a href="Download">Загрузить товар из Excel</a></li>
+   		                        	<li><a href="Download?variant=download&task=Product">Загрузить товар из Excel</a></li>
    		                        </sec:authorize>
    		                        <sec:authorize access="hasAnyRole('ROLE_PRICE','ROLE_ADMIN')">
-		                        	<li><a href="Download">Загрузить цены из Excel</a></li>
+		                        	<li><a href="Download?variant=download&task=Price">Загрузить цены из Excel</a></li>
 		                        </sec:authorize>
 		                        <li><a href="Comparison">Сравнить товары</a></li>
+		                        <sec:authorize access="!isAnonymous()"> 
+			                        <li><a href="listDoc?variant=Demand">Список заявок</a></li>
+			                        <li><a href="listDoc?variant=Offer">Список ком. предложений</a></li>
+			                    </sec:authorize>
+		                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
+		                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
+		                        </sec:authorize>
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
 		                        	
-								    <c:if test="${currentUser.isEmpty()}"> 
+									<c:if test="${currentUser.isEmpty()}"> 
 										<a href="login">Авторизируйтесь</a>
 						 			</c:if> 
 									<c:if test="${!currentUser.isEmpty()}"> 
 										<a href="j_spring_security_logout">Выйти</a>
 						 			</c:if> 
-
 		                        </li>
+		                        <sec:authorize access="hasRole('ROLE_ADMIN')">
+                      				<li><a href="home?adminpanel=true">Конфигурирование</a></li>
+                  				</sec:authorize>
 		                     </ul>
 		                </li>
 		            </ul>
@@ -91,7 +101,7 @@
 		                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Белорусские рубли (BYR)</a></li>
 		                    </ul>
 		                </li>
-                		<li>
+		                <li>
                         	<c:set  var="name" value="user" />
   							<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
                         	
@@ -104,14 +114,13 @@
 								<a href="j_spring_security_logout">Выйти</a>
 				 			</c:if> 
                         </li>
-
 		            </ul>
 		        </div><!-- /.col -->
 		    </div><!-- /.container -->
 		</nav><!-- /.top-bar -->
       <!-- /.top-bar -->
       <!-- ============================================================= TOP NAVIGATION : END ============================================================= -->		<!-- ============================================================= HEADER ============================================================= -->
-		<header>
+      <header>
 			<div class="container no-padding">
 				<div class="col-xs-12 col-sm-12 col-md-3 logo-holder">
 					<!-- ============================================================= LOGO ============================================================= -->
@@ -134,14 +143,14 @@
 					</div><!-- /.contact-row -->
 					<!-- ============================================================= SEARCH AREA ============================================================= -->
 					<div class="search-area">
-					    <form action="home" method="POST">
+					    <form action="home" method="GET">
 					        <div class="control-group">
 					            <input class="search-field" placeholder="Search for item" />
 					
 					            <ul class="categories-filter animate-dropdown">
 					                <li class="dropdown">
 					
-					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="home">Все категории</a>
+					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="index">Все категории</a>
 					
 					                    <ul class="dropdown-menu" role="menu" >
 					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
@@ -193,30 +202,30 @@
 					
 					            <ul class="dropdown-menu">
 					            	<c:forEach var="currentBasket" items="${requestScope.basket}">
-					            		<c:set  var="currentBFluid" value="${currentBasket.getBrakingFluid()}" />
+					            		<c:set  var="currentGood" value="${currentBasket.getGood()}" />
 					            		<div class="basket-item">
 					                        <div class="row">
 					                            <div class="col-xs-4 col-sm-4 no-margin text-center">
 					                                <div class="thumb">
-					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"/>
+					                                    <img height="73" width="73" alt="" src="resources/jpg/<c:out value="${currentGood.getPhoto()}"  />"/>
 					                                </div>
 					                            </div>
 					                            <div class="col-xs-8 col-sm-8 no-margin">
 					                                <div class="title">
-					                                	<c:out value="${currentBFluid.getName()}"/>
+					                                	<c:out value="${currentGood.getName()}"/>
 					                                	<c:if test="${currentBasket.getQauntity()>1}">
 					                                		(<c:out value="${currentBasket.getQauntity()}"/> шт.)
 					                                	</c:if>
 					                                </div>
 					                                <div class="price">
 					                                	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-					                                		$<c:out value="${currentBFluid.getPrice()}"/>
+					                                		$<c:out value="${currentGood.getPrice()}"/>
 					                                	</sec:authorize>		
 					                                </div>
 					                            </div>
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
-												<c:param name="id" value="${currentBFluid.getId()}"/>
+												<c:param name="id" value="${currentGood.getId()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
@@ -245,15 +254,17 @@
 				
 			</div><!-- /.container -->
 		</header>
+
       <!-- ============================================================= HEADER : END ============================================================= -->		
 		
+	  <c:set var="current" value="${requestScope.currentMotorOil}" />
       <div id="single-product">
         <div class="container">
           <div class="no-margin col-xs-12 col-sm-6 col-md-5 gallery-holder">
             <div class="product-item-holder size-big single-product-gallery small-gallery">
               <div id="owl-single-product">
 <!--                 <div class="single-product-gallery-item" id="slide1"> -->
-                  <img class="img-responsive" alt="" src="resources/jpg/${requestScope.currentMotorOil.getPhoto()}" />
+                  <img class="img-responsive" alt="" src="resources/jpg/${current.getPhoto()}" />
 <!--                 </div> -->
                 <!-- /.single-product-gallery-item -->
               </div>
@@ -265,33 +276,33 @@
           <div class="no-margin col-xs-12 col-sm-7 body-holder">
             <div class="body">
               <div class="star-holder inline">
-                <div class="star" data-score="${requestScope.currentMotorOil.getJudgement()}"></div>
+                <div class="star" data-score="${current.getJudgement()}"></div>
               </div>
               <div class="availability"><label>Доступно:</label><span class="available"> на складе</span></div>
-              <div class="title"><c:out value="${requestScope.currentMotorOil.getName()}"/></div>
-              <div class="brand"><c:out value="${requestScope.currentMotorOil.getManufacturer().getName()}"/></div>
+              <div class="title"><c:out value="${current.getName()}"/></div>
+              <div class="brand"><c:out value="${current.getManufacturer().getName()}"/></div>
               
               <div class="buttons-holder">
    		        <div class="wish-compare">
    		        	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                <c:url value="MotorOil" var="UpdateGood">
-							<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+							<c:param name="id" value="${current.getId()}"/>
 							<c:param name="variant" value="inWishlist"/>
 						</c:url>
 		          		<a class="btn-add-to-wishlist" href="${UpdateGood}">В избранное</a>
 	          		</sec:authorize>
 		            <c:url value="MotorOil" var="UpdateGood">
-						<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+						<c:param name="id" value="${current.getId()}"/>
 						<c:param name="variant" value="inCompare"/>
 					</c:url>              
                 	<a class="btn-add-to-compare" href="${UpdateGood}">Сравнить</a>
               </div>
               <div class="excerpt">
-                <p><c:out value="${requestScope.currentMotorOil.getDescription()}"/></p>
+                <p><c:out value="${current.getDescription()}"/></p>
               </div>
               <div class="prices">
               	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-                	<div class="price-current">$<c:out value="${requestScope.currentMotorOil.getPrice()}"/></div>
+                	<div class="price-current">$<c:out value="${current.getPrice()}"/></div>
                 </sec:authorize>
               </div>
               <div class="qnt-holder">
@@ -302,14 +313,14 @@
 <!--                     <a class="plus" href="#add"></a> -->
 <!--                   </form> -->
 <!--                 </div> -->
-                <c:url value="MotorOil" var="UpdateBrakingFluid">
-					<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+                <c:url value="motorOil" var="UpdateGood">
+					<c:param name="id" value="${current.getId()}"/>
 					<c:param name="variant" value="inBasket"/>
 				</c:url>      
                 <a id="addto-cart" href="${UpdateGood}" class="le-button huge">В Корзину</a>
                 <sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
-	                <c:url value="ShowOneMotorOil" var="UpdateBrakingFluid">
-						<c:param name="id" value="${requestScope.currentMotorOil.getId()}"/>
+	                <c:url value="ShowOneMotorOil" var="UpdateGood">
+						<c:param name="id" value="${current.getId()}"/>
 						<c:param name="variant" value="Demand"/>
 					</c:url>      
 	                <a id="addto-cart" href="${UpdateGood}" class="le-button huge">Заявка</a>
@@ -339,7 +350,7 @@
             <!-- /.nav-tabs -->
             <div class="tab-content">
               <div class="tab-pane active" id="description">
-                <p><c:out value="${requestScope.currentMotorOil.getDescription()}"/></p>
+                <p><c:out value="${current.getDescription()}"/></p>
                 <div class="meta-row">
                   <div class="inline">
                     <label>SKU:</label>
@@ -367,23 +378,23 @@
                 <ul class="tabled-data">
                   <li>
                     <label>Тип двигателя</label>
-                    <div class="value"><c:out value="${requestScope.currentMotorOil.getEngineType().getName()}"/></div>
+                    <div class="value"><c:out value="${current.getEngineType().getName()}"/></div>
                   </li>
                   <li>
                     <label>Тип масла</label>
-                    <div class="value"><c:out value="${requestScope.currentMotorOil.getOilStuff().getName()}"/></div>
+                    <div class="value"><c:out value="${current.getOilStuff().getName()}"/></div>
                   </li>
                   <li>
                     <label>Вязкость</label>
-                    <div class="value"><c:out value="${requestScope.currentMotorOil.getViscosity().getName()}"/></div>
+                    <div class="value"><c:out value="${current.getViscosity()}"/></div>
                   </li>
                   <li>
                     <label>Объём:</label>
-                    <div class="value"><c:out value="${requestScope.currentMotorOil.getValue()}"/></div>
+                    <div class="value"><c:out value="${current.getValue()}"/></div>
                   </li>
                   <li>
                     <label>Спецификация:</label>
-                    <div class="value"><c:out value="${requestScope.currentMotorOil.getSpecification()}"/></div>
+                    <div class="value"><c:out value="${current.getSpecification()}"/></div>
                   </li>
                 </ul>
                 
@@ -397,13 +408,13 @@
                   <span class="seperator">/</span>
                   <div class="inline">
                     <label>категории:</label>
-                    <span><a href="motorOil">Тормозные жидкости</a>,</span>
+                    <span><a href="motorOil">Моторные масла</a>,</span>
                   </div>
                   <!-- /.inline -->
                   <span class="seperator">/</span>
                   <div class="inline">
                     <label>тэги:</label>
-                    <span><a href="motorOil">Тормозные жидкости</a>,</span>
+                    <span><a href="motorOil">Моторные масла</a>,</span>
                   </div>
                   <!-- /.inline -->
                 </div>
@@ -474,7 +485,7 @@
   					  <c:set var="currentUser" value="${sessionScope[name]}"></c:set>
   					  
                       <form action="ShowOneMotorOil" id="contact-form" class="contact-form" method="post" >
-                        <input type="hidden"  name="id" value="${requestScope.currentMotorOil.getId()}"> 
+                        <input type="hidden"  name="id" value="${current.getId()}"> 
                         <div class="row field-row">
                           <div class="col-xs-12 col-sm-6">
                             <label>Имя*</label>

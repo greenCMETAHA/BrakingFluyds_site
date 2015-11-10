@@ -172,16 +172,21 @@ public class MotorOilController {
 		return list;
 	}
 	
-	private HashMap<String,Boolean> fillSelectedViscosity(String[] selections, HashMap<String,Boolean> list){
+	private HashMap<String,Boolean> fillSelectedViscosity(int[] selections, HashMap<String,Boolean> list){
+		int numValue=0;
 		for(Entry<String,Boolean> current : list.entrySet()){
 			boolean bFind=false;
-			for (int i=0;i<selections.length;i++){
-				if (current.getKey().equals(selections[i])){
-					bFind=true;
-					break;
+			if (selections!=null){
+				for (int i=0;i<selections.length;i++){
+					//if (current.getKey().equals(selections[i])){
+					if (numValue==selections[i]){
+						bFind=true;
+						break;
+					}
+					
 				}
-				
 			}
+			numValue+=1;
 			current.setValue(bFind);
 		}
 		
@@ -193,7 +198,7 @@ public class MotorOilController {
 			@RequestParam(value = "good", defaultValue="", required=false) String good
 			
 			,@RequestParam(value = "selections", required=false ) int[] manufacturerSelections  //base (BrakingFluids)
-			,@RequestParam(value = "viscositySelections", required=false ) String[] viscositySelections
+			,@RequestParam(value = "viscositySelections", required=false ) int[] viscositySelections
 			,@RequestParam(value = "engineTypeSelections", required=false ) int[] engineTypeSelections
 			,@RequestParam(value = "oilStuffSelections", required=false ) int[] oilStuffSelections
 			,@RequestParam(value = "currentPage", defaultValue="1", required=false) int currentPage
@@ -254,7 +259,7 @@ public class MotorOilController {
 		
 		HashMap<String,Boolean> viscosityFilter = (HashMap<String,Boolean>) session.getAttribute("viscosityFilter");
 		if (viscosityFilter==null){
-			viscosityFilter = createViscosityFilter();
+			viscosityFilter = createViscosityFilter(); 
 		}
 		
 		if (currentPriceFilter.toString().equals("0,0")){
@@ -277,7 +282,7 @@ public class MotorOilController {
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
  
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -363,7 +368,7 @@ public class MotorOilController {
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
 				,currentMinJudgementFilter,currentMaxJudgementFilter); 
 		
-		model.addAttribute("listBrakFluids", list);
+		model.addAttribute("listMotorOils", list);
 		int totalProduct=motorOilDAO.getCountRows(currentPage,elementsInList,manufacturersFilter,engineTypeFilter
 				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
@@ -376,7 +381,7 @@ public class MotorOilController {
 		model.addAttribute("engineTypeFilter", engineTypeFilter);
 		model.addAttribute("oilStuffFilter", oilStuffFilter);
 		model.addAttribute("viscosityFilter", viscosityFilter);
-		model.addAttribute("recommendedBrakFluids", motorOilDAO.getMotorOilsRecommended());
+		model.addAttribute("recommended", motorOilDAO.getMotorOilsRecommended());
 		model.addAttribute("currentPriceFilter", currentMinPriceFilter+","+currentMaxPriceFilter); 
 		 
 		model.addAttribute("paginationString_part1", ""+((currentPage-1)*elementsInList+1)+"-"+(((currentPage-1)*elementsInList)+elementsInList));
@@ -395,7 +400,8 @@ public class MotorOilController {
 		session.setAttribute("viscosityFilter", viscosityFilter);
 		session.setAttribute("elementsInList", elementsInList);
 		
-		return Service.isAdminPanel(session,request)+"home";
+		//return Service.isAdminPanel(session,request)+"home";
+		return "MotorOil/home";
 	}
 	
 	@RequestMapping(value = {"/ShowOneMotorOil","/adminpanel/ShowOneMotorOil"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -444,13 +450,13 @@ public class MotorOilController {
 			review.setName(userLogin);
 			review.setJudgement(judgement);
 			review.setReview(userReviw);
-			BrakingFluid brFluid=new BrakingFluid();
-			brFluid.setId(id);
-			review.setBrakingFluid(brFluid);
-			reviewDAO.createReview(review);
+			MotorOil current=new MotorOil();
+			current.setId(id);
+			review.setGood(current);
+			reviewDAO.createReview(review,Service.MOTOR_OIL_PREFIX);
 		}		
 		
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -463,31 +469,33 @@ public class MotorOilController {
 			
 			if (variant.compareTo("insert")==0){
 				model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
-				model.addAttribute("currentBrakFluid", new BrakingFluid());
+				model.addAttribute("currentMotorOil", new MotorOil());
 			}else{
-				BrakingFluid currentBR = brakingFluidDAO.getBrakingFluid(id);
+				MotorOil current = motorOilDAO.getMotorOil(id);
 				model.addAttribute("pageInfo", "Отредактируйте номенклатуру:");
-				model.addAttribute("currentBrakFluid", currentBR);
+				model.addAttribute("currentMotorOil", current);
 				String photo="";
-				if (currentBR.hasPhoto()){
-					photo=currentBR.getPhoto();
+				if (current.hasPhoto()){
+					photo=current.getPhoto();
 				}
 				model.addAttribute("Photo", photo);
 				model.addAttribute("photoBackUp", photo);
 			}
 			model.addAttribute("buttonInto", "Сохранить");
 			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
-			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
+			model.addAttribute("combobox_EngineType", engineTypeDAO.getEngineTypes());
+			model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
 			model.addAttribute("errors", new ArrayList<String>());
-			model.addAttribute("prices", priceDAO.getPrices(id, Service.BRAKING_FLUID_PREFIX));
+			model.addAttribute("prices", priceDAO.getPrices(id, Service.MOTOR_OIL_PREFIX));
 			
-			return Service.isAdminPanel(session,request)+"InsertUpdate";
+			//return Service.isAdminPanel(session,request)+"InsertUpdate";
+			return "MotorOil/InsertUpdate";
 		}else{
-			model.addAttribute("currentBrakFluid", brakingFluidDAO.getBrakingFluid(id));
-			model.addAttribute("reviews", reviewDAO.getReviews(id));
-			model.addAttribute("prices", priceDAO.getPrices(id, Service.BRAKING_FLUID_PREFIX));
+			model.addAttribute("currentMotorOil", motorOilDAO.getMotorOil(id));
+			model.addAttribute("reviews", reviewDAO.getReviews(id,Service.MOTOR_OIL_PREFIX));
+			model.addAttribute("prices", priceDAO.getPrices(id, Service.MOTOR_OIL_PREFIX));
 			
-			return "ShowOne";
+			return "MotorOil/ShowOne";
 		}
 		
 	}
@@ -538,8 +546,8 @@ public class MotorOilController {
 		model.addAttribute("currentMinValueFilter", currentMinValueFilter);
 		model.addAttribute("currentMaxValueFilter", currentMaxValueFilter);		
 		
-		double currentMinJudgementFilter=brakingFluidDAO.minData("Judgement");
-		double currentMaxJudgementFilter=brakingFluidDAO.maxData("Judgement");
+		double currentMinJudgementFilter=motorOilDAO.minData("Judgement");
+		double currentMaxJudgementFilter=motorOilDAO.maxData("Judgement");
 		model.addAttribute("MinJudgement", currentMinJudgementFilter);
 		model.addAttribute("MaxJudgement", currentMaxJudgementFilter);
 		model.addAttribute("currentMinJudgementFilter", currentMinJudgementFilter);
@@ -598,7 +606,7 @@ public class MotorOilController {
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
 				,currentMinJudgementFilter,currentMaxJudgementFilter); 
 		
-		model.addAttribute("list", list);
+		model.addAttribute("listMotorOils", list);
 		int totalProduct=motorOilDAO.getCountRows(1,elementsInList,manufacturersFilter,engineTypeFilter
 				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
@@ -635,10 +643,10 @@ public class MotorOilController {
 	}	
 	
 	@RequestMapping(value = {"/InsertUpdateMotorOil","/adminpanel/InsertUpdateMotorOil"}, method = {RequestMethod.POST, RequestMethod.GET})
-	public String insertUpdate(
-			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+	public String insertUpdateMotorOil(HttpServletRequest request,Locale locale, Model model
+			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
-			,@RequestParam(value = "id_MotorOil" , defaultValue="", required=false) int id_MotorOil
+			,@RequestParam(value = "id_MotorOil" , defaultValue="0", required=false) int id_MotorOil
 			,@RequestParam(value = "name_MotorOil", defaultValue="", required=false) String name_MotorOil
 			,@RequestParam(value = "Manufacturer", defaultValue="", required=false) String manufacturer
 			,@RequestParam(value = "EngineType", defaultValue="", required=false) String fieldEngineType
@@ -646,14 +654,13 @@ public class MotorOilController {
 			,@RequestParam(value = "Viscosity", defaultValue="", required=false) String fieldViscosity
 			,@RequestParam(value = "Value", defaultValue="0", required=false) String value	//double
 			,@RequestParam(value = "Price", defaultValue="0", required=false) String price	//double
-			,@RequestParam(value = "Photo", defaultValue="", required=false) MultipartFile formPhoto
+			,@RequestParam(value = "Photo", required=false) MultipartFile formPhoto
 			,@RequestParam(value="photoBackUp", defaultValue="", required=false) String photoBackUp   //в MultipartFile невозможно получить значение, оказывается. Старое сохраним в элементе формы
 			,@RequestParam(value = "Description", defaultValue="", required=false) String description
 			,@RequestParam(value = "Specification", defaultValue="", required=false) String specification
 			,@RequestParam(value="Judgement", defaultValue="0", required=false) String judgement		//double
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		//double
-
-			,HttpServletRequest request,Locale locale, Model model) {
+			) {
 		
 //		try {
 //			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
@@ -696,7 +703,7 @@ public class MotorOilController {
 		}
 		
 		
-		Service.workWithList(id, "", 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -715,6 +722,10 @@ public class MotorOilController {
 		if ("New".equals(variant)){
 			model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
 			model.addAttribute("errors", new ArrayList<String>());
+			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
+			model.addAttribute("combobox_EngineType", engineTypeDAO.getEngineTypes());
+			model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
+			
 			result = "MotorOil/InsertUpdate";
 		}else{
 			String fieldName="", fieldManufacturer="", fieldValue="", fieldPrice="", fieldPhoto="", fieldDescription="", fieldSpecification="", fieldJudgement="";
@@ -808,7 +819,13 @@ public class MotorOilController {
 					}	
 				
 					if (motorOil.getId()==0){
-						MotorOil currentMotorOil = motorOilDAO.createMotorOilWithoutPrice(motorOil);
+						MotorOil currentMotorOil = null;
+						if (request.isUserInRole("ROLE_PRICE") || request.isUserInRole("ROLE_ADMIN")){
+							currentMotorOil = motorOilDAO.createMotorOil(motorOil);
+						}else{
+							currentMotorOil = motorOilDAO.createMotorOilWithoutPrice(motorOil);
+						}
+						
 						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentMotorOil, "Создан товар: моторное масло"));
 						if (currentMotorOil.getPrice()>0){
 							Price currentPrice = priceDAO.createPrice(new Price(currentMotorOil.getId(),new GregorianCalendar().getTime()

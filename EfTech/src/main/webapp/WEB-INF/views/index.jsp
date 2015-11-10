@@ -47,7 +47,7 @@
 		                    <ul class="dropdown-menu" role="menu">
 		                        <li><a href="">В начало</a></li>
 		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
-	 		                    <li><a href="home?good=MotorOlis">Список моторных масел</a></li>
+	 		                    <li><a href="motorOil">Список моторных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
 		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>
@@ -278,7 +278,7 @@
                             <div class="col-md-4">
                                 <ul class="list-unstyled">
 	 		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
-	 		                        <li><a href="home?good=MotorOlis">Список моторных масел</a></li>
+	 		                        <li><a href="motorOil">Список моторных масел</a></li>
 			                        <li><a href="Basket">Корзина</a></li>
 			                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 			                        	<li><a href="Wishlist">Избранное</a></li>
@@ -322,7 +322,7 @@
                   </li>
                   <!-- /.menu-item -->
                   <li><a href="home?good=BrakinFluids">Тормозные жидкости</a></li>
-	 		      <li><a href="home?good=MotorOlis">Моторные масла</a></li>
+	 		      <li><a href="motorOil">Моторные масла</a></li>
                   <sec:authorize access="hasRole('ROLE_DELIVERY')">
                   	<li><a href="listDoc?variant=Demand">Доставка</a></li>
                   </sec:authorize>

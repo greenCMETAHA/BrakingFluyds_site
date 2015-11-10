@@ -307,7 +307,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 						strEngineTypeFilter.append(current.getId());
 					}
 				}
-				strEngineTypeFilter.insert(0, " and (fc.id IN (");
+				strEngineTypeFilter.insert(0, " and (et.id IN (");
 				strEngineTypeFilter.append("))");
 			}
 		
@@ -332,7 +332,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 						strOilStuffFilter.append(current.getId());
 					}
 				}
-				strOilStuffFilter.insert(0, " and (fc.id IN (");
+				strOilStuffFilter.insert(0, " and (os.id IN (");
 				strOilStuffFilter.append("))");
 			}
 		
@@ -354,10 +354,10 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 							strViscosityFilter.append(", ");
 						}
 
-						strViscosityFilter.append(current.getKey());
+						strViscosityFilter.append("'"+current.getKey()+"'");
 					}
 				}
-				strViscosityFilter.insert(0, " and (fc.id IN (");
+				strViscosityFilter.insert(0, " and (mo.viscosity IN (");
 				strViscosityFilter.append("))");
 			}
 		
@@ -440,7 +440,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 						strEngineTypeFilter.append(current.getId());
 					}
 				}
-				strEngineTypeFilter.insert(0, " and (fc.id IN (");
+				strEngineTypeFilter.insert(0, " and (et.id IN (");
 				strEngineTypeFilter.append("))");
 			}
 		
@@ -465,7 +465,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 						strOilStuffFilter.append(current.getId());
 					}
 				}
-				strOilStuffFilter.insert(0, " and (fc.id IN (");
+				strOilStuffFilter.insert(0, " and (os.id IN (");
 				strOilStuffFilter.append("))");
 			}
 		
@@ -487,10 +487,10 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 							strViscosityFilter.append(", ");
 						}
 
-						strViscosityFilter.append(current.getKey());
+						strViscosityFilter.append("'"+current.getKey()+"'");
 					}
 				}
-				strViscosityFilter.insert(0, " and (fc.id IN (");
+				strViscosityFilter.insert(0, " and (mo.viscosity IN (");
 				strViscosityFilter.append("))");
 			}
 		
@@ -498,7 +498,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 		
 		String sqlQuery="select * from"
 				+ "(select mo.id as id, mo.name as name, mo.price as price"
-				+ ", mo.engineType SA engineType, et.name AS et_name, mo.oilStuff SA oilStuff, os.name SA os_name"
+				+ ", mo.engineType AS engineType, et.name AS et_name, mo.oilStuff AS oilStuff, os.name AS os_name"
 				+ ", mo.description AS description, mo.judgement AS judgement"
 				+ ", mo.photo AS photo, mo.specification AS specification, mo.viscosity AS viscosity"
 				+ ", mo.value AS value, mo.manufacturer AS manufacturer, man.name as man_name "
@@ -506,7 +506,9 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 				+ " 	LEFT JOIN oilstuff AS os ON (mo.oilStuff=os.id)"
 				+ " 	LEFT JOIN engineType AS et ON (mo.engineType=et.id)"
 				+ "		left join manufacturer as man on mo.manufacturer=man.id "
-				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice) "
+				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
+				+ "					 and (mo.value>=:currentMinValueFilter) and (mo.value<=:currentMaxValueFilter) "
+				+ "					 and (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
 				+ strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+" ORDER BY mo.name ) as rez"
 				+ " LIMIT :firstRow, :number";
 		
@@ -570,8 +572,8 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 			 oil.setOilStuff(oilStuff);
 			 
 			 EngineType engineType =new EngineType();
-			 manufacturer.setId(rs.getInt("engineType"));
-			 manufacturer.setName(rs.getString("et_name"));
+			 engineType.setId(rs.getInt("engineType"));
+			 engineType.setName(rs.getString("et_name"));
 			 oil.setEngineType(engineType);
 			 
 			 oil.setPhoto(rs.getString("photo"));

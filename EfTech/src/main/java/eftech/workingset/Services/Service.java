@@ -845,7 +845,7 @@ public class Service {
 				listBasket=new LinkedList<Basket>();
 				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
 					listBasket.add(new Basket(brakingFluidDAO.getBrakingFluid(id)));
-				}else if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 					listBasket.add(new Basket(motorOilDAO.getMotorOil(id)));
 				}
 			} 
@@ -901,7 +901,7 @@ public class Service {
 			if (!bFind){
 				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
 					basket.add(new Basket(brakingFluidDAO.getBrakingFluid(id),(quantity==0?1:quantity)));
-				}else if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 					basket.add(new Basket(motorOilDAO.getMotorOil(id),(quantity==0?1:quantity)));
 				}
 			}
@@ -963,7 +963,7 @@ public class Service {
 				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
 					compare.add(brakingFluidDAO.getBrakingFluid(id));
 				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
-					compare.add(motorOilDAO.getMotorOil(client_id));
+					compare.add(motorOilDAO.getMotorOil(id));
 				}
 			}
 		}

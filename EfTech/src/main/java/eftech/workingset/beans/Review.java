@@ -4,6 +4,7 @@ import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig.Interface;
 
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceReview;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Review implements InterfaceReview {
 	private int id;
@@ -11,35 +12,35 @@ public class Review implements InterfaceReview {
 	private String email;
 	private double judgement;
 	private String review;
-	private InterfaceBrakingFluid brakingFluid;
+	private InterfaceGood good;
 	
 	public Review() {
 		id=0;
-		brakingFluid=new BrakingFluid();
+		good=null;
 	}
 
-	public Review(int id, String name, String email, double judgement, String review, InterfaceBrakingFluid brakingFluid) {
+	public Review(int id, String name, String email, double judgement, String review, InterfaceGood good) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.judgement = judgement;
 		this.review = review;
-		this.brakingFluid=(BrakingFluid)brakingFluid;
+		this.good=good;
 	}
 
 	/**
 	 * @return the brakingFluid
 	 */
-	public InterfaceBrakingFluid getBrakingFluid() {
-		return brakingFluid;
+	public InterfaceGood getGood() {
+		return good;
 	}
 
 	/**
 	 * @param brakingFluid the brakingFluid to set
 	 */
-	public void setBrakingFluid(InterfaceBrakingFluid brakingFluid) {
-		this.brakingFluid = brakingFluid;
+	public void setGood(InterfaceGood good) {
+		this.good = good;
 	}
 
 	/**
