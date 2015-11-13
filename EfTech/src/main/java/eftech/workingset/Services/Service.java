@@ -152,79 +152,248 @@ public class Service {
 		return result;
 	}
 	
-	private static PdfPTable createTableOffer(LinkedList<Basket> basket,BaseFont times, String globalPath, User user) throws DocumentException, MalformedURLException, IOException {
-        PdfPTable table = null;
-        float[] columnWidths			 = {60, 30, 20, 15, 15, 15, 15, 15, 40, 30, 15, 15, 30};
-        float[] columnWidthsWithoutPrice = {60, 30, 20, 15, 15, 15, 15, 40, 30, 15, 15, 30};
-        //table.setWidths ((user.canChangePrice()?columnWidths:columnWidthsWithoutPrice));
-        if (user.canChangePrice()){
-        	table = new PdfPTable(13);
-        	table.setWidths(columnWidths);
-        }else{
-        	table = new PdfPTable(12);
-        	table.setWidths(columnWidthsWithoutPrice);
-        }
-        
-        PdfPCell cell=new PdfPCell(new Phrase("Наименование",new Font(times,8)));
-        cell.setRotation(90);
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Производитель",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Класс жидкости",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Температура кипения (сухая)",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Температура кипения (влажная)",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Объём",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Количество",new Font(times,8)));
-        table.addCell(cell);
-        if (user.canChangePrice()){
-        	cell.setPhrase(new Phrase("Цена",new Font(times,8)));
-        	table.addCell(cell);
-        }
-        cell.setPhrase(new Phrase("Описание",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Изображение",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Вязкость (при -40)",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Вязкость (при 100)",new Font(times,8)));
-        table.addCell(cell);
-        cell.setPhrase(new Phrase("Спецификация",new Font(times,8)));
-        table.addCell(cell);
-        
-        for (Basket currentBasket:basket) {
-        	BrakingFluid currentBR=(BrakingFluid) currentBasket.getGood();
-            table.addCell(new Phrase(currentBR.getName(),new Font(times,8)));
-            table.addCell(new Phrase(((Manufacturer)currentBR.getManufacturer()).getName(),new Font(times,8)));
-            table.addCell(new Phrase(((FluidClass)currentBR.getFluidClass()).getName(),new Font(times,8)));
-            table.addCell(new Phrase(""+currentBR.getBoilingTemperatureDry(),new Font(times,8)));
-            table.addCell(new Phrase(""+currentBR.getBoilingTemperatureWet(),new Font(times,8)));
-            table.addCell(new Phrase(""+currentBR.getValue(),new Font(times,8)));
-            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
-            if (user.canChangePrice()){
-            	table.addCell(new Phrase(""+currentBR.getPrice(),new Font(times,8)));
-            }
-            table.addCell(new Phrase(currentBR.getDescription(),new Font(times,8)));
-            
-            if (currentBR.hasPhoto()){
-            	Image image = Image.getInstance(globalPath+PATH_TO_JPG+currentBR.getPhoto());
-	            image.setAlignment(Image.MIDDLE);
-	            image.scaleToFit(30, 30);
-	            table.addCell(image);
-	            
-            }else{
-            	table.addCell("");
-            }
-            
-            table.addCell(new Phrase(""+currentBR.getViscosity40(),new Font(times,8)));
-            table.addCell(new Phrase(""+currentBR.getViscosity100(),new Font(times,8)));
-            table.addCell(new Phrase(currentBR.getSpecification(),new Font(times,8)));
+	private static void createTableOffer(LinkedList<Basket> basket,BaseFont times, String globalPath, User user, Document document) throws DocumentException, MalformedURLException, IOException {
+		boolean bFluids=false, bMotorOils=false;
+		 for (Basket currentBasket:basket) {
+			 if (Service.BRAKING_FLUID_PREFIX.equals(currentBasket.getGood().getGoodName())){
+				 bFluids=true;
+			 }else if (Service.MOTOR_OIL_PREFIX.equals(currentBasket.getGood().getGoodName())){
+				 bMotorOils=true;
+			 }
+			 
+			 
+		 }
+		if (bFluids){
+			document.add(new Paragraph("Тормозные жидкости:",new Font(times,14)));
+			document.add(new Paragraph("", new Font(times,10)));
+			
+			 PdfPTable table = null;
+	        float[] columnWidths			 = {60, 30, 20, 15, 15, 15, 15, 15, 40, 30, 15, 15, 30};
+	        float[] columnWidthsWithoutPrice = {60, 30, 20, 15, 15, 15, 15, 40, 30, 15, 15, 30};
+	        //table.setWidths ((user.canChangePrice()?columnWidths:columnWidthsWithoutPrice));
+	        if (user.canChangePrice()){
+	        	table = new PdfPTable(columnWidths.length);
+	        	table.setWidths(columnWidths);
+	        }else{
+	        	table = new PdfPTable(columnWidthsWithoutPrice.length);
+	        	table.setWidths(columnWidthsWithoutPrice);
+	        }
+	        
+	        PdfPCell cell=new PdfPCell(new Phrase("Наименование",new Font(times,8)));
+	        cell.setRotation(90);
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Производитель",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Класс жидкости",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Температура кипения (сухая)",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Температура кипения (влажная)",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Объём",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Количество",new Font(times,8)));
+	        table.addCell(cell);
+	        if (user.canChangePrice()){
+	        	cell.setPhrase(new Phrase("Цена",new Font(times,8)));
+	        	table.addCell(cell);
+	        }
+	        cell.setPhrase(new Phrase("Описание",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Изображение",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Вязкость (при -40)",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Вязкость (при 100)",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Спецификация",new Font(times,8)));
+	        table.addCell(cell);
+	        
+	        for (Basket currentBasket:basket) {
+	        	if (Service.BRAKING_FLUID_PREFIX.equals(currentBasket.getGood().getGoodName())){
+		        	BrakingFluid current=(BrakingFluid) currentBasket.getGood();
+		            table.addCell(new Phrase(current.getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((Manufacturer)current.getManufacturer()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((FluidClass)current.getFluidClass()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getBoilingTemperatureDry(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getBoilingTemperatureWet(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getValue(),new Font(times,8)));
+		            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
+		            if (user.canChangePrice()){
+		            	table.addCell(new Phrase(""+current.getPrice(),new Font(times,8)));
+		            }
+		            table.addCell(new Phrase(current.getDescription(),new Font(times,8)));
+		            
+		            if (current.hasPhoto()){
+		            	Image image = Image.getInstance(globalPath+PATH_TO_JPG+current.getPhoto());
+			            image.setAlignment(Image.MIDDLE);
+			            image.scaleToFit(30, 30);
+			            table.addCell(image);
+			            
+		            }else{
+		            	table.addCell("");
+		            }
+		            
+		            table.addCell(new Phrase(""+current.getViscosity40(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getViscosity100(),new Font(times,8)));
+		            table.addCell(new Phrase(current.getSpecification(),new Font(times,8)));
+	        	}
 
-        }
-       return table;
+	        }
+	        document.add(table);
+	        document.add(new Paragraph(""));
+	        if (bMotorOils){
+	        	document.newPage();
+	        }
+		}
+		if (bMotorOils){
+			document.add(new Paragraph("Моторные масла:",new Font(times,14)));
+			document.add(new Paragraph("", new Font(times,10)));
+			
+			 PdfPTable table = null;
+	        float[] columnWidths			 = {60, 30, 20, 20, 25, 15, 15, 15, 40, 30, 30};
+	        float[] columnWidthsWithoutPrice = {60, 30, 20, 20, 25, 15, 15, 40, 30, 30};
+	        //table.setWidths ((user.canChangePrice()?columnWidths:columnWidthsWithoutPrice));
+	        if (user.canChangePrice()){
+	        	table = new PdfPTable(columnWidths.length);
+	        	table.setWidths(columnWidths);
+	        }else{
+	        	table = new PdfPTable(columnWidthsWithoutPrice.length);
+	        	table.setWidths(columnWidthsWithoutPrice);
+	        }
+	        
+	        PdfPCell cell=new PdfPCell(new Phrase("Наименование",new Font(times,8)));
+	        cell.setRotation(90);
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Производитель",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Тип двигателя",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Тип масла",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Вязкость",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Объём",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Количество",new Font(times,8)));
+	        table.addCell(cell);
+	        if (user.canChangePrice()){
+	        	cell.setPhrase(new Phrase("Цена",new Font(times,8)));
+	        	table.addCell(cell);
+	        }
+	        cell.setPhrase(new Phrase("Описание",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Изображение",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Спецификация",new Font(times,8)));
+	        table.addCell(cell);
+	        
+	        for (Basket currentBasket:basket) {
+	        	if (Service.MOTOR_OIL_PREFIX.equals(currentBasket.getGood().getGoodName())){
+		        	MotorOil current=(MotorOil) currentBasket.getGood();
+		            table.addCell(new Phrase(current.getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((Manufacturer)current.getManufacturer()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((EngineType)current.getEngineType()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((OilStuff)current.getOilStuff()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getViscosity(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getValue(),new Font(times,8)));
+		            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
+		            if (user.canChangePrice()){
+		            	table.addCell(new Phrase(""+current.getPrice(),new Font(times,8)));
+		            }
+		            table.addCell(new Phrase(current.getDescription(),new Font(times,8)));
+		            
+		            if (current.hasPhoto()){
+		            	Image image = Image.getInstance(globalPath+PATH_TO_JPG+current.getPhoto());
+			            image.setAlignment(Image.MIDDLE);
+			            image.scaleToFit(30, 30);
+			            table.addCell(image);
+			            
+		            }else{
+		            	table.addCell("");
+		            }
+		            
+		            table.addCell(new Phrase(current.getSpecification(),new Font(times,8)));
+	        	}
+
+	        }
+	        document.add(table);
+	        document.add(new Paragraph(""));
+		}		
+		
+//		
+//        PdfPTable table = null;
+//        float[] columnWidths			 = {60, 30, 20, 15, 15, 15, 15, 15, 40, 30, 15, 15, 30};
+//        float[] columnWidthsWithoutPrice = {60, 30, 20, 15, 15, 15, 15, 40, 30, 15, 15, 30};
+//        //table.setWidths ((user.canChangePrice()?columnWidths:columnWidthsWithoutPrice));
+//        if (user.canChangePrice()){
+//        	table = new PdfPTable(13);
+//        	table.setWidths(columnWidths);
+//        }else{
+//        	table = new PdfPTable(12);
+//        	table.setWidths(columnWidthsWithoutPrice);
+//        }
+//        
+//        PdfPCell cell=new PdfPCell(new Phrase("Наименование",new Font(times,8)));
+//        cell.setRotation(90);
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Производитель",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Класс жидкости",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Температура кипения (сухая)",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Температура кипения (влажная)",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Объём",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Количество",new Font(times,8)));
+//        table.addCell(cell);
+//        if (user.canChangePrice()){
+//        	cell.setPhrase(new Phrase("Цена",new Font(times,8)));
+//        	table.addCell(cell);
+//        }
+//        cell.setPhrase(new Phrase("Описание",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Изображение",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Вязкость (при -40)",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Вязкость (при 100)",new Font(times,8)));
+//        table.addCell(cell);
+//        cell.setPhrase(new Phrase("Спецификация",new Font(times,8)));
+//        table.addCell(cell);
+//        
+//        for (Basket currentBasket:basket) {
+//        	BrakingFluid currentBR=(BrakingFluid) currentBasket.getGood();
+//            table.addCell(new Phrase(currentBR.getName(),new Font(times,8)));
+//            table.addCell(new Phrase(((Manufacturer)currentBR.getManufacturer()).getName(),new Font(times,8)));
+//            table.addCell(new Phrase(((FluidClass)currentBR.getFluidClass()).getName(),new Font(times,8)));
+//            table.addCell(new Phrase(""+currentBR.getBoilingTemperatureDry(),new Font(times,8)));
+//            table.addCell(new Phrase(""+currentBR.getBoilingTemperatureWet(),new Font(times,8)));
+//            table.addCell(new Phrase(""+currentBR.getValue(),new Font(times,8)));
+//            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
+//            if (user.canChangePrice()){
+//            	table.addCell(new Phrase(""+currentBR.getPrice(),new Font(times,8)));
+//            }
+//            table.addCell(new Phrase(currentBR.getDescription(),new Font(times,8)));
+//            
+//            if (currentBR.hasPhoto()){
+//            	Image image = Image.getInstance(globalPath+PATH_TO_JPG+currentBR.getPhoto());
+//	            image.setAlignment(Image.MIDDLE);
+//	            image.scaleToFit(30, 30);
+//	            table.addCell(image);
+//	            
+//            }else{
+//            	table.addCell("");
+//            }
+//            
+//            table.addCell(new Phrase(""+currentBR.getViscosity40(),new Font(times,8)));
+//            table.addCell(new Phrase(""+currentBR.getViscosity100(),new Font(times,8)));
+//            table.addCell(new Phrase(currentBR.getSpecification(),new Font(times,8)));
+//
+//        }
+//       return table;
     }
 	
 	public static File createPDF_BussinessOffer(LinkedList<Basket> basket, String globalPath, User user) throws DocumentException, IOException, MalformedURLException{
@@ -238,9 +407,9 @@ public class Service {
         BaseFont times = BaseFont.createFont("c:/windows/fonts/times.ttf","cp1251",BaseFont.EMBEDDED);
         		
         document.add(new Paragraph("Добрый день.",new Font(times,14)));
-        document.add(new Paragraph("Наша компания хотела бы предложить вам следующие тормозные жидкости:",new Font(times,14)));
+        document.add(new Paragraph("Наша компания хотела бы предложить вам следующую продукцию:",new Font(times,14)));
         document.add(new Paragraph(" "));
-        document.add(createTableOffer(basket,times, globalPath, user));
+        createTableOffer(basket,times, globalPath, user, document);
         document.add(new Paragraph(" "));
         
         document.add(new Paragraph("С уважением           _______________________            _______________",new Font(times,14)));
@@ -266,7 +435,7 @@ public class Service {
         document.add(new Paragraph("Добрый день.",new Font(times,14)));
         document.add(new Paragraph("Прошу предоставить мне указанную ниже продукцию:",new Font(times,14)));
         document.add(new Paragraph(" "));
-        document.add(createTableOffer(basket,times, globalPath, user));
+        createTableOffer(basket,times, globalPath, user, document);
         document.add(new Paragraph(" "));
        
         document.add(new Paragraph("С уважением           _______________________            _______________",new Font(times,14)));
@@ -696,7 +865,7 @@ public class Service {
 					}
 				}
 				if (!bFind){
-					table.add(new DocRow(doc.getDemand_id(),doc.getTime(),doc.getBrakingFluid(),doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null, doc.getExecuter(), false)); //--!!!!
+					table.add(new DocRow(doc.getDemand_id(),doc.getTime(),doc.getGood(),doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null, doc.getExecuter(), false)); //--!!!!
 				}
 			}
 			for (DocRow docRow:table){
@@ -732,7 +901,7 @@ public class Service {
 					}
 				}
 				if (!bFind){
-					table.add(new DocRow(doc.getOffer_id(),doc.getTime(),doc.getBrakingFluid(), doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null,null, false)); //--!!!!
+					table.add(new DocRow(doc.getOffer_id(),doc.getTime(),doc.getGood(), doc.getQuantity(),doc.getQuantity()*doc.getPrice(), null,null, false)); //--!!!!
 				}
 			}
 			totalDoc = offerDAO.getCountRows(dateBeginFilter, dateEndFilter);
@@ -934,8 +1103,9 @@ public class Service {
 				if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
 					wishlist.remove(current);
 					synchronized (variant) {
+						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Удалили из избранного"));
 						wishlistDAO.deleteFromWishlist(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), wishlist, "Удалили из избранного"));
+						
 					}
 					break;
 				}

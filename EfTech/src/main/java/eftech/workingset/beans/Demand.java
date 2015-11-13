@@ -6,27 +6,28 @@ import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceDemand;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Demand implements InterfaceDemand {
 	private int id;
 	private Date time;
 	private User user;
 	private String demand_id;
-	private InterfaceBrakingFluid brakingFluid;
+	private InterfaceGood good;
 	private int quantity;
 	private double price;
 	private InterfaceOfferStatus status;
 	private User executer;
 	private InterfaceClient client;
 
-	public Demand(int id, Date time, User user, String demand_id, InterfaceBrakingFluid brakingFluid, int quantity,	double price
+	public Demand(int id, Date time, User user, String demand_id, InterfaceGood good, int quantity,	double price
 			, InterfaceOfferStatus status, User executer, InterfaceClient client ) {
 		super();
 		this.id = id;
 		this.time = time;
 		this.user = user;
 		this.demand_id = demand_id;
-		this.brakingFluid = brakingFluid;
+		this.good = good;
 		this.quantity = quantity;
 		this.price = price;
 		this.status = status;
@@ -109,15 +110,15 @@ public class Demand implements InterfaceDemand {
 	/**
 	 * @return the brekingFluid
 	 */
-	public InterfaceBrakingFluid getBrakingFluid() {
-		return brakingFluid;
+	public InterfaceGood getGood() {
+		return good;
 	}
 
 	/**
 	 * @param brekingFluid the brekingFluid to set
 	 */
-	public void setBrakingFluid(InterfaceBrakingFluid brakingFluid) {
-		this.brakingFluid = brakingFluid;
+	public void setGood(InterfaceGood good) {
+		this.good = good;
 	}
 
 	/**

@@ -4,13 +4,14 @@ import java.util.Date;
 
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class DocRow {
 	private String numDoc;
 	private int quantity;
 	private Date time;
 	private double summ;
-	private InterfaceBrakingFluid brakingFluid;
+	private InterfaceGood good;
 	private InterfaceOfferStatus status;
 	private User executer;
 	private boolean paid;  //оплачено
@@ -19,7 +20,7 @@ public class DocRow {
 		super();
 	}
 
-	public DocRow(String numDoc, Date time, InterfaceBrakingFluid interfaceBrakingFluid, int quantity, double summ
+	public DocRow(String numDoc, Date time, InterfaceGood good, int quantity, double summ
 				, InterfaceOfferStatus status, User executer, boolean paid) {
 		super();
 		this.numDoc = numDoc;
@@ -27,7 +28,7 @@ public class DocRow {
 		this.summ = summ;
 		this.status = status;
 		this.setTime(time);
-		this.setBrakingFluid(interfaceBrakingFluid);
+		this.setGood(good);
 		this.setExecuter(executer);
 		this.setPaid(paid);
 		
@@ -89,12 +90,12 @@ public class DocRow {
 		this.status = status;
 	}
 
-	public InterfaceBrakingFluid getBrakingFluid() {
-		return brakingFluid;
+	public InterfaceGood getGood() {
+		return good;
 	}
 
-	public void setBrakingFluid(InterfaceBrakingFluid brakingFluid) {
-		this.brakingFluid = brakingFluid;
+	public void setGood(InterfaceGood good) {
+		this.good = good;
 	}
 
 	public Date getTime() {

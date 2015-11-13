@@ -71,5 +71,15 @@
   <bean id="payDAO" class="eftech.workingset.DAO.templates.PayTemplate">
       <property name="dataSource"  ref="dataSource" />    
    </bean>   
+
+  <bean id="oilStuffDAO" class="eftech.workingset.DAO.templates.OilStuffTemplate">		<!-- MotorOils -->
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>   
+  <bean id="engineTypeDAO" class="eftech.workingset.DAO.templates.EngineTypeTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>   
+  <bean id="motorOilDAO" class="eftech.workingset.DAO.templates.MotorOilTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>   
       
 </beans>
