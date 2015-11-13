@@ -19,4 +19,5 @@ public interface InterfaceGood {
 	String getSpecification();
 	
 	String getGoodName();
+	void setPhoto(String string);
 }

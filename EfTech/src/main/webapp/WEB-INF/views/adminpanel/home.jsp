@@ -106,7 +106,8 @@
 <!--	        mainmenu -->
 	        
  	        <ul id="floatMenu" class="mainmenu"> 
- 	          <li class="first" ><input type="submit" name="task" value="Сравнить"></li>	
+ 	          <li class="first" ><input type="submit" name="task" value="В начало"></li>	
+ 	          <li> <input type="submit" name="task" value="Сравнить"></li>	
 	          <li><input type="submit" name="task" value="В корзину"></li>
          	  <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
 	          <li><input type="submit" name="task" value="Загрузить цены"></li>

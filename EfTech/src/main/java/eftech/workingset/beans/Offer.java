@@ -5,23 +5,24 @@ import java.util.Date;
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceOffer;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
+import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Offer implements InterfaceOffer {
 	private int id;
 	private Date time;
 	private User user;
 	private String offer_id;
-	private InterfaceBrakingFluid brakingFluid;
+	private InterfaceGood good;
 	private int quantity;
 	private double price;
 
-	public Offer(int id, Date time, User user, String offer_id, InterfaceBrakingFluid brekingFluid, int quantity) {
+	public Offer(int id, Date time, User user, String offer_id, InterfaceGood good, int quantity) {
 		super();
 		this.id = id;
 		this.time = time;
 		this.user = user;
 		this.offer_id = offer_id;
-		this.brakingFluid = brekingFluid;
+		this.good = good;
 		this.quantity = quantity;
 		this.price = price;
 	}
@@ -99,15 +100,15 @@ public class Offer implements InterfaceOffer {
 	/**
 	 * @return the brekingFluid
 	 */
-	public InterfaceBrakingFluid getBrakingFluid() {
-		return brakingFluid;
+	public InterfaceGood getGood() {
+		return good;
 	}
 
 	/**
 	 * @param brekingFluid the brekingFluid to set
 	 */
-	public void setBrakingFluid(InterfaceBrakingFluid brakingFluid) {
-		this.brakingFluid = brakingFluid;
+	public void setGood(InterfaceGood good) {
+		this.good = good;
 	}
 
 	/**

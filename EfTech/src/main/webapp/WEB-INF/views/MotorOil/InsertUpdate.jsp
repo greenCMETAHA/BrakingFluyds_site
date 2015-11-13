@@ -40,12 +40,12 @@
 		    <div class="container">
 		        <div class="col-xs-12 col-sm-6 no-margin">
 		            <ul>
-		                <li><a href="">В начало</a></li>
+		                <li><a href="index">В начало</a></li>
 		                 <!-- <li><a href="contact.html">Contact</a></li>  -->
 		                <li class="dropdown">
 		                    <a class="dropdown-toggle" data-toggle="dropdown" href="#pages">Страницы</a>
 		                    <ul class="dropdown-menu" role="menu">
-		                        <li><a href="">В начало</a></li>
+		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
 	 		                    <li><a href="motorOil">Список моторных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
@@ -226,6 +226,7 @@
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
 												<c:param name="id" value="${currentGood.getId()}"/>
+												<c:param name="goodPrefix" value="${currentGood.getGoodName()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
@@ -340,7 +341,7 @@
 	                    <label>Производитель:</label>
 	                    <div class="value">
 	                    	<select size="1" name="Manufacturer"  <c:out value="${disabledValue}"/> class="le-select">
-			                    <option >Выберите получателя</option>	
+			                    <option >Выберите производителя</option>	
 									<c:forEach var="punct" items="${requestScope.combobox_Manufacturers}">
 									<c:if test="${currentMotorOil.getManufacturer().getName() != punct.getName()}">
 										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
@@ -372,7 +373,7 @@
 	                    <label>Тип масла:</label>
 	                    <div class="value">
 	                    	<select size="1" name="OilStuff"  <c:out value="${disabledValue}"/> class="le-select">
-			                    <option >Выберите получателя</option>	
+			                    <option >Выберите тип масла</option>	
 									<c:forEach var="punct" items="${requestScope.combobox_OilStuff}">
 									<c:if test="${currentMotorOil.getOilStuff().getName() != punct.getName()}">
 										<option value="${punct.getName()}"><c:out value="${punct.getName()}"  /></option>
@@ -405,10 +406,16 @@
 	                    <label>Спецификация:</label>
 	                    <div class="value">	
 	                    	<div class="excerpt">
-			                	<div><textarea name="Specification" 
-<%-- 			                	 readonly="${readOnly}" --%>
-			                		 cols="90" rows="7" class="textarea" ><c:out value="${currentMotorOil.getSpecification().trim()}"  /></textarea>
-			                	</div>
+	                    		<sec:authorize access="!hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
+				                	<div><textarea name="Specification" readonly="${readOnly}"
+			                		 	cols="90" rows="7" class="textarea" ><c:out value="${currentMotorOil.getSpecification().trim()}"  /></textarea>
+			                		</div>
+				                </sec:authorize>
+	                    		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
+				                	<div><textarea name="Specification"	
+				                		cols="90" rows="7" class="textarea" ><c:out value="${currentMotorOil.getSpecification().trim()}"  /></textarea>
+				                	</div>
+				                </sec:authorize>
             			  	</div>
             			</div>
 	                  </li>

@@ -40,12 +40,12 @@
 		    <div class="container">
 		        <div class="col-xs-12 col-sm-6 no-margin">
 		            <ul>
-		                <li><a href="">В начало</a></li>
+		                <li><a href="index">В начало</a></li>
 		                 <!-- <li><a href="contact.html">Contact</a></li>  -->
 		                <li class="dropdown">
 		                    <a class="dropdown-toggle" data-toggle="dropdown" href="#pages">Страницы</a>
 		                    <ul class="dropdown-menu" role="menu">
-		                        <li><a href="">В начало</a></li>
+		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
 	 		                    <li><a href="motorOil">Список моторных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
@@ -226,6 +226,7 @@
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
 												<c:param name="id" value="${currentGood.getId()}"/>
+												<c:param name="goodPrefix" value="${currentGood.getGoodName()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
@@ -385,6 +386,7 @@
 		                   <label>Исполнитель:</label>
 		                   <div class="value">
 		                   	   <c:out value="${requestScope.user_name}"/>
+		                   	   <input name="executer_id" type="hidden" value="${requestScope.executer_id}" >
 			                </div>
 		                 </li>
 	                 </c:if>
@@ -435,18 +437,18 @@
 	            	<c:if test="${requestScope.task=='New'}">
 	            	<c:set var="name" value="basket" />
 			            <c:forEach var="currentDoc" items="${sessionScope[name]}">
-							<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+							<c:set  var="current" value="${currentDoc.getGood()}" />
 				            <div class="row no-margin cart-item">
 				              <div class="col-xs-12 col-sm-2 no-margin">
 				                
-				                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+				                <img class="lazy" height="73" width="73" alt="${current.getName()}" src="resources/jpg/${current.getPhoto()}" />
 				                </a>
 				              </div>
 				              <div class="col-xs-12 col-sm-4 ">
 				                <div class="title">
-				                  <c:out value="${currentBFluid.getName()}" />
+				                  <c:out value="${current.getName()}" />
 				                </div>
-				                <div class="brand"><c:out value="${currentBFluid.getManufacturer().getName()}"/></div>
+				                <div class="brand"><c:out value="${current.getManufacturer().getName()}"/></div>
 				              </div>
 				          	  <div class="col-xs-12 col-sm-3 no-margin">
 				          	  	<div class="quantity">
@@ -456,7 +458,7 @@
 				               <sec:authorize access="!isAnonymous()">
 					               <div class="col-xs-12 col-sm-2 no-margin">
 					                  <div class="price">
-						               		<c:out value="${currentDoc.getQauntity()*currentBFluid.getPrice()}"/>
+						               		<c:out value="${currentDoc.getQauntity()*current.getPrice()}"/>
 					                  </div>
 					               </div>
 					           </sec:authorize>
@@ -466,16 +468,16 @@
 		          	</c:if>
 		          	<c:if test="${requestScope.task!='New'}">
 		            	<c:forEach var="currentDoc" items="${requestScope.listDoc}">
-							<c:set  var="currentBFluid" value="${currentDoc.getBrakingFluid()}" />
+							<c:set  var="current" value="${currentDoc.getGood()}" />
 				            <div class="row no-margin cart-item">
 				              <div class="col-xs-12 col-sm-1 no-margin">
-				                <img class="lazy" height="73" width="73" alt="${currentBFluid.getName()}" src="resources/jpg/${currentBFluid.getPhoto()}" />
+				                <img class="lazy" height="73" width="73" alt="${current.getName()}" src="resources/jpg/${current.getPhoto()}" />
 				              </div>
 				              <div class="col-xs-12 col-sm-6 ">
 				                <div class="title">
-				                  <c:out value="${currentBFluid.getName()}" />
+				                  <c:out value="${current.getName()}" />
 				                </div>
-				                <div class="brand">(<c:out value="${currentBFluid.getManufacturer().getName()}"/>)</div>
+				                <div class="brand">(<c:out value="${current.getManufacturer().getName()}"/>)</div>
 				              </div>
 				          	  <div class="col-xs-12 col-sm-1 no-margin">
 				          	  	<div class="quantity">
@@ -484,7 +486,7 @@
 				              </div>
 				              <div class="col-xs-12 col-sm-2 no-margin">
 				                  <div class="price">
-				               		<c:out value="${currentDoc.getQuantity()*currentBFluid.getPrice()}"/>
+				               		<c:out value="${currentDoc.getQuantity()*current.getPrice()}"/>
 				                  </div>
 				              </div>
 				            </div>

@@ -256,14 +256,6 @@ public class LogTemplate implements InterfaceLogDAO {
 			}else if ("Wishlist".equals(strObj)){
 				object=new Wishlist();
 				((Wishlist) object).setId(rs.getInt("object_id"));
-				InterfaceGood currentGood=null;
-				if ("BrakingFluid".equals(strObj)){
-					currentGood=new BrakingFluid();
-				}else if ("MotorOil".equals(strObj)){
-					currentGood = new MotorOil();
-				}
-				currentGood.setName(rs.getString("object_name"));
-				((Wishlist) object).setGood(currentGood);
 			}
 			log.setObject(object);
 			User user=new User();

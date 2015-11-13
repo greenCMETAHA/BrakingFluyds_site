@@ -198,54 +198,59 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 	public LinkedList<Wishlist> getWishList(int User_id, int num, int nextRows) {
 		ArrayList<Wishlist> result=null;
 		
-		String sqlQuery="select w.id AS wish_id, w.goodPrefix as goodPrefix"                          //сначала пройдЄмс€ по тормозным жидкост€м
-				+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
-				+ ", fc.id AS fluidclass, fc.name AS fc_name"
-				+ ", m.id AS man_id, m.name AS man_name"
-				+ ", bf.id AS good_id, bf.name AS good_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
-				+ " from wishlist w"
-				+ " left join users AS u ON (w.user=u.id)"
-				+ " left join BrakingFluids AS bf ON (w.good=bf.id)"
-				+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
-				+ " left join manufacturer as m on (bf.manufacturer=m.id) "
-				+ " where w.goodPrefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
-				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+		if (User_id>0){
+			
+			String sqlQuery="select w.id AS wish_id, w.goodPrefix as goodPrefix"                          //сначала пройдЄмс€ по тормозным жидкост€м
+					+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+					+ ", fc.id AS fluidclass, fc.name AS fc_name"
+					+ ", m.id AS man_id, m.name AS man_name"
+					+ ", bf.id AS good_id, bf.name AS good_name, bf.price AS price, bf.photo AS photo, bf.value AS value, bf.judgement AS judgement"
+					+ " from wishlist w"
+					+ " left join users AS u ON (w.user=u.id)"
+					+ " left join BrakingFluids AS bf ON (w.good=bf.id)"
+					+ " left join fluidclass as fc on (bf.fluidclass=fc.id)"
+					+ " left join manufacturer as m on (bf.manufacturer=m.id) "
+					+ " where w.goodPrefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
+					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+			
+			
+			MapSqlParameterSource params = new MapSqlParameterSource();
+			params.addValue("User_id", User_id);
+			params.addValue("goodPrefix", Service.BRAKING_FLUID_PREFIX);
+			
+			result=(ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper());
+			
+			sqlQuery="select w.id AS wish_id, w.goodPrefix as goodPrefix"                          //теперь - по MotorOil
+					+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
+					+ ", os.id AS oilstuff, os.name AS os_name"
+					+ ", et.id AS engineType, et.name AS et_name"
+					+ ", m.id AS man_id, m.name AS man_name"
+					+ ", mo.id AS good_id, mo.name AS good_name, mo.price AS price, mo.photo AS photo, mo.value AS value, mo.judgement AS judgement"
+					+ " from wishlist w"
+					+ " left join users AS u ON (w.user=u.id)"
+					+ " left join MotorOils AS mo ON (w.good=mo.id)"
+					+ " left join OilStuff as os on (mo.oilstuff=os.id)"
+					+ " left join EngineType as et on (mo.engineType=et.id)"
+					+ " left join manufacturer as m on (mo.manufacturer=m.id) "
+					+ " where w.goodPrefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
+					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+			
+			
+			params = new MapSqlParameterSource();
+			params.addValue("User_id", User_id);
+			params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
+			
+			result.addAll((ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()));
 		
-		
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("User_id", User_id);
-		params.addValue("goodPrefix", Service.BRAKING_FLUID_PREFIX);
-		
-		result=(ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper());
-		
-		sqlQuery="select w.id AS wish_id, w.goodPrefix as goodPrefix"                          //теперь - по MotorOil
-				+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS User_login"
-				+ ", os.id AS oilstuff, os.name AS os_name"
-				+ ", et.id AS engineType, et.name AS et_name"
-				+ ", m.id AS man_id, m.name AS man_name"
-				+ ", mo.id AS good_id, mo.name AS good_name, mo.price AS price, mo.photo AS photo, mo.value AS value, mo.judgement AS judgement"
-				+ " from wishlist w"
-				+ " left join users AS u ON (w.user=u.id)"
-				+ " left join MotorOils AS mo ON (w.good=mo.id)"
-				+ " left join OilStuff as os on (mo.oilstuff=os.id)"
-				+ " left join EngineType as et on (mo.engineType=et.id)"
-				+ " left join manufacturer as m on (mo.manufacturer=m.id) "
-				+ " where w.goodPrefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
-				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
-		
-		
-		params = new MapSqlParameterSource();
-		params.addValue("User_id", User_id);
-		params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
-		
-		result.addAll((ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()));
-	
-		try{ 
-			return new LinkedList<Wishlist>(result);
-		}catch (EmptyResultDataAccessException e){
+			try{ 
+				return new LinkedList<Wishlist>(result);
+			}catch (EmptyResultDataAccessException e){
+				return new LinkedList<Wishlist>();
+			}catch (InvalidDataAccessApiUsageException e){
+				return new LinkedList<Wishlist>();				
+			}
+		}else{
 			return new LinkedList<Wishlist>();
-		}catch (InvalidDataAccessApiUsageException e){
-			return new LinkedList<Wishlist>();				
 		}
 	
 	}
@@ -308,19 +313,19 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 			  	brFluid.setJudgement(rs.getDouble("judgement"));
 			  	
 			  	good=brFluid;
-			}else if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+			}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 				MotorOil oil=new MotorOil();
 				
 				oil.setManufacturer(manufacturer);
 				
 				OilStuff oilStuff =new OilStuff();
-				oilStuff.setId(rs.getInt("os_id"));
+				oilStuff.setId(rs.getInt("oilstuff"));
 				oilStuff.setName(rs.getString("os_name"));
 				oil.setOilStuff(oilStuff);
 
 				EngineType engineType =new EngineType();
-				engineType.setId(rs.getInt("os_id"));
-				engineType.setName(rs.getString("os_name"));
+				engineType.setId(rs.getInt("engineType"));
+				engineType.setName(rs.getString("et_name"));
 				oil.setEngineType(engineType);
 				
 				oil.setPhoto(rs.getString("photo"));

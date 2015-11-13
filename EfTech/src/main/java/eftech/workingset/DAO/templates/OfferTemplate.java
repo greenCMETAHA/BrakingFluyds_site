@@ -22,7 +22,9 @@ import eftech.workingset.DAO.interfaces.InterfaceOfferDAO;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.BrakingFluid;
+import eftech.workingset.beans.Demand;
 import eftech.workingset.beans.Manufacturer;
+import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.Offer;
 import eftech.workingset.beans.Price;
 import eftech.workingset.beans.Review;
@@ -53,12 +55,15 @@ public class OfferTemplate implements InterfaceOfferDAO{
 	
 	@Override
 	public ArrayList<Offer> getOffersLast(int numPage, int quantity) {
-		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, bf.price AS fluid_price, bf.photo AS fluid_photo"
+		ArrayList<Offer> result=null;
+		
+		String sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
-				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name from offer as of"
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
 				+ " left join Users AS u on (of.user=u.id)"
-				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
+				+ " left join brakingfluids AS bf on (of.good=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
+				+ "where of.goodPrefix=:goodPrefix"
 				//+ " order by of.time desc, of.offer_id limit :numPage, :quantity";
 				+ " order by of.time desc, of.offer_id";
 
@@ -66,9 +71,30 @@ public class OfferTemplate implements InterfaceOfferDAO{
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("quantity", quantity);
 		params.addValue("numPage", numPage-1);
+		params.addValue("goodPrefix", Service.BRAKING_FLUID_PREFIX);
+		
+		result=(ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper());
+		
+		sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
+				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
+				+ " left join Users AS u on (of.user=u.id)"
+				+ " left join MotorOils AS bf on (of.good=bf.id)"
+				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
+				+ "where of.goodPrefix=:goodPrefix"
+				//+ " order by of.time desc, of.offer_id limit :numPage, :quantity";
+				+ " order by of.time desc, of.offer_id";
+
+		
+		params = new MapSqlParameterSource();
+		params.addValue("quantity", quantity);
+		params.addValue("numPage", numPage-1);
+		params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);	
+		
+		result.addAll((ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper()));
 		
 		try{
-			return (ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper());
+			return result;
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Offer>();
 		}				
@@ -84,11 +110,13 @@ public class OfferTemplate implements InterfaceOfferDAO{
 		begin.setMinutes(59);
 		begin.setSeconds(59);
 		
-		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, bf.price AS fluid_price, bf.photo AS fluid_photo"
+		ArrayList<Offer> result=null;
+		
+		String sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
-				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name from offer as of"
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
 				+ " left join Users AS u on (of.user=u.id)"
-				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
+				+ " left join brakingfluids AS bf on (of.good=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
 				+ ((begin.getTime()<end.getTime())?" where (of.time<=:end) and (of.time>=:begin)":"")
 				//+ " order by of.time desc, of.offer_id limit :numPage, :quantity";
@@ -100,10 +128,32 @@ public class OfferTemplate implements InterfaceOfferDAO{
 		params.addValue("numPage", numPage-1);
 		params.addValue("begin", begin);
 		params.addValue("end", end);
+		params.addValue("goodPrefix", Service.BRAKING_FLUID_PREFIX);
 		
+		result=(ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper());
+		
+		sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
+				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
+				+ " left join Users AS u on (of.user=u.id)"
+				+ " left join MotorOils AS bf on (of.good=bf.id)"
+				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
+				+ ((begin.getTime()<end.getTime())?" where (of.time<=:end) and (of.time>=:begin)":"")
+				//+ " order by of.time desc, of.offer_id limit :numPage, :quantity";
+				+ " order by of.time desc, of.offer_id";
+
+		
+		params = new MapSqlParameterSource();
+		params.addValue("quantity", quantity);
+		params.addValue("numPage", numPage-1);
+		params.addValue("begin", begin);
+		params.addValue("end", end);
+		params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
+		
+		result.addAll((ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper()));		
 		
 		try{
-			return (ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper());
+			return result;
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Offer>();
 		}				
@@ -113,20 +163,40 @@ public class OfferTemplate implements InterfaceOfferDAO{
 
 	@Override
 	public ArrayList<Offer> getOffer(String offer_id) {
-		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, bf.price AS fluid_price, bf.photo AS fluid_photo"
+		ArrayList<Offer> result=null;
+	
+		String sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
-				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name from offer as of"
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
 				+ " left join Users AS u on (of.user=u.id)"
-				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
+				+ " left join brakingfluids AS bf on (of.good=bf.id)"
 				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
 				+ " where of.offer_id=:offer_id";
 
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("offer_id", offer_id);
+		params.addValue("goodPrefix", Service.BRAKING_FLUID_PREFIX);
+		
+		result=(ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper());
+		
+		sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
+				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
+				+ " left join Users AS u on (of.user=u.id)"
+				+ " left join MotorOils AS bf on (of.good=bf.id)"
+				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
+				+ " where of.offer_id=:offer_id";
+
+		
+		params = new MapSqlParameterSource();
+		params.addValue("offer_id", offer_id);
+		params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
+		
+		result.addAll((ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper()));		
 		
 		try{
-			return (ArrayList<Offer>)jdbcTemplate.query(sqlQuery,params,new OfferRowMapper());
+			return result;
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Offer>();
 		}				
@@ -134,40 +204,66 @@ public class OfferTemplate implements InterfaceOfferDAO{
 
 	@Override
 	public Offer getOfferById(int id) {
-		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, bf.price AS fluid_price, bf.photo AS fluid_photo"
-				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
-				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name from offer as of"
-				+ " left join Users AS u on (of.user=u.id)"
-				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
-				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
-				+ " where of.id=:id";
-
-		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
 		
+		String goodPrefix=null;
+		String sqlQuery="select goodPrefix from offer where offer.id=:id";
+		try{ 
+			goodPrefix=(String)jdbcTemplate.queryForObject(sqlQuery,params,String.class);
+		}catch (EmptyResultDataAccessException e){
+			return new Offer();
+		}
+		
+		Offer result=null;
+		
+		if (goodPrefix!=null){		
+			sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
+					+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
+					+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
+					+ " left join Users AS u on (of.user=u.id)";
+			if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+				sqlQuery+=" left join brakingfluids AS bf on (of.good=bf.id)";
+			}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+				sqlQuery+=" left join MotorOils AS bf on (of.good=bf.id)";
+			}
+					sqlQuery+= " left join manufacturer AS man on (bf.manufacturer=man.id)"
+					+ " where of.id=:id";
+	
+			
+			params = new MapSqlParameterSource();
+			params.addValue("id", id);
+			
+			result=(Offer)jdbcTemplate.queryForObject(sqlQuery,params,new OfferRowMapper());
+		
+		}
 		
 		try{ 
-			return (Offer)jdbcTemplate.queryForObject(sqlQuery,params,new OfferRowMapper());
+			return result;
 		}catch (EmptyResultDataAccessException e){
 			return new Offer();
 		}
 	}
 	
 	@Override
-	public Offer getOfferByOfferId(String offer_id, int braking_fluid_id) {
-		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, bf.price AS fluid_price, bf.photo AS fluid_photo"
+	public Offer getOfferByOfferId(String offer_id, int good_id, String goodPrefix) {
+		String sqlQuery="select *, bf.id AS good_id, bf.name AS good_name, bf.price AS good_price, bf.price AS good_price, bf.photo AS good_photo"
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
-				+ ", man.id AS fluid_manufacturer_id, man.name AS fluid_manufacturer_name from offer as of"
-				+ " left join Users AS u on (of.user=u.id)"
-				+ " left join brakingfluids AS bf on (of.brakingfluid=bf.id)"
-				+ " left join manufacturer AS man on (bf.manufacturer=man.id)"
-				+ " where (of.offer_id=:offer_id) and (of.braking_fluid=:braking_fluid_id)";
+				+ ", man.id AS good_manufacturer_id, man.name AS good_manufacturer_name from offer as of"
+				+ " left join Users AS u on (of.user=u.id)";
+				if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
+					sqlQuery+=" left join brakingfluids AS bf on (of.good=bf.id)";
+				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+					sqlQuery+=" left join MotorOils AS bf on (of.good=bf.id)";
+				}
+				sqlQuery+= " left join manufacturer AS man on (bf.manufacturer=man.id)"
+				+ " where (of.offer_id=:offer_id) and (of.good=:good_id) and (of.goodPrefix=:goodPrefix)";
 
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("offer_id", offer_id);
-		params.addValue("braking_fluid_id", braking_fluid_id);
+		params.addValue("good_id", good_id);
+		params.addValue("goodPrefix", goodPrefix);
 		
 		
 		try{ 
@@ -184,19 +280,20 @@ public class OfferTemplate implements InterfaceOfferDAO{
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		
-		String sqlUpdate="insert into offer (time, offer_id, brakingfluid, quantity, price, user ) "
-				+ "Values (:time, :offer_id, :brakingfluid, :quantity, :price, :user)";
+		String sqlUpdate="insert into offer (time, offer_id, good, goodPrefix, quantity, price, user ) "
+				+ "Values (:time, :offer_id, :good, :goodPrefix, :quantity, :price, :user)";
 		if (currentOffer.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update offer set time=:time, offer_id=:offer_id, brakingfluid=:brakingfluid, quantity=:quantity"
+			 sqlUpdate="update offer set time=:time, offer_id=:offer_id, good=:good, goodPrefix=:goodPrefix, quantity=:quantity"
 			 		+ ", price=:price, user=:user where id=:id";
 			 params.addValue("id", currentOffer.getId());
 		}
 		
 		params.addValue("time", offer.getTime());
 		params.addValue("offer_id", offer.getOffer_id());
-		params.addValue("brakingfluid", ((BrakingFluid)offer.getBrakingFluid()).getId());
+		params.addValue("good", offer.getGood().getId());
+		params.addValue("goodPrefix", offer.getGood().getGoodName());
 		params.addValue("quantity", offer.getQuantity());
-		params.addValue("price", ((BrakingFluid)offer.getBrakingFluid()).getPrice());
+		params.addValue("price", offer.getGood().getPrice());
 		params.addValue("user", (((User)offer.getUser()).getId()==0?Service.ID_CUSTOMER:((User)offer.getUser()).getId()));
 		
 		KeyHolder keyHolder=new GeneratedKeyHolder(); 
@@ -224,24 +321,24 @@ public class OfferTemplate implements InterfaceOfferDAO{
 		for (Offer offer:list){						//проверим уже записанные реквизиты...
 			dataDoc=offer.getTime();
 			boolean bFind=false;
-			for (Basket currentFluid:basket){
-				if ((((BrakingFluid)offer.getBrakingFluid()).getId()==((BrakingFluid)currentFluid.getGood()).getId())){
+			for (Basket current:basket){
+				if ((offer.getGood().getId()==current.getGood().getId()) && (offer.getGood().getGoodName().equals(current.getGood().getGoodName()))){
 					bFind=true;
 					result.add(offer);
-					basket.remove(currentFluid);
+					basket.remove(current);
 					break;
 					
 				}
 			}
 		}
-		for (Basket currentFluid:basket){			//добавим новые...
+		for (Basket current:basket){			//добавим новые...
 			Offer offer=new Offer();
 			offer.setOffer_id(offer_id);
-			offer.setPrice(((BrakingFluid)currentFluid.getGood()).getPrice());
-			offer.setQuantity(currentFluid.getQauntity());
+			offer.setPrice(current.getGood().getPrice());
+			offer.setQuantity(current.getQauntity());
 			offer.setTime(dataDoc);
 			offer.setUser(user);
-			offer.setBrakingFluid((BrakingFluid)currentFluid.getGood());
+			offer.setGood(current.getGood());
 			
 			result.add(offer);
 		}
@@ -265,17 +362,29 @@ public class OfferTemplate implements InterfaceOfferDAO{
 				offer.setTime(new java.util.Date(timestamp.getTime()));
 			}
 			offer.setOffer_id(rs.getString("offer_id"));
-			BrakingFluid fluid=new BrakingFluid();
-			fluid.setId(rs.getInt("fluid_id"));
-			fluid.setName(rs.getString("fluid_name"));
-			fluid.setPrice(rs.getDouble("fluid_price"));
-			fluid.setPhoto(rs.getString("fluid_photo"));
-			Manufacturer manufacturer=new Manufacturer();
-			manufacturer.setId(rs.getInt("fluid_manufacturer_id"));
-			manufacturer.setName(rs.getString("fluid_manufacturer_name"));
-			fluid.setManufacturer(manufacturer);
 			
-			offer.setBrakingFluid(fluid);
+			Manufacturer manufacturer=new Manufacturer();
+			manufacturer.setId(rs.getInt("good_manufacturer_id"));
+			manufacturer.setName(rs.getString("good_manufacturer_name"));
+
+			if (Service.BRAKING_FLUID_PREFIX.equals(rs.getString("goodPrefix"))){
+				BrakingFluid current=new BrakingFluid();
+				current.setId(rs.getInt("good_id"));
+				current.setName(rs.getString("good_name"));
+				current.setPrice(rs.getDouble("good_price"));
+				current.setPhoto(rs.getString("good_photo"));
+				current.setManufacturer(manufacturer);
+				offer.setGood(current);
+			}else if (Service.MOTOR_OIL_PREFIX.equals(rs.getString("goodPrefix"))){
+				MotorOil current=new MotorOil();
+				current.setId(rs.getInt("good_id"));
+				current.setName(rs.getString("good_name"));
+				current.setPrice(rs.getDouble("good_price"));
+				current.setPhoto(rs.getString("good_photo"));
+				current.setManufacturer(manufacturer);
+				offer.setGood(current);
+			}	
+			
 			offer.setQuantity(rs.getInt("quantity"));
 			offer.setPrice(rs.getDouble("price"));
 			offer.setUser(new User(rs.getInt("user_id"),rs.getString("user_name"),rs.getString("user_email"),rs.getString("user_login")));

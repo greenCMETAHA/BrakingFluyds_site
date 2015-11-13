@@ -15,7 +15,7 @@ public interface InterfaceOfferDAO {
 	ArrayList<Offer> getOffersIn(Date begin, Date end, int numPage, int quantity);
 	ArrayList<Offer> getOffer(String offer_id);
 	Offer getOfferById(int id);
-	Offer getOfferByOfferId(String offer_id, int braking_fluid_id);
+	Offer getOfferByOfferId(String offer_id, int good_id, String goodPrefix);
 	
 	ArrayList<Offer> createOffer(String offer_id, LinkedList<Basket> basket, User user);
 }

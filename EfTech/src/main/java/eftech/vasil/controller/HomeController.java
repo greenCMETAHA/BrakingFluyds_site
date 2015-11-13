@@ -854,6 +854,7 @@ public class HomeController{
 	public String wishlist(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "goodPrefix", defaultValue="BrF", required=false) String goodPrefix
 			,HttpServletRequest request,Locale locale, Model model) {
 		
 		HttpSession session=request.getSession();
@@ -875,7 +876,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -891,6 +892,7 @@ public class HomeController{
 	public String basket(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "goodPrefix", defaultValue="BrF", required=false) String goodPrefix
 			,@RequestParam(value = "client", defaultValue="0", required=false) int client
 			,@RequestParam(value = "quantity", defaultValue="0", required=false) int quantity
 			,HttpServletRequest request,Locale locale, Model model) {
@@ -929,7 +931,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, goodPrefix, quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		
 		createBussinessOffer(id, client, variant, user, basket, session);
@@ -1013,6 +1015,7 @@ public class HomeController{
 	public String showOne(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "goodPrefix", defaultValue="BrF", required=false) String goodPrefix   //!!!!!!!!  Обработать
 			,@RequestParam(value = "userLogin", defaultValue="", required=false) String userLogin
 			,@RequestParam(value = "userEmail", defaultValue="", required=false) String userEmail
 			,@RequestParam(value = "userReviw", defaultValue="", required=false) String userReviw
@@ -1573,6 +1576,8 @@ public class HomeController{
 			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
 		}else if(task.compareTo("В корзину")==0){
 			result="Basket";
+		}else if(task.compareTo("В начало")==0){
+			return "index";																				//---return
 		}else if ((task.compareTo("Загрузить номенклатуру")==0) || (task.compareTo("DownloadProduct")==0)){
 			model.addAttribute("variantDownload", Service.VARIANT_PRODUCT);
 			model.addAttribute("errors", new ArrayList<String>());
@@ -1773,8 +1778,12 @@ public class HomeController{
 		if (task.compareTo("New")==0){
 			if ("Demand".equals(variant)){
 				model.addAttribute("pageInfo", "Создать новую заявку");
+				model.addAttribute("user_name", user.getName());
+				model.addAttribute("executer_id", user.getId());
 			}else if ("Offer".equals(variant)){
 				model.addAttribute("pageInfo", "Создать новое коммерческое предложение");
+				model.addAttribute("user_name", user.getName());
+				model.addAttribute("executer_id", user.getId());
 			}else if ("Pay".equals(variant)){
 				model.addAttribute("pageInfo", "Создать новую оплату");
 				model.addAttribute("currentManufacturer", manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM))));
@@ -2304,6 +2313,7 @@ public class HomeController{
 			 ,@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			 ,@RequestParam(value = "task", defaultValue="", required=false) String task
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "goodPrefix", defaultValue="BrF", required=false) String goodPrefix
 			,HttpServletRequest request,HttpServletResponse response) {
 	 
 		HttpSession session=request.getSession();
@@ -2325,7 +2335,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		

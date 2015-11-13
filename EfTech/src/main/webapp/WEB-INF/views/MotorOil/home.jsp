@@ -40,12 +40,12 @@
 		    <div class="container">
 		        <div class="col-xs-12 col-sm-6 no-margin">
 		            <ul>
-		                <li><a href="">В начало</a></li>
+		                <li><a href="index">В начало</a></li>
 		                 <!-- <li><a href="contact.html">Contact</a></li>  -->
 		                <li class="dropdown">
 		                    <a class="dropdown-toggle" data-toggle="dropdown" href="#pages">Страницы</a>
 		                    <ul class="dropdown-menu" role="menu">
-		                        <li><a href="">В начало</a></li>
+		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
 	 		                    <li><a href="motorOil">Список моторных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
@@ -226,6 +226,7 @@
 					                        </div>
 											<c:url value="Basket" var="deleteFromBasket">
 												<c:param name="id" value="${currentGood.getId()}"/>
+												<c:param name="goodPrefix" value="${currentGood.getGoodName()}"/>
 												<c:param name="variant" value="deleteFromBasket"/>
 											</c:url>
 											<a class="close-btn" href="${deleteFromBasket}"  title="Удалить товар из корзины." ></a>
@@ -487,7 +488,7 @@
 			                      </div>
 			                      <div class="wish-compare">
 			                      	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
-				                        <c:url value="MotorOil" var="UpdateGood">
+				                        <c:url value="motorOil" var="UpdateGood">
 											<c:param name="id" value="${current.getId()}"/>
 											<c:param name="variant" value="inWishlist"/>
 											<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -585,7 +586,7 @@
 				                    <a href="${UpdateGood}" class="le-button">В корзину</a>
 		                            <div class="wish-compare">
 			                            <sec:authorize access="!isAnonymous()  and !hasRole('ROLE_ADMIN')">
-					                        <c:url value="MotorOil" var="UpdateGood">
+					                        <c:url value="motorOil" var="UpdateGood">
 												<c:param name="id" value="${current.getId()}"/>
 												<c:param name="variant" value="inWishlist"/>
 												<c:param name="currentPage" value="${requestScope.currentPage}"/>

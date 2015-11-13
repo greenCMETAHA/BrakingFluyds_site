@@ -658,7 +658,7 @@ public class MotorOilController {
 			,@RequestParam(value="photoBackUp", defaultValue="", required=false) String photoBackUp   //в MultipartFile невозможно получить значение, оказывается. Старое сохраним в элементе формы
 			,@RequestParam(value = "Description", defaultValue="", required=false) String description
 			,@RequestParam(value = "Specification", defaultValue="", required=false) String specification
-			,@RequestParam(value="Judgement", defaultValue="0", required=false) String judgement		//double
+			,@RequestParam(value="score", defaultValue="0", required=false) String judgement		//double
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		//double
 			) {
 		
@@ -668,6 +668,9 @@ public class MotorOilController {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		fieldEngineType=("Выберите тип двигателя".equals(fieldEngineType)?Service.EMPTY:fieldEngineType);
+		manufacturer   =("Выберите производителя".equals(manufacturer)?Service.EMPTY:manufacturer);
+		fieldOilStuff  =("Выберите тип масла".equals(fieldOilStuff)?Service.EMPTY:fieldOilStuff);
 		
 		if (variant.compareTo("Сохранить")==0){
 			variant="Save";
