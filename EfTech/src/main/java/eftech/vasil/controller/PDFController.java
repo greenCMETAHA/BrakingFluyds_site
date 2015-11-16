@@ -109,8 +109,7 @@ public class PDFController {
 			, @RequestParam(value = "selections", required=false ) int[] selections
 			, @RequestParam(value = "variant") String variant
 			, @RequestParam(value = "client") int clientId
-			,HttpServletRequest request
-			,Locale locale, Model model) {
+			,HttpServletRequest request,Locale locale, Model model) {
 //		try {
 //			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8");
 //		} catch (UnsupportedEncodingException e) {
