@@ -1,11 +1,9 @@
 package eftech.workingset.DAO.templates;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import javax.sql.DataSource;
-
+import eftech.workingset.DAO.interfaces.InterfaceClientDAO;
+import eftech.workingset.Services.Service;
+import eftech.workingset.beans.Client;
+import eftech.workingset.beans.Country;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,14 +12,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import eftech.workingset.DAO.interfaces.InterfaceClientDAO;
-import eftech.workingset.Services.Service;
-import eftech.workingset.beans.BrakingFluid;
-import eftech.workingset.beans.Client;
-import eftech.workingset.beans.Country;
-import eftech.workingset.beans.FluidClass;
-import eftech.workingset.beans.Manufacturer;
-import eftech.workingset.beans.Role;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class ClientTemplate implements InterfaceClientDAO {
 	private NamedParameterJdbcTemplate jdbcTemplate;
@@ -29,29 +23,29 @@ public class ClientTemplate implements InterfaceClientDAO {
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-	}	
+	}
 
 	public  int getCountRows(){
 		String sqlQuery="select count(*) from client";
-		
+
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		
+
 		try{
 			return jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
 		}catch (EmptyResultDataAccessException e){
 			return 0;
-		}				
-		
-		
-	}	
-	
+		}
+
+
+	}
+
 	@Override
 	public Client getClient(int id) {
 		id=(id==0?Service.ID_EMPTY_CLIENT:id);
-		
-		String sqlQuery="select *, country.id as country_id, country.name as country_name from Client"
+
+		String sqlQuery="select *, country.id as country_id, country.name as country_name from client"
 				+ "	left join country on (client.country=country.id) where client.id=:id order by client.name";
-		
+
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
 
@@ -59,14 +53,14 @@ public class ClientTemplate implements InterfaceClientDAO {
 			return jdbcTemplate.queryForObject(sqlQuery, params, new ClientRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new Client();
-		}		
+		}
 	}
-	
+
 	@Override
 	public ArrayList<Client> getClients() {
 		return (ArrayList<Client>)getClients(0,0);
 	}
-	
+
 	@Override
 	public ArrayList<Client> getClients(int num, int nextRows) {
 		String sqlQuery="select *, country.id as country_id,  country.name as country_name from client "
@@ -89,7 +83,7 @@ public class ClientTemplate implements InterfaceClientDAO {
 		}
 		String sqlUpdate="insert into client (name, email, address, country) Values (:name, :email, :address, :country)";
 		if (currentClient.getId()>0){ // В БД есть такой элемент
-			 sqlUpdate="update client set name=:name, email=:email, address=:address, country=:country where id=:id";
+			sqlUpdate="update client set name=:name, email=:email, address=:address, country=:country where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -97,24 +91,24 @@ public class ClientTemplate implements InterfaceClientDAO {
 		params.addValue("email", client.getEmail());
 		params.addValue("address", client.getAddress());
 		params.addValue("country", ((Country)client.getCountry()).getId());
-	
+
 		if (currentClient.getId()>0){ // В БД есть элемент
 			params.addValue("id", currentClient.getId());
 		}
-		
-		KeyHolder keyHolder=new GeneratedKeyHolder(); 
-		
+
+		KeyHolder keyHolder=new GeneratedKeyHolder();
+
 		jdbcTemplate.update(sqlUpdate, params, keyHolder);
-		
+
 		try{
 			if (keyHolder.getKey()!=null) {
 				result=getClient(keyHolder.getKey().intValue());
 			}
-					
+
 		}catch (EmptyResultDataAccessException e){
 			result = new Client();
-		}		
-		
+		}
+
 		return result;
 	}
 
@@ -125,14 +119,14 @@ public class ClientTemplate implements InterfaceClientDAO {
 
 	@Override
 	public void deleteClient(int id) {
-		String sqlUpdate="delete from Client where id=:id";
+		String sqlUpdate="delete from client where id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id",  id);
-		
+
 		jdbcTemplate.update(sqlUpdate, params);
 	}
-	
+
 	private static final class ClientRowMapper implements RowMapper<Client> {
 
 		@Override
@@ -145,7 +139,7 @@ public class ClientTemplate implements InterfaceClientDAO {
 			result.setAddress(rs.getString("address"));
 			Country country=new Country(rs.getInt("country_id"),rs.getString("country_name"));
 			result.setCountry(country);
-			
+
 			return result;
 		}
 	}

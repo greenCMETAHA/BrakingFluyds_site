@@ -503,7 +503,7 @@
             <!-- /.widget -->
             </form>
             <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-	           <form action="InsertUpdateMotorOil" method="POST"  enctype="multipart/form-data">
+	           <form action="InsertUpdate" method="POST"  enctype="multipart/form-data">
             		<input name="variant" type="hidden" value="New" >
 		            <div class="widget">
 		            	<div class="body bordered">
@@ -697,7 +697,7 @@
                         </div>
                         <div class="col-xs-12 col-sm-6">
                           <div class="result-counter">
-                          	Товары <span><c:out value="${requestScope.paginationString_part1}"  /> </span> из <span> <c:out value="${requestScope.paginationString_part2}"  /> <span> найденных
+                          	Товары <span><c:out value="${requestScope.paginationString_part1}"  /> </span> из <span> <c:out value="${requestScope.paginationString_part2}"  /> </span> найденных
                            
                           </div>
                         </div>

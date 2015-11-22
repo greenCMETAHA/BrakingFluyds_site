@@ -2356,37 +2356,37 @@ public class HomeController{
 
      }
 	 
-//	@ExceptionHandler(Exception.class)
-//	public ModelAndView handleAllException(Exception ex
-////			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
-////			,@RequestParam(value = "id", defaultValue="0", required=false) int id
-//			, HttpServletRequest request,Locale locale) {
-//
-//		ModelAndView model = new ModelAndView("errorPage");
-//		model.addObject("errNumber", "Ошибка");
-//		model.addObject("errMessage", ex.getMessage());
-//		String strMessage=ex.getMessage();
-//		if (strMessage.length()>185){
-//			strMessage=strMessage.substring(0, 185);
-//		}
-//
-//		try{
-//			Service.sendTheErrorToAdmin(ex.getMessage(),infoDAO.getInfo(Service.ADMIN_EMAIL));
-//		}catch(Exception e){
-//			Service.sendTheErrorToAdmin(ex.getMessage(),"phylife@mail.ru");
-//			
-//		}
-//		
-//		try{
-//			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
-//			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
-//		}catch(Exception e){
-//			//---
-//		}
-//
-//		return model;
-//
-//	}
+	@ExceptionHandler(Exception.class)
+	public ModelAndView handleAllException(Exception ex
+			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			, HttpServletRequest request,Locale locale) {
+
+		ModelAndView model = new ModelAndView("errorPage");
+		model.addObject("errNumber", "Ошибка");
+		model.addObject("errMessage", ex.getMessage());
+		String strMessage=ex.getMessage();
+		if (strMessage.length()>185){
+			strMessage=strMessage.substring(0, 185);
+		}
+
+		try{
+			Service.sendTheErrorToAdmin(ex.getMessage(),infoDAO.getInfo(Service.ADMIN_EMAIL));
+		}catch(Exception e){
+			Service.sendTheErrorToAdmin(ex.getMessage(),"phylife@mail.ru");
+			
+		}
+		
+		try{
+			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
+		}catch(Exception e){
+			//---
+		}
+
+		return model;
+
+	}
 	
 	@RequestMapping(value = "/error", method = {RequestMethod.POST, RequestMethod.GET})
 	public String errorGlobal(

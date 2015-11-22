@@ -15,8 +15,8 @@
 		<spring.securiry>4.0.2.RELEASE</spring.securiry>
 	</properties>
 	<dependencies>
-		<!-- Spring -->
-		<dependency>
+		
+		<dependency>													<!-- Spring -->
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${org.springframework-version}</version>

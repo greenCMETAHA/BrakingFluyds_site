@@ -1,18 +1,8 @@
 package eftech.workingset.DAO.templates;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.LinkedList;
-
-import javax.sql.DataSource;
-
+import eftech.workingset.DAO.interfaces.InterfaceLogDAO;
+import eftech.workingset.Services.Service;
+import eftech.workingset.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -22,23 +12,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import eftech.workingset.DAO.interfaces.InterfaceLogDAO;
-import eftech.workingset.Services.Service;
-import eftech.workingset.beans.BrakingFluid;
-import eftech.workingset.beans.Client;
-import eftech.workingset.beans.Country;
-import eftech.workingset.beans.EngineType;
-import eftech.workingset.beans.FluidClass;
-import eftech.workingset.beans.Info;
-import eftech.workingset.beans.Log;
-import eftech.workingset.beans.Manufacturer;
-import eftech.workingset.beans.MotorOil;
-import eftech.workingset.beans.OilStuff;
-import eftech.workingset.beans.Review;
-import eftech.workingset.beans.Role;
-import eftech.workingset.beans.User;
-import eftech.workingset.beans.Wishlist;
-import eftech.workingset.beans.intefaces.base.InterfaceGood;
+import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 
 public class LogTemplate implements InterfaceLogDAO {
 	private NamedParameterJdbcTemplate jdbcTemplate;
@@ -46,59 +26,59 @@ public class LogTemplate implements InterfaceLogDAO {
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-	}	
+	}
 
 	@Override
 	public ArrayList<Log> getLog() {
 		return getLog(0, 0);
 	}
-	
+
 	public  int getCountRows(){
-		String sqlQuery="select count(*) from Log";
-		
+		String sqlQuery="select count(*) from log";
+
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		
+
 		try{
 			return jdbcTemplate.queryForObject(sqlQuery,params,Integer.class);
 		}catch (EmptyResultDataAccessException e){
 			return 0;
-		}				
-		
-		
+		}
+
+
 	}
 
 	@Override
 	public ArrayList<Log> getLog(int num, int nextRows) { //num - номер страницы
 		String sqlQuery="select log.id AS id, log.info AS info, log.time AS time, log.object AS object, log.object_id AS object_id, log.object_name AS object_name"
-					+ ", u.id AS User_id, u.name AS User_name, u.login AS User_login "
-					+ " from log"
-					+ " left join users AS u ON (log.user=u.id) order by log.time desc "
-					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
-			
-		try{ 
+				+ ", u.id AS User_id, u.name AS user_name, u.login AS user_login "
+				+ " from log"
+				+ " left join users AS u ON (log.user=u.id) order by log.time desc "
+				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+
+		try{
 			return (ArrayList<Log>)jdbcTemplate.query(sqlQuery,new LogRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new ArrayList<Log>();
 		}catch (InvalidDataAccessApiUsageException e){
-			return new ArrayList<Log>();				
+			return new ArrayList<Log>();
 		}
 	}
 
 	@Override
 	public Log getLogById(int id) {
-		String sqlQuery="select *, u.id AS User_id, u.name as User_name, u.login as user_login from Log "
-				+ " left join Users AS u on (Log.user=u.id)  where log.id=:id";
+		String sqlQuery="select *, u.id AS user_id, u.name as user_name, u.login as user_login from log "
+				+ " left join users AS u on (log.user=u.id)  where log.id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
 
-		try{ 
+		try{
 			return (Log)jdbcTemplate.queryForObject(sqlQuery,params,new LogRowMapper());
 		}catch (EmptyResultDataAccessException e){
 			return new Log();
 		}
 	}
-	
+
 	@Override
 	public Log createLog(Log log){
 		Log result=new Log();
@@ -106,31 +86,31 @@ public class LogTemplate implements InterfaceLogDAO {
 		if (log.getId()>0){
 			currentLog=getLogById(log.getId()); //если это редактирование, в структуре уже будет Id. ТОгда удостоверимся, что такой элемент есть в БД
 		}
-		String sqlUpdate="insert into Log (user, time, "
+		String sqlUpdate="insert into log (user, time, "
 				+(log.getObject()==null?"":"object, object_id, object_name,")
 				+" info) Values (:user, :time,"+(log.getObject()==null?"":":object, :object_id, :object_name,")+" :info)";
 		if (currentLog.getId()>0){ // В БД есть такой элемент
 			if (log.getObject()==null){
-				sqlUpdate="update Log set user=:user, info=:info where id=:id";
+				sqlUpdate="update log set user=:user, info=:info where id=:id";
 			}else{
-				sqlUpdate="update Log set user=:user, time=:time, object=:object, object_id=:object_id, object_name=:object_name, info=:info where id=:id";
+				sqlUpdate="update log set user=:user, time=:time, object=:object, object_id=:object_id, object_name=:object_name, info=:info where id=:id";
 			}
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("user", ((User)log.getUser()).getId()); 
+		params.addValue("user", ((User)log.getUser()).getId());
 		params.addValue("info", log.getInfo());
 		params.addValue("time", log.getTime());
 		if (log.getObject()!=null){
 			Object obj=log.getObject();
-			Class c = obj.getClass();  
-			
+			Class c = obj.getClass();
+
 			params.addValue("object", c.getSimpleName());
 			try {
 				Class[] paramTypes = new Class[] {};
-				
-				Method method = c.getMethod("getId", paramTypes); 
-				Object[] args = new Object[] {}; 
+
+				Method method = c.getMethod("getId", paramTypes);
+				Object[] args = new Object[] {};
 				params.addValue("object_id", (Integer) method.invoke(obj, args));
 				try{
 					method = c.getMethod("getName", paramTypes);
@@ -155,40 +135,40 @@ public class LogTemplate implements InterfaceLogDAO {
 				e.printStackTrace();
 			}
 		}
-		
-		if (currentLog.getId()>0){ 
+
+		if (currentLog.getId()>0){
 			params.addValue("id", log.getId());
 		}
-		
-		KeyHolder keyHolder=new GeneratedKeyHolder(); 
-		
+
+		KeyHolder keyHolder=new GeneratedKeyHolder();
+
 		jdbcTemplate.update(sqlUpdate, params, keyHolder);
-		
+
 		try{
 			if (keyHolder.getKey()!=null) {
 				result=getLogById(keyHolder.getKey().intValue());
 			}
-					
+
 		}catch (EmptyResultDataAccessException e){
 			result = new Log();
-		}		
-		
-		return result;	
+		}
+
+		return result;
 	}
-	
+
 	@Override
 	public void deleteLog(Log log) {
 		deleteLog(log.getId());
-		
+
 	}
 
 	@Override
 	public void deleteLog(int id) {
-		String sqlUpdate="delete from Log where id=:id";
+		String sqlUpdate="delete from log where id=:id";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id",  id);
-		
+
 		jdbcTemplate.update(sqlUpdate, params);
 	}
 
@@ -263,8 +243,8 @@ public class LogTemplate implements InterfaceLogDAO {
 			user.setName(rs.getString("user_name"));
 			user.setLogin(rs.getString("user_login"));
 			log.setUser(user);
-			
+
 			return log;
 		}
-	}	
+	}
 }

@@ -941,7 +941,7 @@ public class Service {
 			model.addAttribute("pageInfo", "Редактировать заявку");
 			ArrayList<Demand> listDoc=demandDAO.getDemand(doc_id);
 			model.addAttribute("listDoc", listDoc);
-			model.addAttribute("currentStatus",  (listDoc.size()>0?((OfferStatus)listDoc.get(0).getStatus()).getId():offerStatusDAO.getOfferStatus(1)));
+			model.addAttribute("currentStatus",  (listDoc.size()>0?((OfferStatus)listDoc.get(0).getStatus()).getId():offerStatusDAO.getOfferStatus(1).getId()));
 			model.addAttribute("executer_id", (listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER));
 			model.addAttribute("userDoc", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getUser().getId():Service.ID_EXECUTER)));
 			model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
