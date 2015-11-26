@@ -1281,6 +1281,8 @@ public class HomeController{
 			,@RequestParam(value = "Viscosity100", defaultValue="0", required=false) String Viscosity100	//double
 			,@RequestParam(value = "Specification", defaultValue="", required=false) String specification
 			,@RequestParam(value="Judgement", defaultValue="0", required=false) String judgement		//double
+			,@RequestParam(value="InStock", defaultValue="0", required=false) String inStock		//int
+			,@RequestParam(value="Discount", defaultValue="0", required=false) String discount		//double
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		//double
 
 			,HttpServletRequest request,Locale locale, Model model) {
@@ -1420,7 +1422,8 @@ public class HomeController{
 			
 			BrakingFluid brFluid = new BrakingFluid(id_BrakeFluid,fieldName, fieldManufacturer, fieldFluidClass, new Double(fieldBoilingTemperatureDry)
 					,new Double(fieldBoilingTemperatureWet), new Double(fieldValue), new Double(fieldPrice),fieldPhoto,fieldDescription
-					,new Double(fieldViscosity40),new Double(fieldViscosity100), fieldSpecification,new Double(fieldJudgement));
+					,new Double(fieldViscosity40),new Double(fieldViscosity100), fieldSpecification,new Double(fieldJudgement)
+					,new Double(discount), new Integer(inStock));
 			
 			model.addAttribute("pageInfo", pageInfo);
 			if (("Refresh".equals(variant)) || (errors.size()>0)){

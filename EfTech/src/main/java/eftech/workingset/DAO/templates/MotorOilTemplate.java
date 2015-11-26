@@ -88,13 +88,13 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 			currentOil=getMotorOilByName(oil.getName());
 		}
 		String sqlUpdate="insert into motoroils (name, description, enginetype, oilstuff, manufacturer, judgement, photo, price"
-				+ ", specification, value, viscosity) Values (:name, :description, :enginetype, :oilstuff, :manufacturer, :judgement, :photo, :price"
-				+ ", :specification, :value, :viscosity)";
+				+ ", specification, value, viscosity, discount, instock) Values (:name, :description, :enginetype, :oilstuff, :manufacturer, :judgement, :photo, :price"
+				+ ", :specification, :value, :viscosity, :discount, :instock)";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		if (currentOil.getId()>0){ // В БД есть такой элемент
 			sqlUpdate="update motoroils set name=:name, description=:description, enginetype=:enginetype, oilstuff=:oilstuff, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, price=:price, specification=:specification, value=:value"
-					+ ", viscosity=:viscosity where id=:id";
+					+ ", viscosity=:viscosity, discount=:discount, instock=:instock where id=:id";
 			params.addValue("id", oil.getId());
 		}
 
@@ -111,6 +111,8 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 		params.addValue("specification", oil.getSpecification());
 		params.addValue("value", oil.getValue());
 		params.addValue("viscosity", oil.getViscosity());
+		params.addValue("discount", oil.getDiscount());
+		params.addValue("instock", oil.getInStock());
 
 		KeyHolder keyHolder=new GeneratedKeyHolder();
 
@@ -138,13 +140,13 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 			currentOil=getMotorOilByName(oil.getName());
 		}
 		String sqlUpdate="insert into motoroils (name, description, enginetype, oilstuff, manufacturer, judgement, photo"
-				+ ", specification, value, viscosity) Values (:name, :description, :enginetype, :oilstuff, :manufacturer, :judgement, :photo"
-				+ ", :specification, :value, :viscosity)";
+				+ ", specification, value, viscosity, discount, instock) Values (:name, :description, :enginetype, :oilstuff, :manufacturer, :judgement, :photo"
+				+ ", :specification, :value, :viscosity, :discount, :instock)";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		if (currentOil.getId()>0){ // В БД есть такой элемент
 			sqlUpdate="update motoroils set name=:name, description=:description, enginetype=:enginetype, oilstuff=:oilstuff, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, specification=:specification, value=:value"
-					+ ", viscosity=:viscosity where id=:id";
+					+ ", viscosity=:viscosity, discount=:discount, instock=:instock where id=:id";
 			params.addValue("id", oil.getId());
 		}
 
@@ -160,6 +162,9 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 		params.addValue("specification", oil.getSpecification());
 		params.addValue("value", oil.getValue());
 		params.addValue("viscosity", oil.getViscosity());
+		params.addValue("discount", oil.getDiscount());
+		params.addValue("instock", oil.getInStock());
+
 
 		KeyHolder keyHolder=new GeneratedKeyHolder();
 
@@ -492,7 +497,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 		String sqlQuery="select * from"
 				+ "(select mo.id as id, mo.name as name, mo.price as price"
 				+ ", mo.enginetype AS enginetype, et.name AS et_name, mo.oilstuff AS oilstuff, os.name AS os_name"
-				+ ", mo.description AS description, mo.judgement AS judgement"
+				+ ", mo.description AS description, mo.judgement AS judgement, mo.instock AS instock, mo.discount AS discount"
 				+ ", mo.photo AS photo, mo.specification AS specification, mo.viscosity AS viscosity"
 				+ ", mo.value AS value, mo.manufacturer AS manufacturer, man.name as man_name "
 				+ "   from motoroils  as mo"
@@ -573,6 +578,9 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 			oil.setPrice(rs.getDouble("price"));
 			oil.setValue(rs.getDouble("value"));
 			oil.setViscosity(rs.getString("viscosity"));
+			oil.setDiscount(rs.getDouble("discount"));
+			oil.setInStock(rs.getInt("instock"));
+			
 
 			return oil;
 		}

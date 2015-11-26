@@ -364,7 +364,10 @@ public class DownloadDataFromExcel {
 	    		        			errors.add("”казанный ¬ами файл c изображением не существует");
 	    		        		}
 	    		        		current.setPhoto(Service.copyPhoto(current.getPhoto(), session.getServletContext().getRealPath("/")));
-	    		        		Manufacturer currentManufacturer=(Manufacturer)current.getManufacturer();	    		        		
+	    		        		Manufacturer currentManufacturer=(Manufacturer)current.getManufacturer();	
+	    		        		if (currentManufacturer==null){
+	    		        			currentManufacturer=new Manufacturer();
+	    		        		}
 	    		    			Country country=(Country)currentManufacturer.getCountry();
 	    		    			if (country.getId()==0){
 	    		    				country=countryDAO.createCountry(country.getName());

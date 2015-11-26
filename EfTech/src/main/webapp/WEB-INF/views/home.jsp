@@ -605,7 +605,7 @@
                   <div class="grid-list-buttons">
                     <ul>
                       <li class="grid-list-button-item active"><a data-toggle="tab" href="#grid-view"><i class="fa fa-th-large"></i> Мозаика</a></li>
-                      <li class="grid-list-button-item active"><a data-toggle="tab" href="#list-view"><i class="fa fa-th-list"></i> Список</a></li>
+                      <li class="grid-list-button-item"><a data-toggle="tab" href="#list-view"><i class="fa fa-th-list"></i> Список</a></li>
                     </ul>
                   </div>
                 </div>
@@ -622,6 +622,9 @@
 			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
                             </div>
                             <div class="body">
+                              <c:if test="${currentBFluid.getDiscount()>0 }">
+                              		<div class="label-discount green">-<c:out value="${currentBFluid.getDiscount()}"/>% скидки</div>
+                              </c:if>
                               <div class="title">
                                 <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}"  /></a>
                               </div>
@@ -709,13 +712,12 @@
                   <!-- /.products-grid #grid-view -->
                   <div id="list-view" class="products-grid fade tab-pane ">
                     <div class="products-list">
-                        
-                        
 						 <c:forEach var="currentBFluid" items="${requestScope.listBrakFluids}">
 						    <div class="product-item product-item-holder">
                         		<div class="row">
 						 
 	                  	 	 <div class="no-margin col-xs-12 col-sm-4 image-holder">
+	                  	 	 
 	                            <div class="image">
 	                              <img height="240" width="140" alt="${currentBFluid.getName()}" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" 
 			                      									data-echo="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />"  />
@@ -724,6 +726,9 @@
 	                         <!-- /.image-holder -->
 	                          <div class="no-margin col-xs-12 col-sm-5 body-holder">
 	                            <div class="body">
+	                              <c:if test="${currentBFluid.getDiscount()>0}">
+                              		<div class="label-discount green">-<c:out value="${currentBFluid.getDiscount()}"/>% скидки</div>
+                              	  </c:if>
 	                              <div class="title">
 	                                <a href="ShowOne?id=${currentBFluid.getId()}"><c:out value="${currentBFluid.getName()}"  /></a>
 	                              </div>
@@ -750,7 +755,14 @@
 	                              	</sec:authorize>
 	                              </div>
 	                              	
-	                              <div class="availability"><label>В наличии:</label><span class="available"> на складе</span></div>
+	                              <div class="availability"><label>В наличии:</label>
+		                              <c:if test="${currentBFluid.getInStock()>0}">
+		                              		<span class="available"> на складе</span>
+		                              </c:if>
+		                              <c:if test="${currentBFluid.getInStock()==0}">
+		                              		<span class="not-available"> нет в наличии</span>
+		                              </c:if>
+	                              </div>
 	                              <div class="add-cart-button">
 	                                <c:url value="home" var="UpdateBrakingFluid">
 										<c:param name="id" value="${currentBFluid.getId()}"/>

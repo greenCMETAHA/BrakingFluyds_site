@@ -29,8 +29,10 @@ public class MotorOil implements InterfaceMotorOil{
 	private String description;
 	private String specification;
 	private double judgement;
+	private double discount;
+	private int inStock;
 		
-		public MotorOil() {
+	public MotorOil() {
 			super();
 			name="";
 			photo="";
@@ -46,9 +48,9 @@ public class MotorOil implements InterfaceMotorOil{
 			
 		}
 
-		public MotorOil(int id, String name, InterfaceManufacturer manufacturer, double price, InterfaceOilStuff oilStuff
+	public MotorOil(int id, String name, InterfaceManufacturer manufacturer, double price, InterfaceOilStuff oilStuff
 				, InterfaceEngineType engineType, String viscosity, double value, String photo, String description
-				, String specification,	double judgement) {
+				, String specification,	double judgement, double discount, int inStock) {
 			super();
 			this.id = id;
 			this.name = name;
@@ -62,10 +64,12 @@ public class MotorOil implements InterfaceMotorOil{
 			this.description = description;
 			this.specification = specification;
 			this.judgement = judgement;
+			this.discount=discount;
+			this.inStock=inStock;
 		}
 		
 		public MotorOil(int id, String name, String manufacturer, String oilStuff, String engineType ,String viscosity, double value
-				,double price, String photo, String description, String specification, double judgement) {
+				,double price, String photo, String description, String specification, double judgement, double discount, int inStock) {
 			super();
 			this.id = id;
 			this.name = name;
@@ -89,6 +93,8 @@ public class MotorOil implements InterfaceMotorOil{
 			this.viscosity = viscosity;
 			this.specification = specification;
 			this.judgement = judgement;
+			this.discount=discount;
+			this.inStock=inStock;
 		}	
 
 		/**
@@ -308,6 +314,31 @@ public class MotorOil implements InterfaceMotorOil{
 			return Service.MOTOR_OIL_PREFIX;
 		}
 
-	
+		public double getDiscount() {
+			return discount;
+		}
+
+		public void setDiscount(double discount) {
+			this.discount = discount;
+		}
+
+		public int getInStock() {
+			return inStock;
+		}
+
+		public void setInStock(int inStock) {
+			this.inStock = inStock;
+		}
+		
+		
+		@Override
+		public double getPriceWithDiscount() {
+			double result=0;
+			
+			result = getPrice()-(getPrice()/100*discount);
+			result = Math.round(result*100)/100;
+
+			return result;
+		}	
 
 }

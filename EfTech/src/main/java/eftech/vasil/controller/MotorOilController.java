@@ -659,6 +659,8 @@ public class MotorOilController {
 			,@RequestParam(value = "Description", defaultValue="", required=false) String description
 			,@RequestParam(value = "Specification", defaultValue="", required=false) String specification
 			,@RequestParam(value="score", defaultValue="0", required=false) String judgement		//double
+			,@RequestParam(value="InStock", defaultValue="0", required=false) String inStock		//int
+			,@RequestParam(value="Discount", defaultValue="0", required=false) String discount		//double
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		//double
 			) {
 		
@@ -775,7 +777,7 @@ public class MotorOilController {
 			
 			MotorOil motorOil= new MotorOil(id_MotorOil,fieldName, fieldManufacturer, fieldOilStuff
 					,fieldEngineType, fieldViscosity, new Double(fieldValue),new Double(fieldPrice), fieldPhoto, fieldDescription, fieldSpecification
-					,new Double(fieldJudgement));
+					,new Double(fieldJudgement), new Double(discount), new Integer(inStock));
 					
 			model.addAttribute("pageInfo", pageInfo);
 			if (("Refresh".equals(variant)) || (errors.size()>0)){

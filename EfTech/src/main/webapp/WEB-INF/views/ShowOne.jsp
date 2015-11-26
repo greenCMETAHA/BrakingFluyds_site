@@ -278,7 +278,15 @@
               <div class="star-holder inline">
                 <div class="star" data-score="${requestScope.currentBrakFluid.getJudgement()}"></div>
               </div>
-              <div class="availability"><label>Доступно:</label><span class="available"> на складе</span></div>
+              <div class="availability"><label>Доступно:</label> 
+                <c:if test="${current.getInStock()>0}">
+                		<span class="available"> на складе</span>
+                </c:if>
+                <c:if test="${current.getInStock()==0}">
+                		<span class="not-available"> нет в наличии</span>
+                </c:if>
+              </div>
+              
               <div class="title"><c:out value="${requestScope.currentBrakFluid.getName()}"/></div>
               <div class="brand"><c:out value="${requestScope.currentBrakFluid.getManufacturer().getName()}"/></div>
               

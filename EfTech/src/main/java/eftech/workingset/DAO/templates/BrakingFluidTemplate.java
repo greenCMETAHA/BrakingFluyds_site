@@ -83,14 +83,14 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			currentBrFluid=getBrakingFluidByName(brFluid.getName());
 		}
 		String sqlUpdate="insert into brakingfluids (name, boilingtemperaturedry, boilingtemperaturewet, description, fluidclass, judgement, manufacturer"
-				+ ", photo, price, specification, value, viscosity40, viscosity100) Values (:name, :boilingTemperatureDry"
+				+ ", photo, price, specification, value, viscosity40, viscosity100, discount, instock) Values (:name, :boilingTemperatureDry"
 				+ ", :boilingTemperatureWet, :description, :fluidClass, :judgement, :manufacturer, :photo, :price, :specification, :value"
-				+ ", :viscosity40, :viscosity100)";
+				+ ", :viscosity40, :viscosity100, :discount, :instock)";
 		if (currentBrFluid.getId()>0){ // В БД есть такой элемент
 			sqlUpdate="update brakingfluids set name=:name, boilingtemperaturedry=:boilingTemperatureDry"
 					+ ", boilingtemperaturewet=:boilingTemperatureWet, description=:description, fluidclass=:fluidClass, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, price=:price, specification=:specification, value=:value"
-					+ ", viscosity40=:viscosity40, viscosity100=:viscosity100 where id=:id";
+					+ ", viscosity40=:viscosity40, viscosity100=:viscosity100, discount=:discount, instock=:instock where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -112,6 +112,9 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		params.addValue("value", brFluid.getValue());
 		params.addValue("viscosity40", brFluid.getViscosity40());
 		params.addValue("viscosity100", brFluid.getViscosity100());
+		params.addValue("discount", brFluid.getDiscount());
+		params.addValue("instock", brFluid.getInStock());
+
 		if (currentBrFluid.getId()>0){ // В БД есть элемент
 			params.addValue("id", brFluid.getId());
 		}
@@ -142,14 +145,14 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			currentBrFluid=getBrakingFluidByName(brFluid.getName());
 		}
 		String sqlUpdate="insert into brakingfluids (name, boilingtemperaturedry, boilingtemperaturewet, description, fluidclass, judgement, manufacturer"
-				+ ", photo, specification, value, viscosity40, viscosity100) Values (:name, :boilingTemperatureDry"
+				+ ", photo, specification, value, viscosity40, viscosity100, discount, instock) Values (:name, :boilingTemperatureDry"
 				+ ", :boilingTemperatureWet, :description, :fluidClass, :judgement, :manufacturer, :photo, :specification, :value"
-				+ ", :viscosity40, :viscosity100)";
+				+ ", :viscosity40, :viscosity100, :discount, :instock)";
 		if (currentBrFluid.getId()>0){ // В БД есть такой элемент
 			sqlUpdate="update brakingfluids set name=:name, boilingtemperaturedry=:boilingTemperatureDry"
 					+ ", boilingtemperaturewet=:boilingTemperatureWet, description=:description, fluidclass=:fluidClass, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, specification=:specification, value=:value"
-					+ ", viscosity40=:viscosity40, viscosity100=:viscosity100 where id=:id";
+					+ ", viscosity40=:viscosity40, viscosity100=:viscosity100, discount=:discount, instock=:instock where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -170,6 +173,9 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		params.addValue("value", brFluid.getValue());
 		params.addValue("viscosity40", brFluid.getViscosity40());
 		params.addValue("viscosity100", brFluid.getViscosity100());
+		params.addValue("discount", brFluid.getDiscount());
+		params.addValue("instock", brFluid.getInStock());
+		
 		if (currentBrFluid.getId()>0){ // В БД есть элемент
 			params.addValue("id", brFluid.getId());
 		}
@@ -408,9 +414,9 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		}
 
 		String sqlQuery="select * from"
-				+ "(select bf.id as id, bf.name as name, bf.price as price, bf.boilingtemperaturedry AS boilingTemperatureDry"
+				+ "(select bf.id as id, bf.name as name, bf.price as price, bf.boilingtemperaturedry AS boilingtemperaturedry"
 				+ ", bf.boilingtemperaturewet AS boilingtemperaturewet, bf.description AS description, bf.judgement AS judgement"
-				+ ", bf.photo AS photo, bf.specification AS specification, bf.viscosity40 AS viscosity40"
+				+ ", bf.photo AS photo, bf.specification AS specification, bf.viscosity40 AS viscosity40, bf.instock AS instock, bf.discount AS discount"
 				+ ", bf.viscosity100 AS viscosity100, bf.value AS value, bf.fluidclass AS fluidclass, bf.manufacturer AS manufacturer"
 				+ ", fc.name as fc_name, man.name as man_name from brakingfluids  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
@@ -491,6 +497,8 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			brFluid.setValue(rs.getDouble("value"));
 			brFluid.setViscosity40(rs.getDouble("viscosity40"));
 			brFluid.setViscosity100(rs.getDouble("viscosity100"));
+			brFluid.setDiscount(rs.getDouble("discount"));
+			brFluid.setInStock(rs.getInt("instock"));
 
 			return brFluid;
 		}

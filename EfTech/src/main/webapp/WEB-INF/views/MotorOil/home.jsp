@@ -550,6 +550,10 @@
 	                         <!-- /.image-holder -->
 	                          <div class="no-margin col-xs-12 col-sm-5 body-holder">
 	                            <div class="body">
+	                              <c:if test="${current.getDiscount()>0 }">
+                              		<div class="label-discount green">-<c:out value="${current.getDiscount()}"/>% скидки</div>
+                              	  </c:if>
+	                            
 	                              <div class="title">
 	                                <a href="ShowOneMotorOil?id=${current.getId()}"><c:out value="${current.getName()}"  /></a>
 	                              </div>
@@ -576,7 +580,14 @@
 	                              	</sec:authorize>
 	                              </div>
 	                              	
-	                              <div class="availability"><label>В наличии:</label><span class="available"> на складе</span></div>
+	                              <div class="availability"><label>В наличии:</label>
+		                              <c:if test="${current.getInStock()>0}">
+		                              		<span class="available"> на складе</span>
+		                              </c:if>
+		                              <c:if test="${current.getInStock()==0}">
+		                              		<span class="not-available"> нет в наличии</span>
+		                              </c:if>
+	                              </div>
 	                              <div class="add-cart-button">
 	                                <c:url value="motorOil" var="UpdateGood">
 										<c:param name="id" value="${current.getId()}"/>

@@ -306,6 +306,23 @@
 	                   		<input name="photoBackUp" type="hidden" value="${requestScope.photoBackUp}" >
 					   </div>
 	                 </li>
+	                 <li>
+	                   <label>Скидка:</label>
+	                   <div class="value">
+	                   		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
+	                   			<input type="text" class="input" value="${currentMotorOil.getDiscount()}" name="Discount" />
+	                   		</sec:authorize>
+					   </div>
+	                 </li>
+	                 <li>
+	                   <label>Количество на складе:</label>
+	                   <div class="value">
+	                   		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRICE')">
+	                   			<input type="text" class="input" value="${currentMotorOil.getInStock()}" name="InStock" />
+	                   		</sec:authorize>
+					   </div>
+	                 </li>
+	                 
 	        	 </ul>
 	           </div>
 	            <div class="col-xs-12 col-sm-3 no-margin">

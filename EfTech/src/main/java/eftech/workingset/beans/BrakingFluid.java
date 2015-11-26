@@ -28,6 +28,8 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	private double viscosity100;
 	private String specification;
 	private double judgement;
+	private double discount;
+	private int inStock;
 	
 	public BrakingFluid() {
 		super();
@@ -40,7 +42,7 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	public BrakingFluid(int id, String name, InterfaceManufacturer manufacturer, double price, //InterfacePrice price,
 			InterfaceFluidClass fluidClass, double boilingTemperatureDry, double boilingTemperatureWet, double value,
 			String photo, String description, double viscosity40, double viscosity100, String specification,
-			double judgement) {
+			double judgement, double discount, int inStock) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -56,11 +58,13 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 		this.viscosity100 = viscosity100;
 		this.specification = specification;
 		this.judgement = judgement;
+		this.discount=discount;
+		this.inStock=inStock;
 	}
 	public BrakingFluid(int id, String name, String manufacturer, String fluidClass, //InterfacePrice price,
 			double boilingTemperatureDry, double boilingTemperatureWet, double value, double price,
 			String photo, String description, double viscosity40, double viscosity100, String specification,
-			double judgement) {
+			double judgement, double discount, int inStock) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -83,7 +87,25 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 		this.viscosity100 = viscosity100;
 		this.specification = specification;
 		this.judgement = judgement;
+		this.discount=discount;
+		this.inStock=inStock;
 	}	
+
+	public double getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(double discount) {
+		this.discount = discount;
+	}
+
+	public int getInStock() {
+		return inStock;
+	}
+
+	public void setInStock(int inStock) {
+		this.inStock = inStock;
+	}
 
 	/**
 	 * @return the id
@@ -329,6 +351,16 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	@Override
 	public String getGoodName() {
 		return Service.BRAKING_FLUID_PREFIX;
+	}
+
+	@Override
+	public double getPriceWithDiscount() {
+		double result=0;
+		
+		result = getPrice()-(getPrice()/100*discount);
+		result = Math.round(result*100)/100;
+
+		return result;
 	}
 
 

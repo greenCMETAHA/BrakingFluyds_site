@@ -13,6 +13,10 @@ public interface InterfaceGood {
 	
 	double getPrice();
 	void setPrice(double price);
+
+	double getDiscount();
+	double getPriceWithDiscount();
+	int getInStock();
 	
 	
 	String getDescription();
