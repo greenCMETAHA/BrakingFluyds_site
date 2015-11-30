@@ -1,10 +1,7 @@
 package eftech.workingset.DAO.interfaces;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
-import eftech.workingset.beans.BrakingFluid;
-import eftech.workingset.beans.Review;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;

@@ -2,9 +2,7 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceClient;
-import eftech.workingset.beans.intefaces.InterfaceDemand;
 import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 import eftech.workingset.beans.intefaces.InterfacePay;
 

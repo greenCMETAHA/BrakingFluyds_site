@@ -15,6 +15,7 @@
 		<org.aspectj-version>1.8.6</org.aspectj-version>
 		<org.slf4j-version>1.7.12</org.slf4j-version>
 		<spring.securiry>4.0.2.RELEASE</spring.securiry>
+		<spring.tiles>3.0.5</spring.tiles>
 	</properties>
 	<dependencies>
 		
@@ -220,8 +221,44 @@
 			<groupId>com.paypal.sdk</groupId>
 			<artifactId>rest-api-sdk</artifactId>
 			<version>LATEST</version>
-		</dependency>        
-		      
+		</dependency>  
+		
+		<dependency>														<!-- tiles -->
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-jsp</artifactId>
+			<version>${spring.tiles}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-core</artifactId>
+			<version>${spring.tiles}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-api</artifactId>
+			<version>${spring.tiles}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-servlet</artifactId>
+			<version>${spring.tiles}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-template</artifactId>
+			<version>${spring.tiles}</version>
+		</dependency>
+		
+		<dependency>														<!-- тесты -->
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.19</version>
+		</dependency>
+				
+		
+			      
 	</dependencies>
     <build>
         <plugins>

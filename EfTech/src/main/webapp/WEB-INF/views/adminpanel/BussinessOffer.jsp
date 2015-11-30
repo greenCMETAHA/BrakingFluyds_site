@@ -62,29 +62,29 @@
 			  <th>Оценка покупателей</th>
             </tr>
 		 	<c:forEach var="currentBasket" items="${sessionScope[name]}">
-		 	  <c:set var="currentBFluid" value="${currentBasket.getBrakingFluid()}"/>
+		 	  <c:set var="currentGood" value="${currentBasket.getGood()}"/>
 		      <tr>
           	    <td class="dragHandle">&nbsp;</td>
-			 	<td class="checkbox"><input type="checkbox" name="selections" checked="checked" value="${currentBFluid.getId()}" /></td>
-		 		<td align="left"><c:out value="${currentBFluid.getName()}"/></td>
-		 		<td align="center"><c:out value="${currentBFluid.getManufacturer().getName()}"/></td>
-		 		<td align="center"><c:out value="${currentBFluid.getFluidClass().getName()}"/></td>
-	 			<td align="center"><c:out value="${currentBFluid.getBoilingTemperatureDry()}"  /></td>
-				<td align="center"><c:out value="${currentBFluid.getBoilingTemperatureWet()}"  /></td>
-				<td align="center"><c:out value="${currentBFluid.getValue()}"  /></td>   
-				<td align="right"><c:out value="${currentBFluid.getPrice()}"  /></td>   
+			 	<td class="checkbox"><input type="checkbox" name="selections" checked="checked" value="${currentGood.getId()}" /></td>
+		 		<td align="left"><c:out value="${currentGood.getName()}"/></td>
+		 		<td align="center"><c:out value="${currentGood.getManufacturer().getName()}"/></td>
+		 		<td align="center"><c:out value="${currentGood.getFluidClass().getName()}"/></td>
+	 			<td align="center"><c:out value="${currentGood.getBoilingTemperatureDry()}"  /></td>
+				<td align="center"><c:out value="${currentGood.getBoilingTemperatureWet()}"  /></td>
+				<td align="center"><c:out value="${currentGood.getValue()}"  /></td>   
+				<td align="right"><c:out value="${currentGood.getPrice()}"  /></td>   
 				<td align="center">
 					<c:choose>
-					<c:when test="${currentBFluid.hasPhoto()}">
-						<img width="50" height="120" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" alt="${currentBFluid.getName()}">
+					<c:when test="${currentGood.hasPhoto()}">
+						<img width="50" height="120" src="resources/jpg/<c:out value="${currentGood.getPhoto()}"  />" alt="${currentGood.getName()}">
 					</c:when>
 					</c:choose>
 				</td>   
-				<td align="left"><c:out value="${currentBFluid.getDescription()}"  /></td>   
-				<td align="center"><c:out value="${currentBFluid.getViscosity40()}"  /></td>   
-				<td align="center"><c:out value="${currentBFluid.getViscosity100()}"  /></td>   
-				<td align="left"><c:out value="${currentBFluid.getSpecification()}"  /></td>   
-				<td align="center"><c:out value="${currentBFluid.getJudgement()}"  /></td>
+				<td align="left"><c:out value="${currentGood.getDescription()}"  /></td>   
+				<td align="center"><c:out value="${currentGood.getViscosity40()}"  /></td>   
+				<td align="center"><c:out value="${currentGood.getViscosity100()}"  /></td>   
+				<td align="left"><c:out value="${currentGood.getSpecification()}"  /></td>   
+				<td align="center"><c:out value="${currentGood.getJudgement()}"  /></td>
 			  </tr>		 	
 		 	</c:forEach>
 		 </table>

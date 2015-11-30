@@ -2,7 +2,6 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceDemand;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
@@ -19,9 +18,11 @@ public class Demand implements InterfaceDemand {
 	private InterfaceOfferStatus status;
 	private User executer;
 	private InterfaceClient client;
-
+	private boolean paid;
+	private boolean shipping;
+	
 	public Demand(int id, Date time, User user, String demand_id, InterfaceGood good, int quantity,	double price
-			, InterfaceOfferStatus status, User executer, InterfaceClient client ) {
+			, InterfaceOfferStatus status, User executer, InterfaceClient client, boolean paid, boolean shipping ) {
 		super();
 		this.id = id;
 		this.time = time;
@@ -33,13 +34,18 @@ public class Demand implements InterfaceDemand {
 		this.status = status;
 		this.setExecuter(executer);
 		this.setClient(client);
+		this.paid=paid;
+		this.shipping=shipping;
 	}
 	
-	public Demand(int id, String demand_id, InterfaceOfferStatus status) {
+	public Demand(int id, String demand_id, InterfaceOfferStatus status, boolean paid, boolean shipping ) {
 		super();
 		this.id = id;
 		this.demand_id = demand_id;
 		this.status = status;
+		this.paid=paid;
+		this.shipping=shipping;
+		
 	}
 	
 
@@ -179,6 +185,24 @@ public class Demand implements InterfaceDemand {
 	public void setClient(InterfaceClient client) {
 		this.client = client;
 	}
+
+
+	public boolean isPaid() {
+		return paid;
+	}
+
+	public void setPaid(boolean paid) {
+		this.paid = paid;
+	}
+
+	public boolean isShipping() {
+		return shipping;
+	}
+
+	public void setShipping(boolean shipping) {
+		this.shipping = shipping;
+	}
+	
 	
 }
 

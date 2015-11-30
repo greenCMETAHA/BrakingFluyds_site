@@ -5,7 +5,7 @@ public class ManufacturerSelected extends Manufacturer{
 
 	public ManufacturerSelected() {
 		super();
-		this.selected = selected;
+		this.selected = false;
 	}
 
 	/**

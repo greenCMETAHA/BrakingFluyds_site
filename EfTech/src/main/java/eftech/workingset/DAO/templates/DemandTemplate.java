@@ -216,7 +216,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		params.addValue("demand_id", demand_id);
 		params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
 
-		result=(ArrayList<Demand>)jdbcTemplate.query(sqlQuery,params,new DemandRowMapper());
+		result.addAll((ArrayList<Demand>)jdbcTemplate.query(sqlQuery,params,new DemandRowMapper()));
 
 		try{
 			return result;
@@ -367,11 +367,11 @@ public class DemandTemplate implements InterfaceDemandDAO{
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 
-		String sqlUpdate="insert into demand (time, demand_id, good, quantity, price, user, status, executer, client, goodprefix)"
-				+ " Values (:time, :demand_id, :good, :quantity, :price, :user, :status, :executer, :client, :goodPrefix)";
+		String sqlUpdate="insert into demand (time, demand_id, good, quantity, price, user, status, executer, client, goodprefix, paid, shipping)"
+				+ " Values (:time, :demand_id, :good, :quantity, :price, :user, :status, :executer, :client, :goodPrefix, :paid, :shipping)";
 		if (currentDemand.getId()>0){ // В БД есть такой элемент
-			sqlUpdate="update demand set time=:time, demand_id=:demand_id, good=:good, quantity=:quantity"
-					+ ", price=:price, user=:user, status=:status, executer=:executer , client=:client, goodprefix=:goodPrefix where id=:id";
+			sqlUpdate="update demand set time=:time, demand_id=:demand_id, good=:good, quantity=:quantity, price=:price, user=:user"
+					+ ", status=:status, executer=:executer , client=:client, goodprefix=:goodPrefix, paid=:paid, shipping=:shipping where id=:id";
 			params.addValue("id", currentDemand.getId());
 		}
 
@@ -385,6 +385,9 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		params.addValue("status", ((OfferStatus)demand.getStatus()).getId());
 		params.addValue("executer", (((User)demand.getExecuter()).getId()==0?Service.ID_EXECUTER:((User)demand.getExecuter()).getId()));
 		params.addValue("client", (((Client)demand.getClient()).getId()==0?Service.ID_EMPTY_CLIENT:((Client)demand.getClient()).getId()));
+		params.addValue("paid", (demand.isPaid()?1:0));
+		params.addValue("shipping", (demand.isShipping()?1:0));
+
 
 		KeyHolder keyHolder=new GeneratedKeyHolder();
 
@@ -458,7 +461,8 @@ public class DemandTemplate implements InterfaceDemandDAO{
 
 
 	@Override
-	public ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executer, Client client) {
+	public ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executer, Client client
+			,int paid, int shipping) {
 		ArrayList<Demand> list=getDemand(demand_id);	//все строки документа получили
 		ArrayList<Demand> result=new ArrayList<Demand>();
 		LinkedList<Basket> copyBasket=(LinkedList<Basket>)basket.clone();
@@ -488,6 +492,8 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			demand.setGood(current.getGood());
 			demand.setExecuter(executer);
 			demand.setClient(client);
+			demand.setPaid((paid>0?true:false));
+			demand.setShipping((shipping>0?true:false));
 
 			result.add(demand);
 		}
@@ -514,6 +520,9 @@ public class DemandTemplate implements InterfaceDemandDAO{
 				demand.setTime(new java.util.Date(timestamp.getTime()));
 			}
 			demand.setDemand_id(rs.getString("demand_id"));
+			demand.setPaid((rs.getInt("paid")>0?true:false));
+			demand.setShipping((rs.getInt("shipping")>0?true:false));
+			
 			Manufacturer manufacturer=new Manufacturer();
 			manufacturer.setId(rs.getInt("good_manufacturer_id"));
 			manufacturer.setName(rs.getString("good_manufacturer_name"));

@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.OilStuff;
-import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public interface InterfaceMotorOilDAO {
 	ArrayList<MotorOil> getMotorOils();  

@@ -71,46 +71,51 @@
   	   	  <tr>
 			<th width="300" bgcolor="#eeeeee" valign="top" >Наименование
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<th align="center" class="checkbox" valign="middle">
-					<c:out value="${currentBFluid.getName()}"  /><br>
-					<input type="checkbox" name="selections" checked="checked" value="${currentBFluid.getId()}"/>
+					<c:out value="${currentGood.getName()}"  /><br>
+					<input type="checkbox" name="selections" checked="checked" value="${currentGood.getId()}"/>
 				</th>	
 			</c:forEach>
 		  <tr>
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Производитель
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getManufacturer().getName()}"  /><p>
+					<c:out value="${currentGood.getManufacturer().getName()}"  /><p>
 				</td>	
 			</c:forEach>
 		</tr>
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Класс жидкости
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getFluidClass().getName()}"  />
+					<c:out value="${currentGood.getFluidClass().getName()}"  />
 				</td>	
 			</c:forEach>
 		</tr>
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Температура кипения (сух.)
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getBoilingTemperatureDry()}"  />
+					<c:out value="${currentGood.getBoilingTemperatureDry()}"  />
 				</td>	
 			</c:forEach>
 		</tr>	
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Температура кипения (вл.)
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getBoilingTemperatureWet()}"  />
+					<c:out value="${currentGood.getBoilingTemperatureWet()}"  />
 				</td>	
 			</c:forEach>
 		</tr>		
@@ -118,29 +123,32 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Объём
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getValue()}"  />
+					<c:out value="${currentGood.getValue()}"  />
 				</td>	
 			</c:forEach>
 		</tr>		
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Цена
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getPrice()}"  />
+					<c:out value="${currentGood.getPrice()}"  />
 				</td>	
 			</c:forEach>
 		</tr>				
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Изображение
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
 					<c:choose>
-					<c:when test="${currentBFluid.hasPhoto()}">
-						<img width="50" height="120" src="resources/jpg/<c:out value="${currentBFluid.getPhoto()}"  />" alt="${currentBFluid.getName()}">
+					<c:when test="${currentGood.hasPhoto()}">
+						<img width="" height="120" src="resources/jpg/<c:out value="${currentGood.getPhoto()}"  />" alt="${currentGood.getName()}">
 					</c:when>
 					</c:choose>
 				</td>	
@@ -149,45 +157,50 @@
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Описание
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getDescription()}"  />
+					<c:out value="${currentGood.getDescription()}"  />
 				</td>	
 			</c:forEach>
 		</tr>				
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Вязкость (-40)
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getViscosity40()}"  />
+					<c:out value="${currentGood.getViscosity40()}"  />
 				</td>	
 			</c:forEach>
 		</tr>				
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Вязкость (100)
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getViscosity100()}"  />
+					<c:out value="${currentGood.getViscosity100()}"  />
 				</td>	
 			</c:forEach>
 		</tr>				
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Спецификация
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getSpecification()}"  />
+					<c:out value="${currentGood.getSpecification()}"  />
 				</td>	
 			</c:forEach>
 		</tr>
 		<tr>
 			<th width="300" bgcolor="#eeeeee" valign="top">Оценка покупателей
 			</th>
-			<c:forEach var="currentBFluid" items="${sessionScope[name]}">
+			<c:forEach var="current" items="${sessionScope[name]}">
+				<c:set var="currentGood" value="${current.getGood()}" />
 				<td align="center" valign="middle">
-					<c:out value="${currentBFluid.getJudgement()}"  />
+					<c:out value="${currentGood.getJudgement()}"  />
 				</td>	
 			</c:forEach>
 		</tr>		          

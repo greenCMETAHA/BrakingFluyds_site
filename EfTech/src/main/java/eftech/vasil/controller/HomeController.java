@@ -3,25 +3,16 @@ package eftech.vasil.controller;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Set;
-
-
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,13 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import java.net.URLDecoder.*;
 import java.util.*; 
-import java.util.StringTokenizer.*; 
 import java.io.*; 
-import java.net.*; 
-import javax.net.ssl.*;
-
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -52,41 +38,19 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 
-import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.NoHandlerFoundException;
-
 import com.itextpdf.text.DocumentException;
 import com.paypal.api.payments.Address;
 import com.paypal.api.payments.Amount;
@@ -132,15 +96,10 @@ import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
-import eftech.workingset.beans.intefaces.InterfaceClient;
-import eftech.workingset.beans.intefaces.InterfaceManufacturer;
-import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.Demand;
-import eftech.workingset.beans.DocRow;
 import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.FluidClass;
 import eftech.workingset.beans.FluidClassSelected;
@@ -148,7 +107,6 @@ import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
 import eftech.workingset.beans.Offer;
-import eftech.workingset.beans.OfferStatus;
 import eftech.workingset.beans.OilStuff;
 import eftech.workingset.beans.Pay;
 import eftech.workingset.beans.Price;
@@ -264,7 +222,7 @@ public class HomeController{
 			File pdfFile=null;
 			try {
 				pdfFile=Service.createPDF_BussinessOffer(basket, session.getServletContext().getRealPath("/"), user);
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -294,7 +252,7 @@ public class HomeController{
 			File pdfFile=null;
 			try {
 				pdfFile=Service.createPDF_BussinessOffer(basket, session.getServletContext().getRealPath("/"), user);
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -363,7 +321,7 @@ public class HomeController{
 				            //Transport = mailSession.getTransport();
 				            //Отправляем сообщение
 				            Transport.send(message);
-				            Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime()
+				            logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime()
 				            			, null, "Создано бизнес-предложение, отослали на email: "+currentClient.getEmail()));
 				        } catch (MessagingException e) {
 				            throw new RuntimeException(e);
@@ -396,7 +354,7 @@ public class HomeController{
 
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
 		if (user.getId()!=0){
-			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), user, "Пользователь зашел в систему"));
+			logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), user, "Пользователь зашел в систему"));
 		}
 		
 		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
@@ -417,7 +375,7 @@ public class HomeController{
 		}
 		
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0, 0, 1);
 		
 		session.setAttribute("user", user);
 		session.setAttribute("basket", basket);
@@ -430,6 +388,57 @@ public class HomeController{
 
 		return "index";
 	}
+	
+	/**
+	 * Simply selects the home view to render by returning its name.
+	 */
+	@RequestMapping(value = {"/About"}, method = {RequestMethod.POST, RequestMethod.GET})
+	public String about(
+			@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "id", defaultValue="0", required=false) int id
+			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
+			,HttpServletRequest request,Locale locale, Model model) {
+
+		HttpSession session=request.getSession();
+		
+		session.setAttribute("adminpanel", adminpanel);
+
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		if (user.getId()!=0){
+			logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), user, "Пользователь зашел в систему"));
+		}
+		
+		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+		if (basket==null){
+			basket=createBasket();
+		}
+		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+		if (wishlist==null){
+			wishlist=createWishlist();
+		}
+		if (user.getId()>0){
+			wishlist=wishlistDAO.getWishList(user.getId());
+		}
+		
+		LinkedList<InterfaceGood> compare = (LinkedList<InterfaceGood>) session.getAttribute("compare");
+		if (compare==null){
+			compare=createComparement();
+		}
+		
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0, 0, 1);
+		
+		session.setAttribute("user", user);
+		session.setAttribute("basket", basket);
+		session.setAttribute("wishlist", wishlist);
+		session.setAttribute("compare", compare);
+			
+		//model.addAttribute("user", user);
+		model.addAttribute("user", user);
+		model=Service.createHeader(model, user, basket,wishlist, compare, infoDAO, wishlistDAO);
+
+		return "About";
+	}	
 	
 	@RequestMapping(value = {"/home","/adminpanel/home"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String _home(
@@ -448,8 +457,6 @@ public class HomeController{
 			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
-			,@RequestParam(value = "paySumm", defaultValue="0.0", required=false) double paySumm
-			,@RequestParam(value = "client_id", defaultValue="0", required=false) int client_id
 			
 			,@RequestParam(value = "viscositySelections", required=false ) int[] viscositySelections  //MotorOils
 			,@RequestParam(value = "engineTypeSelections", required=false ) int[] engineTypeSelections
@@ -537,7 +544,7 @@ public class HomeController{
 		}
  
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,paySumm, client_id);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
@@ -802,7 +809,7 @@ public class HomeController{
 					session.setAttribute("basket", basket);
 				}
 			
-				result="MotorOil/Comparison";
+				result="MotorOilComparison";
 			}
 		}
 		if (variant.compareTo("На главную")==0){
@@ -811,7 +818,7 @@ public class HomeController{
 				result=Service.isAdminPanel(session,request)+"home";
 			}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
 				model.addAttribute("list", motorOilDAO.getMotorOils());
-				result="MotorOil/home";
+				result="MotorOilhome";
 			}
 		}
 		
@@ -829,7 +836,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, task, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -844,7 +851,7 @@ public class HomeController{
 			//return Service.isAdminPanel(session,request)+"Comparison";
 			result=Service.isAdminPanel(session,request)+"Comparison";
 		}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
-			result="MotorOil/Comparison";
+			result="MotorOilComparison";
 		}
 		
 		return result;
@@ -877,7 +884,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -932,7 +939,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, goodPrefix, quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		
 		createBussinessOffer(id, client, variant, user, basket, session);
 
@@ -943,6 +950,7 @@ public class HomeController{
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
+		//model.addAttribute("totalBasket", Service.countBasket(basket));  //ограничить 2 знаками после запятой.
 		
 		return Service.isAdminPanel(session,request)+"Basket";
 	}	
@@ -992,7 +1000,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		ArrayList<String> errors=new ArrayList<String>();
@@ -1065,7 +1073,7 @@ public class HomeController{
 		}		
 		
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1328,7 +1336,7 @@ public class HomeController{
 		
 		
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1469,17 +1477,17 @@ public class HomeController{
 						}else{
 							currentBrakingFluid = brakingFluidDAO.createBrakingFluidWithoutPrice(brFluid);
 						}
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentBrakingFluid, "Создан товар"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentBrakingFluid, "Создан товар"));
 						if (currentBrakingFluid.getPrice()>0){
 							Price currentPrice = priceDAO.createPrice(new Price(currentBrakingFluid.getId(),new GregorianCalendar().getTime()
 									,brFluid.getPrice(),currentBrakingFluid,user), Service.BRAKING_FLUID_PREFIX);
-							log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
+							logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 									, "Создана цена для "+currentBrakingFluid.getId()+". "+currentBrakingFluid.getName()));
 						}
 					}else{
 
 						BrakingFluid currentBrakingFluid = brakingFluidDAO.createBrakingFluidWithoutPrice(brFluid);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentBrakingFluid, "Изменён товар"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentBrakingFluid, "Изменён товар"));
 					}
 				}else if (request.isUserInRole("ROLE_PRICE")){
 					BrakingFluid oldBrakingFluid = brakingFluidDAO.getBrakingFluid(brFluid.getId());
@@ -1489,7 +1497,7 @@ public class HomeController{
 					if (oldBrakingFluid.getPrice()!=currentBrakingFluid.getPrice()){
 						Price currentPrice = priceDAO.createPrice(new Price(0,new GregorianCalendar().getTime()
 								,brFluid.getPrice(),currentBrakingFluid,user), Service.BRAKING_FLUID_PREFIX);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 								, "Создана цена для "+currentBrakingFluid.getId()+". "+currentBrakingFluid.getName()));
 					}
 
@@ -1528,7 +1536,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1572,7 +1580,7 @@ public class HomeController{
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}	
-		
+		model.addAttribute("showNew","");
 		if (task.compareTo("Сравнить")==0){
 			result="Comparison";
 		}else if (task.compareTo("На главную")==0){
@@ -1595,6 +1603,7 @@ public class HomeController{
 			result="BussinessOffer";
 		}else if ((task.compareTo("Новый")==0) || (task.compareTo("Создать новый")==0)){
 			model.addAttribute("variant",variant);
+			model.addAttribute("showNew","showNew");
 			model.addAttribute("pageInfo",task);
 			model.addAttribute("id",0);
 			model.addAttribute("combobox_countris",countryDAO.getCountries());
@@ -1606,10 +1615,11 @@ public class HomeController{
 			result="AddEdit";
 			
 		}else{
+			model.addAttribute("showNew","showNew");
 			result=Service.createAdminEdit(model,task, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO
 					, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
 		}
-		return "adminpanel/"+result;
+		return "adminpanel/"+result;//Service.isAdminPanel(session,request)+result;
 	}
 		
 	 @RequestMapping(value = {"/listDoc","/adminpanel/listDoc"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -1677,7 +1687,7 @@ public class HomeController{
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
 			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		}
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -1724,6 +1734,8 @@ public class HomeController{
 			,@RequestParam(value = "login_name" , defaultValue="", required=false) String login_name
 			,@RequestParam(value = "doc_summ" , defaultValue="0", required=false) double doc_summ
 			,@RequestParam(value = "client_id" , defaultValue="0", required=false) int client_id
+			,@RequestParam(value = "paid" , defaultValue="0", required=false) int paid
+			,@RequestParam(value = "shipping" , defaultValue="1", required=false) int shipping
 			,@RequestParam(value="pageInfo", defaultValue="0", required=false) String pageInfo		
 			,HttpServletRequest request,Locale locale, Model model) {
 		
@@ -1771,7 +1783,7 @@ public class HomeController{
  		
 		if (task.length()==0){ //если task=="New/Open/Save" не нужно выводить pdf. Будет сформирован документ
 			Service.workWithList(new Integer(id), Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		}
 		
 		GregorianCalendar currentTime = new GregorianCalendar();
@@ -1783,6 +1795,8 @@ public class HomeController{
 				model.addAttribute("pageInfo", "Создать новую заявку");
 				model.addAttribute("user_name", user.getName());
 				model.addAttribute("executer_id", user.getId());
+				model.addAttribute("paid", 0);
+				model.addAttribute("shipping", 1);
 			}else if ("Offer".equals(variant)){
 				model.addAttribute("pageInfo", "Создать новое коммерческое предложение");
 				model.addAttribute("user_name", user.getName());
@@ -1797,7 +1811,7 @@ public class HomeController{
 			model.addAttribute("id", 0);
 			model.addAttribute("time", Service.getFormattedDate(currentTime.getTime()));
 			model.addAttribute("doc_id", variant+"_"+Service.getFormattedDate(currentTime.getTime())
-					+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds());
+				+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds());
 			model.addAttribute("currentStatus", 1);
 			model.addAttribute("listClients", clientDAO.getClients());
 			model.addAttribute("currentClient", Service.ID_EMPTY_CLIENT);
@@ -1829,8 +1843,9 @@ public class HomeController{
 					if (listDoc.size()==0){
 						if (basket.size()>0){
 							demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(new Integer(status_id))
-									,userDAO.getUser(executer_id.isEmpty()?Service.ID_EXECUTER:new Integer(executer_id)), clientDAO.getClient(client_id));
-							Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
+									,userDAO.getUser(executer_id.isEmpty()?Service.ID_EXECUTER:new Integer(executer_id))
+									, clientDAO.getClient(client_id), paid, shipping);
+							logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
 							model.addAttribute("listDoc", basket);
 						}						
 					}else{
@@ -1845,7 +1860,7 @@ public class HomeController{
 					if (listDoc.size()==0){
 						if (basket.size()>0){
 							offerDAO.createOffer(doc_id, basket, user);
-							Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение #"+doc_id));
+							logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создано бизнес-предложение #"+doc_id));
 						}						
 					}
 					model.addAttribute("time",  (listDoc.size()>0?listDoc.get(0).getTime():currentTime.getTime()));
@@ -1949,7 +1964,7 @@ public class HomeController{
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
 			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		}
 		
 		if ("Pay".equals(variant)){
@@ -1991,7 +2006,7 @@ public class HomeController{
 				System.out.println(e.getMessage());
 				model.addAttribute("variant", "Error");
 				model.addAttribute("errMessage", e.getMessage());
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
 
 			}
 			if (req.getParameter("PayerID") != null) {
@@ -2010,7 +2025,7 @@ public class HomeController{
 					System.out.println(e.getMessage());
 					model.addAttribute("variant", "Error");
 					model.addAttribute("errMessage", e.getMessage());
-					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
+					logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
 
 				}
 				basket.clear();    //очистили корзину
@@ -2034,7 +2049,7 @@ public class HomeController{
 				for (Basket current:basket){
 					Item item = new Item();
 					DecimalFormat decimalFormat = new DecimalFormat("#.00");
-					String strPrice = decimalFormat.format(current.getGood().getPrice());
+					String strPrice = decimalFormat.format(current.getGood().getPriceWithDiscount());
 					item.setName(current.getGood().getName()).setQuantity(""+current.getQauntity())
 						.setCurrency("USD").setPrice(strPrice.replace(",", "."));
 					items.add(item);
@@ -2068,7 +2083,7 @@ public class HomeController{
 
 				try {
 					createdPayment = payment.create(apiContext); 
-					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
+					logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
 							, "Создана оплата с id = " + createdPayment.getId() + " и статусом = "+ createdPayment.getState()));
 					Iterator<Links> links = createdPayment.getLinks().iterator();
 					while (links.hasNext()) {
@@ -2085,7 +2100,7 @@ public class HomeController{
 					System.out.println(e.getMessage());
 					model.addAttribute("variant", "Error");
 					model.addAttribute("errMessage", e.getMessage());
-					Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, e.getMessage()));
+					logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, e.getMessage()));
 
 
 				}
@@ -2175,7 +2190,7 @@ public class HomeController{
 				APIContext apiContext = new APIContext(accessToken);
 
 				createdPayment = payment.create(apiContext);
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
 						, "Создана оплата с id = " + createdPayment.getId() + " и статусом = "+ createdPayment.getState()));
 				ResultPrinter.addResult(req, resp, "Payment with Credit Card",
 						Payment.getLastRequest(), Payment.getLastResponse(), null);
@@ -2185,7 +2200,7 @@ public class HomeController{
 						Payment.getLastRequest(), null, e.getMessage());
 				model.addAttribute("variant", "Error");
 				model.addAttribute("errMessage", e.getMessage());
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null
 						, e.getMessage()));
 
 			}
@@ -2220,6 +2235,10 @@ public class HomeController{
 				,@RequestParam(value = "cardNumber", defaultValue="", required=false) String cardNumber
 				,@RequestParam(value = "cardMonth", defaultValue="", required=false) String cardMonth
 				,@RequestParam(value = "cardYear", defaultValue="", required=false) String cardYear
+				,@RequestParam(value = "shipping", defaultValue="1", required=false) int shipping
+				//,@RequestParam(value = "paySumm", defaultValue="0.0", required=false) double paySumm
+				,@RequestParam(value = "client_id", defaultValue="0", required=false) int client_id
+				
 				,Locale locale, Model model, HttpServletRequest request, HttpServletResponse response) {
 			
 			variant=("PayPal".equals(task)?"Confirm":variant);
@@ -2246,52 +2265,73 @@ public class HomeController{
 			}
 			
 			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session
+					,Service.countBasket(basket),client_id, ("Nalik".equals(card)?0:1), shipping);
 			model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 			
-			session.setAttribute("basket", basket);
 			session.setAttribute("wishlist", wishlist);
 			session.setAttribute("compare", compare);	 
 			
 			session.setAttribute("Payment_Option", card);
 			session.setAttribute("Payment_Amount", ""+Service.countBasket(basket));
 			
-			InputStream is = HomeController.class.getResourceAsStream("/sdk_config.properties");
-			try { 
-				PayPalResource.initConfig(is); 
-			}
-			catch (PayPalRESTException e) {
-				System.out.println(e.getMessage());
-				//LOGGER.fatal(e.getMessage()); 
-			}
+			GregorianCalendar currentTime = new GregorianCalendar();
+			String doc_id="Demand_"+Service.getFormattedDate(currentTime.getTime())
+				+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
+			if (basket.size()>0){
+				demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(1)
+						,userDAO.getUser(Service.ID_EXECUTER), clientDAO.getClient(Service.ID_EMPTY_CLIENT), ("Nalik".equals(card)?0:1), shipping);
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
+				model.addAttribute("listDoc", basket);
+			}						
+			payDAO.clearPaysDemand_id(doc_id);
+			Service.spreadDemand(doc_id, infoDAO, logDAO, payDAO,demandDAO, manufacturerDAO);
 			
 			String result="PayPal";
 			
-			if (("PayPal".equals(task)) || (task.length()==0)) {
-				if ( "PayPal".equals(card)){
-			    	createPaymentPayPal(request, response, user, basket, logDAO, model);
-				}else if ( "Visa".equals(card)){
-					model.addAttribute("variant",variant);
-					if ( !"New".equals(variant)){
-						model.addAttribute("variant","Confirm");
-						createPaymentCard(lastName, firstName, city, address, countryCode, stateCode, zip, card, cardNumber, cardMonth, cardYear
-							,request, response, user, basket, logDAO, model);
-					}else{															//для тестирования  //удалить потом  -->			
-						model.addAttribute("lastName","Shopper");  
-						model.addAttribute("firstName","Joe");
-						model.addAttribute("city","San Jose");
-						model.addAttribute("address","1 Main St");
-						model.addAttribute("countryCode","US");
-						model.addAttribute("stateCode","CA");
-						model.addAttribute("zip","95131");
-						model.addAttribute("cardNumber","4032038024150892");
-						model.addAttribute("cardMonth","11");
-						model.addAttribute("cardYear","2018");  					//для тестирования  //удалить потом  <--
-					}
-				}
+			if ("Nalik".equals(card)) {
+				result = "redirect:home";
+				basket.clear();
 			}else{
-				result=task;
+				InputStream is = HomeController.class.getResourceAsStream("/sdk_config.properties");
+				try { 
+					PayPalResource.initConfig(is); 
+				}
+				catch (PayPalRESTException e) {
+					System.out.println(e.getMessage());
+					//LOGGER.fatal(e.getMessage()); 
+				}				
+				
+				if (("PayPal".equals(task)) || (task.length()==0)) {
+				
+				
+					if ( "PayPal".equals(card)){
+				    	createPaymentPayPal(request, response, user, basket, logDAO, model);
+					}else if ( "Visa".equals(card)){
+						model.addAttribute("variant",variant);
+						if ( !"New".equals(variant)){
+							model.addAttribute("variant","Confirm");
+							createPaymentCard(lastName, firstName, city, address, countryCode, stateCode, zip, card, cardNumber, cardMonth, cardYear
+								,request, response, user, basket, logDAO, model);
+						}else{															//для тестирования  //удалить потом  -->			
+							model.addAttribute("lastName","Shopper");  
+							model.addAttribute("firstName","Joe");
+							model.addAttribute("city","San Jose");
+							model.addAttribute("address","1 Main St");
+							model.addAttribute("countryCode","US");
+							model.addAttribute("stateCode","CA");
+							model.addAttribute("zip","95131");
+							model.addAttribute("cardNumber","4032038024150892");
+							model.addAttribute("cardMonth","11");
+							model.addAttribute("cardYear","2018");  					//для тестирования  //удалить потом  <--
+						}
+						basket.clear(); 
+					}
+				}else{
+					result=task;
+				}
 			}
+			session.setAttribute("basket", basket);
 			
 			return Service.isAdminPanel(session,request)+result;
 		}
@@ -2339,7 +2379,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -2382,7 +2422,7 @@ public class HomeController{
 		
 		try{
 			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
-			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
+			logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "!!!Ошибка: "+strMessage));
 		}catch(Exception e){
 			//---
 		}
@@ -2417,7 +2457,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -2456,7 +2496,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -2495,7 +2535,7 @@ public class HomeController{
 			compare=createComparement();
 		}
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);

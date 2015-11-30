@@ -2,7 +2,6 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 

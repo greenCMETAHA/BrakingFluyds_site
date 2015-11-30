@@ -1,8 +1,5 @@
 package eftech.workingset.beans;
 
-import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig.Interface;
-
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceReview;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 

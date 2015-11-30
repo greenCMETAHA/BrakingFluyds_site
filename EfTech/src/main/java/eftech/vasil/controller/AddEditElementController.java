@@ -1,8 +1,5 @@
 package eftech.vasil.controller;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -20,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
-
-import com.itextpdf.text.DocumentException;
 
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
@@ -304,16 +299,16 @@ public class AddEditElementController {
 						}
 						for (Role currentRole:existingRoles){				//удалим лишнее
 							userDAO.deleteUser(current, currentRole);
-							Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ удалил Роль у пользователя "+current.getLogin()));
+							logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ удалил Роль у пользователя "+current.getLogin()));
 						}
 						if (roles.size()>0){								//добавим недостающее
 							for (Role currentRole:roles){
 								userDAO.createUserWithRole(current, currentRole);
-								Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил Пользователя/Роль пользователю "+current.getLogin()));
+								logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил Пользователя/Роль пользователю "+current.getLogin()));
 							}
 						}
 						userDAO.updateUsers(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Админ изменил данные Пользователей с логином "+current.getLogin()));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Админ изменил данные Пользователей с логином "+current.getLogin()));
 					}
 				}else if (variant.compareTo("manufacturer")==0){
 					Manufacturer current = new Manufacturer(id_current, name, countryDAO.getCountryByName(country_name));
@@ -326,7 +321,7 @@ public class AddEditElementController {
 						model.addAttribute("combobox_countris",countryDAO.getCountries());
 					}else{
 						current = manufacturerDAO.createManufacturer(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Производитея"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Производитея"));
 					}
 				}else if (variant.compareTo("country")==0){
 					Country current=new Country(id_current,name);
@@ -338,7 +333,7 @@ public class AddEditElementController {
 						model.addAttribute("id",current.getId());
 					}else{
 						current=countryDAO.createCountry(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Страну"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Страну"));
 					}
 				}else if (variant.compareTo("fluidClass")==0){
 					FluidClass current=new FluidClass(id_current,name);
@@ -362,7 +357,7 @@ public class AddEditElementController {
 						model.addAttribute("id",current.getId());
 					}else{
 						current=oilStuffDAO.createOilStuff(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил состав масла"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил состав масла"));
 					}
 				}else if (variant.compareTo("engineType")==0){
 					EngineType current=new EngineType(id_current,name);
@@ -374,7 +369,7 @@ public class AddEditElementController {
 						model.addAttribute("id",current.getId());
 					}else{
 						current=engineTypeDAO.createEngineType(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил тип двигателя"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил тип двигателя"));
 					}
 					
 				}else if (variant.compareTo("client")==0){
@@ -390,7 +385,7 @@ public class AddEditElementController {
 						model.addAttribute("id",current.getId());
 					}else{
 						current=clientDAO.createClient(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Клиента"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Клиента"));
 					}
 				}else if (variant.compareTo("log")==0){
 					Log current=logDAO.createLog(new Log(id,user,new GregorianCalendar().getTime(),null,info));
@@ -402,7 +397,7 @@ public class AddEditElementController {
 						model.addAttribute("id",current.getId());
 					}else{
 						current=logDAO.createLog(current);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Историю"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил Историю"));
 					}
 				}
 				if (errors.size()>0){

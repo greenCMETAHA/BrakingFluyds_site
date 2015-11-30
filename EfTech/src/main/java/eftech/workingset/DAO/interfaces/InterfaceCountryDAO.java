@@ -2,7 +2,6 @@ package eftech.workingset.DAO.interfaces;
 
 import java.util.ArrayList;
 
-import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 
 public interface InterfaceCountryDAO {

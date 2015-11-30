@@ -2,9 +2,7 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceOffer;
-import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Offer implements InterfaceOffer {

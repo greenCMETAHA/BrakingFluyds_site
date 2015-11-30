@@ -1,7 +1,6 @@
 package eftech.workingset.beans;
 
 import eftech.workingset.Services.Service;
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceUser;
 import eftech.workingset.beans.intefaces.InterfaceWishlist;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;

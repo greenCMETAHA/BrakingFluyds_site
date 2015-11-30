@@ -2,9 +2,6 @@ package eftech.workingset.DAO.interfaces;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-import javax.sql.DataSource;
-
 import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.FluidClassSelected;
 import eftech.workingset.beans.ManufacturerSelected;

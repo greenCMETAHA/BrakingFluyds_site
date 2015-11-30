@@ -5,7 +5,7 @@ public class FluidClassSelected extends FluidClass {
 
 	public FluidClassSelected() {
 		super();
-		this.selected = selected;
+		this.selected = false;
 	}
 
 	/**

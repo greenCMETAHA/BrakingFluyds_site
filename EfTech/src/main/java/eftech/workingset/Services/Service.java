@@ -10,41 +10,26 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.nio.channels.FileChannel;
 import java.security.Principal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
-import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.hssf.extractor.ExcelExtractor;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.ui.Model;
-import org.springframework.web.multipart.MultipartFile;
-
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
@@ -62,7 +47,6 @@ import eftech.workingset.DAO.templates.PayTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.beans.*;
-import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 import com.itextpdf.text.Document;
@@ -83,7 +67,7 @@ public class Service {
 	public static String WEBSITE="website";
 	public static String ADMIN_EMAIL="adminEmail";
 	public static String EMAIL="email";
-	public static int ELEMENTS_IN_LIST = 4;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
+	public static int ELEMENTS_IN_LIST = 6;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
 	public static int LOG_ELEMENTS_IN_LIST = 50;  //начальное количество для педжинации //24 - основа. Но в тестовой БД только 10 записей
 	public static int ELEMENTS_IN_RECOMMENDED = 7; //количество номенклатуры в "Рекомендуемом"
 	public static int ID_CUSTOMER = 7; //default customer
@@ -220,7 +204,7 @@ public class Service {
 		            table.addCell(new Phrase(""+current.getValue(),new Font(times,8)));
 		            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
 		            if (user.canChangePrice()){
-		            	table.addCell(new Phrase(""+current.getPrice(),new Font(times,8)));
+		            	table.addCell(new Phrase(""+current.getPriceWithDiscount(),new Font(times,8)));
 		            }
 		            table.addCell(new Phrase(current.getDescription(),new Font(times,8)));
 		            
@@ -299,7 +283,7 @@ public class Service {
 		            table.addCell(new Phrase(""+current.getValue(),new Font(times,8)));
 		            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
 		            if (user.canChangePrice()){
-		            	table.addCell(new Phrase(""+current.getPrice(),new Font(times,8)));
+		            	table.addCell(new Phrase(""+current.getPriceWithDiscount(),new Font(times,8)));
 		            }
 		            table.addCell(new Phrase(current.getDescription(),new Font(times,8)));
 		            
@@ -374,7 +358,7 @@ public class Service {
 //            table.addCell(new Phrase(""+currentBR.getValue(),new Font(times,8)));
 //            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
 //            if (user.canChangePrice()){
-//            	table.addCell(new Phrase(""+currentBR.getPrice(),new Font(times,8)));
+//            	table.addCell(new Phrase(""+currentBR.getPriceWithDiscount(),new Font(times,8)));
 //            }
 //            table.addCell(new Phrase(currentBR.getDescription(),new Font(times,8)));
 //            
@@ -656,24 +640,24 @@ public class Service {
 				,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
 				,storno, summ, client);
 		pay=payDAO.createPay(pay);
-		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Оплатили посреднику"));
+		logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Оплатили посреднику"));
 		summ=summ/100*95;
 		pay=new Pay(0,currentTime, user, numDoc,demand_id
 				,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
 				,storno, -summ, client);
 		pay=payDAO.createPay(pay);
-		log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник оплатил за товар поставщику"));
+		logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник оплатил за товар поставщику"));
 		pay=new Pay(0,currentTime, user, numDoc,demand_id
 				,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MAIN_FIRM)))
 				,storno, summ, client);
 		pay=payDAO.createPay(pay);
-		log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Поставщик получил деньги за товар"));
+		logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Поставщик получил деньги за товар"));
 	}
 	
 	
 	public static void createDemandAndPay(User user, LinkedList<Basket> basket, ClientTemplate clientDAO, ManufacturerTemplate manufacturerDAO
 			, OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO, PayTemplate payDAO
-			, double paySumm, int client_id, LogTemplate logDAO){
+			, double paySumm, int client_id, LogTemplate logDAO, int paid, int shipping){
 		Client client=clientDAO.getClient((client_id==0?Service.ID_EMPTY_CLIENT:client_id));
 		boolean storno=false;
 		if (paySumm<0){
@@ -683,7 +667,7 @@ public class Service {
 			
 		double totalSumm=0;
 		for (Basket position:basket){
-			totalSumm+=position.getQauntity()*position.getGood().getPrice();
+			totalSumm+=position.getQauntity()*position.getGood().getPriceWithDiscount();
 		}
 		double summ=Math.min(paySumm,totalSumm); 			//вносимая сумма может быть не равна сумме к оплате: как от недостатка денег - так и из-за наличия не отгруженных старых платежей 
 			
@@ -692,9 +676,9 @@ public class Service {
 				+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
 		String demand_id="Demand_"+timeDoc;
 		synchronized (demand_id) {
-			ArrayList<Demand> listDemand = demandDAO.createDemand(demand_id, basket, user, offerStatusDAO.getOfferStatus(1), user, client);
+			ArrayList<Demand> listDemand = demandDAO.createDemand(demand_id, basket, user, offerStatusDAO.getOfferStatus(1), user, client, paid, shipping);
 			for (Demand demand:listDemand){
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), demand, "Создали заявку (товар уже оплачен)"));
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), demand, "Создали заявку (товар уже оплачен)"));
 			}
 			createEntry(summ, storno, null,demand_id, currentTime.getTime(), client, user, manufacturerDAO, infoDAO, payDAO, logDAO);
 		}
@@ -739,7 +723,7 @@ public class Service {
 					,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
 					,storno, summ, client);  //поставщику ничего платить не будем, бо рано ещё. Это сделаем после формирования заказа.
 			pay=payDAO.createPay(pay);
-			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
+			logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
 		}
 
 	}
@@ -832,7 +816,7 @@ public class Service {
 					,manufacturerDAO.getManufacturer(new Integer(infoDAO.getInfo(Service.MARKETING_FIRM)))
 					,storno, doc_summ, client);  //поставщику ничего платить не будем, бо рано ещё. Это сделаем после формирования заказа.
 			pay=payDAO.createPay(pay);
-			Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
+			logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), pay, "Посредник получил предоплату"));
 		}
 	}
 
@@ -850,7 +834,7 @@ public class Service {
 //				listDoc=demandDAO.getDemandsLast(currentPage, elementsInList);
 //			}else{
 				listDoc=demandDAO.getDemandsIn(dateBeginFilter, dateEndFilter,currentPage, elementsInList
-						, (request.isUserInRole("ROLE_MANAGER_SALE")?0:user.getId()));
+						, ((request.isUserInRole("ROLE_MANAGER_SALE")) || (request.isUserInRole("ROLE_ADMIN"))?0:user.getId()));
 //			}
 			
 			ArrayList<DocRow> table = new ArrayList<DocRow>(); 
@@ -947,6 +931,8 @@ public class Service {
 			model.addAttribute("executer_name", userDAO.getUser((listDoc.size()>0?listDoc.get(0).getExecuter().getId():Service.ID_EXECUTER)).getName());
 			Client currentClient=clientDAO.getClient((listDoc.size()>0?((Client)listDoc.get(0).getClient()).getId():Service.ID_EMPTY_CLIENT));
 			model.addAttribute("client", currentClient);
+			model.addAttribute("paid",  (listDoc.size()>0?(listDoc.get(0).isPaid()?1:0):0));
+			model.addAttribute("shipping", (listDoc.size()>0?(listDoc.get(0).isShipping()?1:0):1));
 		}else if ("Offer".equals(variant)){
 			model.addAttribute("pageInfo", "Редактировать коммерческое предложение");
 			model.addAttribute("listDoc", offerDAO.getOffer(doc_id));
@@ -1004,7 +990,7 @@ public class Service {
 			,BrakingFluidTemplate brakingFluidDAO, MotorOilTemplate motorOilDAO, LogTemplate logDAO, ClientTemplate clientDAO
 			, ManufacturerTemplate manufacturerDAO,OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO
 			, PayTemplate payDAO, WishlistTemplate wishlistDAO			
-			, HttpSession session, double paySumm, int client_id){  
+			, HttpSession session, double paySumm, int client_id, int paid, int shipping){  
 	
 		if (variant.compareTo("Demand")==0){
 			LinkedList<Basket>  listBasket = null; 
@@ -1021,7 +1007,7 @@ public class Service {
 		
 			try {
 				Service.createPDF_Demand(listBasket, session.getServletContext().getRealPath("/"), user);
-				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка"));
+				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1077,7 +1063,7 @@ public class Service {
 		}
 		if (variant.compareTo("checkout")==0){
 			Service.createDemandAndPay(user, basket, clientDAO, manufacturerDAO,
-					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO);
+					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO, paid, shipping);
 			basket.clear();  //здесь нужно обработать выдачу кассового чека
 		}
 		if (variant.compareTo("inWishlist")==0){
@@ -1092,7 +1078,7 @@ public class Service {
 				if (!bFind){
 					synchronized (variant) {
 						Wishlist currentWish=wishlistDAO.addToWishlist(new Wishlist(user.getId(), id, goodPrefix));
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentWish, "Добавили в избранное"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentWish, "Добавили в избранное"));
 						wishlist.add(currentWish);
 					}
 				}
@@ -1103,7 +1089,7 @@ public class Service {
 				if (((current.getGood().getId()==id) & (goodPrefix.equals(current.getGood().getGoodName())))){
 					wishlist.remove(current);
 					synchronized (variant) {
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Удалили из избранного"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Удалили из избранного"));
 						wishlistDAO.deleteFromWishlist(current);
 						
 					}
@@ -1151,8 +1137,8 @@ public class Service {
 	public static double countBasket(LinkedList<Basket> basket){
 		double totalBasket=0;	
 		for (Basket current:basket){
-			InterfaceGood brFluid= current.getGood();
-			totalBasket+=(brFluid.getPrice()*current.getQauntity());
+			InterfaceGood currentGood= current.getGood();
+			totalBasket+=(currentGood.getPriceWithDiscount()*current.getQauntity());
 		}
 
 		return totalBasket;

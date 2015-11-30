@@ -3,12 +3,9 @@ package eftech.vasil.controller;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map.Entry;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -44,11 +41,8 @@ import eftech.workingset.DAO.templates.WishlistTemplate;
 import eftech.workingset.Services.DownloadDataFromExcel;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
-import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.EngineType;
-import eftech.workingset.beans.FluidClass;
-import eftech.workingset.beans.FluidClassSelected;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
@@ -58,9 +52,6 @@ import eftech.workingset.beans.Price;
 import eftech.workingset.beans.Review;
 import eftech.workingset.beans.User;
 import eftech.workingset.beans.Wishlist;
-import eftech.workingset.beans.intefaces.InterfaceEngineType;
-import eftech.workingset.beans.intefaces.InterfaceManufacturer;
-import eftech.workingset.beans.intefaces.InterfaceOilStuff;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 @Controller
@@ -283,7 +274,7 @@ public class MotorOilController {
 		}
  
 		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
@@ -401,7 +392,7 @@ public class MotorOilController {
 		session.setAttribute("elementsInList", elementsInList);
 		
 		//return Service.isAdminPanel(session,request)+"home";
-		return "MotorOil/home";
+		return "MotorOilhome";
 	}
 	
 	@RequestMapping(value = {"/ShowOneMotorOil","/adminpanel/ShowOneMotorOil"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -457,7 +448,7 @@ public class MotorOilController {
 		}		
 		
 		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -489,13 +480,13 @@ public class MotorOilController {
 			model.addAttribute("prices", priceDAO.getPrices(id, Service.MOTOR_OIL_PREFIX));
 			
 			//return Service.isAdminPanel(session,request)+"InsertUpdate";
-			return "MotorOil/InsertUpdate";
+			return "MotorOilInsertUpdate";
 		}else{
 			model.addAttribute("currentMotorOil", motorOilDAO.getMotorOil(id));
 			model.addAttribute("reviews", reviewDAO.getReviews(id,Service.MOTOR_OIL_PREFIX));
 			model.addAttribute("prices", priceDAO.getPrices(id, Service.MOTOR_OIL_PREFIX));
 			
-			return "MotorOil/ShowOne";
+			return "MotorOilShowOne";
 		}
 		
 	}
@@ -639,7 +630,7 @@ public class MotorOilController {
 		session.setAttribute("manufacturersFilter", manufacturersFilter);
 		session.setAttribute("elementsInList", elementsInList);
 		
-		return "MotorOil/home";
+		return "MotorOilhome";
 	}	
 	
 	@RequestMapping(value = {"/InsertUpdateMotorOil","/adminpanel/InsertUpdateMotorOil"}, method = {RequestMethod.POST, RequestMethod.GET})
@@ -685,7 +676,7 @@ public class MotorOilController {
 		if (variant.compareTo("На главную")==0){
 			model.addAttribute("list", brakingFluidDAO.getBrakingFluids());
 			//return Service.isAdminPanel(session,request)+"MotorOil";
-			return "MotorOil/home";
+			return "MotorOilhome";
 		}				
 		
 		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
@@ -709,14 +700,14 @@ public class MotorOilController {
 		
 		
 		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0);
+				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
 		
-		String result="MotorOil/home";
+		String result="MotorOilhome";
 //		try {
 //			pageInfo=new String(pageInfo.getBytes("iso-8859-1"), "UTF-8");
 //		} catch (UnsupportedEncodingException e) {
@@ -731,7 +722,7 @@ public class MotorOilController {
 			model.addAttribute("combobox_EngineType", engineTypeDAO.getEngineTypes());
 			model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
 			
-			result = "MotorOil/InsertUpdate";
+			result = "MotorOilInsertUpdate";
 		}else{
 			String fieldName="", fieldManufacturer="", fieldValue="", fieldPrice="", fieldPhoto="", fieldDescription="", fieldSpecification="", fieldJudgement="";
 			//try {
@@ -797,7 +788,7 @@ public class MotorOilController {
 				model.addAttribute("combobox_EngineType", engineTypeDAO.getEngineTypes());
 				model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
 				
-				result= "MotorOil/InsertUpdate";
+				result= "MotorOiInsertUpdate";
 				
 			}else if(("Update".equals(variant)) || ("Save".equals(variant))){
 				if (request.isUserInRole("ROLE_PRODUCT")){
@@ -831,17 +822,17 @@ public class MotorOilController {
 							currentMotorOil = motorOilDAO.createMotorOilWithoutPrice(motorOil);
 						}
 						
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentMotorOil, "Создан товар: моторное масло"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentMotorOil, "Создан товар: моторное масло"));
 						if (currentMotorOil.getPrice()>0){
 							Price currentPrice = priceDAO.createPrice(new Price(currentMotorOil.getId(),new GregorianCalendar().getTime()
 									,motorOil.getPrice(),currentMotorOil,user), Service.MOTOR_OIL_PREFIX);
-							log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
+							logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 									, "Создана цена для "+currentMotorOil.getId()+". "+currentMotorOil.getName()));
 						}
 					}else{
 
 						MotorOil currentMotorOil = motorOilDAO.createMotorOilWithoutPrice(motorOil);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentMotorOil, "Изменён товар: моторное масло"));
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentMotorOil, "Изменён товар: моторное масло"));
 					}
 				}else if (request.isUserInRole("ROLE_PRICE")){
 					MotorOil oldMotorOil = motorOilDAO.getMotorOil(motorOil.getId());
@@ -851,7 +842,7 @@ public class MotorOilController {
 					if (oldMotorOil.getPrice()!=currentMotorOil.getPrice()){
 						Price currentPrice = priceDAO.createPrice(new Price(0,new GregorianCalendar().getTime()
 								,motorOil.getPrice(),currentMotorOil,user), Service.MOTOR_OIL_PREFIX);
-						Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 								, "Создана цена для "+currentMotorOil.getId()+". "+currentMotorOil.getName()));
 					}
 

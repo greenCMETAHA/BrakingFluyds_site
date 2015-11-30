@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.Offer;
-import eftech.workingset.beans.OfferStatus;
 import eftech.workingset.beans.User;
 
 public interface InterfaceOfferDAO {

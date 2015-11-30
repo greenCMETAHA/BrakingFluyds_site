@@ -1,12 +1,7 @@
 package eftech.vasil.controller;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map.Entry;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +15,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
-import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
@@ -31,11 +25,6 @@ import eftech.workingset.DAO.templates.OilStuffTemplate;
 import eftech.workingset.DAO.templates.PriceTemplate;
 import eftech.workingset.Services.DownloadDataFromExcel;
 import eftech.workingset.Services.Service;
-import eftech.workingset.beans.BrakingFluid;
-import eftech.workingset.beans.Country;
-import eftech.workingset.beans.FluidClass;
-import eftech.workingset.beans.Log;
-import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.User;
 
 @Controller

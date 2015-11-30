@@ -1,9 +1,6 @@
 package eftech.workingset.beans;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
-
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfacePrice;
 import eftech.workingset.beans.intefaces.InterfaceUser;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;

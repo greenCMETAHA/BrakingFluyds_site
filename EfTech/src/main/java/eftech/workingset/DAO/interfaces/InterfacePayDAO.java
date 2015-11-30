@@ -2,11 +2,7 @@ package eftech.workingset.DAO.interfaces;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
-
-import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.Pay;
-import eftech.workingset.beans.User;
 
 public interface InterfacePayDAO {
 	int getCountRows(Date begin, Date end);

@@ -1,7 +1,6 @@
 package eftech.workingset.beans;
 
 import eftech.workingset.Services.Service;
-import eftech.workingset.beans.intefaces.InterfaceFluidClass;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 
 public class OfferStatus implements InterfaceOfferStatus{

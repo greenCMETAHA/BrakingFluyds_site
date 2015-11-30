@@ -2,7 +2,6 @@ package eftech.workingset.DAO.interfaces;
 
 import java.util.ArrayList;
 
-import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 
 public interface InterfaceManufacturerDAO {

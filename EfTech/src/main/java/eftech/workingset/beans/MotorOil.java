@@ -1,15 +1,7 @@
 package eftech.workingset.beans;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-
 import eftech.workingset.Services.Service;
-import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceEngineType;
 import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 import eftech.workingset.beans.intefaces.InterfaceMotorOil;
@@ -333,12 +325,14 @@ public class MotorOil implements InterfaceMotorOil{
 		
 		@Override
 		public double getPriceWithDiscount() {
-			double result=0;
+			double result=getPrice();
 			
-			result = getPrice()-(getPrice()/100*discount);
-			result = Math.round(result*100)/100;
+			if (discount>0){
+				result = result-(result/100*discount);
+				result = Math.round(result*100)/100;
+			}
 
 			return result;
-		}	
+		}
 
 }
