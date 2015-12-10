@@ -97,7 +97,7 @@
                    <div class="value">
                    		<select size="1" name="card"  class="le-select">
  							<option >Выберите вид карты</option>
- 							<option selected value="Visa">Visa</option>
+ 							<option selected value="visa">Visa</option>
  						</select>
 			            <div class="col-xs-12 col-sm-6 no-margin">
 			                <div class="payment-methods ">

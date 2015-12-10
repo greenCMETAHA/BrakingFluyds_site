@@ -99,7 +99,13 @@ public class LogTemplate implements InterfaceLogDAO {
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("user", ((User)log.getUser()).getId());
-		params.addValue("info", log.getInfo());
+		if (log.getInfo().length()>240){
+			params.addValue("info", log.getInfo().subSequence(0, 240));
+		}else{
+			params.addValue("info", log.getInfo());
+		}
+		
+		
 		params.addValue("time", log.getTime());
 		if (log.getObject()!=null){
 			Object obj=log.getObject();

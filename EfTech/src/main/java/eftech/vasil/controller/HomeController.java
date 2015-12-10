@@ -1991,7 +1991,7 @@ public class HomeController{
 	}	 
 	//------------------------------------------------------------------------------------------------------------Pay Pal
 	 public String createPaymentPayPal(HttpServletRequest req, HttpServletResponse resp, User user, LinkedList<Basket>  basket, LogTemplate logDAO
-			 ,Model model) {
+			 ,Model model, int shipping) {
 			Payment createdPayment = null;
 			APIContext apiContext = null;
 			String accessToken = null;
@@ -2028,6 +2028,19 @@ public class HomeController{
 					logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null,e.getMessage()));
 
 				}
+				
+				GregorianCalendar currentTime = new GregorianCalendar();
+				String doc_id="Demand_"+Service.getFormattedDate(currentTime.getTime())
+					+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
+				if (basket.size()>0){
+					demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(1)
+							,userDAO.getUser(Service.ID_EXECUTER), clientDAO.getClient(Service.ID_EMPTY_CLIENT), 1, shipping);
+					logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
+					model.addAttribute("listDoc", basket);
+				}						
+				payDAO.clearPaysDemand_id(doc_id);
+				Service.spreadDemand(doc_id, infoDAO, logDAO, payDAO,demandDAO, manufacturerDAO);
+				
 				basket.clear();    //очистили корзину
 			} else {
 
@@ -2037,7 +2050,7 @@ public class HomeController{
 				details.setTax("0");
 
 				Amount amount = new Amount();
-				amount.setCurrency("USD");
+				amount.setCurrency("GBP");
 				amount.setTotal(Service.strCountBasket(basket));
 				amount.setDetails(details);
 
@@ -2051,7 +2064,7 @@ public class HomeController{
 					DecimalFormat decimalFormat = new DecimalFormat("#.00");
 					String strPrice = decimalFormat.format(current.getGood().getPriceWithDiscount());
 					item.setName(current.getGood().getName()).setQuantity(""+current.getQauntity())
-						.setCurrency("USD").setPrice(strPrice.replace(",", "."));
+						.setCurrency("GBP").setPrice(strPrice.replace(",", "."));
 					items.add(item);
 				}
 				ItemList itemList = new ItemList();
@@ -2160,7 +2173,7 @@ public class HomeController{
 			// ###Amount
 			// Let's you specify a payment amount.
 			Amount amount = new Amount();
-			amount.setCurrency("USD");
+			amount.setCurrency("GBP");
 			// Total must be equal to sum of shipping, tax and subtotal.
 			amount.setTotal(""+Service.strCountBasket(basket));
 			amount.setDetails(details);
@@ -2270,26 +2283,28 @@ public class HomeController{
 			model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 			
 			session.setAttribute("wishlist", wishlist);
-			session.setAttribute("compare", compare);	 
+			session.setAttribute("compare", compare);
+			session.setAttribute("shipping", shipping);
 			
 			session.setAttribute("Payment_Option", card);
 			session.setAttribute("Payment_Amount", ""+Service.countBasket(basket));
 			
-			GregorianCalendar currentTime = new GregorianCalendar();
-			String doc_id="Demand_"+Service.getFormattedDate(currentTime.getTime())
-				+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
-			if (basket.size()>0){
-				demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(1)
-						,userDAO.getUser(Service.ID_EXECUTER), clientDAO.getClient(Service.ID_EMPTY_CLIENT), ("Nalik".equals(card)?0:1), shipping);
-				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
-				model.addAttribute("listDoc", basket);
-			}						
-			payDAO.clearPaysDemand_id(doc_id);
-			Service.spreadDemand(doc_id, infoDAO, logDAO, payDAO,demandDAO, manufacturerDAO);
-			
 			String result="PayPal";
 			
 			if ("Nalik".equals(card)) {
+				
+				GregorianCalendar currentTime = new GregorianCalendar();
+				String doc_id="Demand_"+Service.getFormattedDate(currentTime.getTime())
+					+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
+				if (basket.size()>0){
+					demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(1)
+							,userDAO.getUser(Service.ID_EXECUTER), clientDAO.getClient(Service.ID_EMPTY_CLIENT), ("Nalik".equals(card)?0:1), shipping);
+					logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
+					model.addAttribute("listDoc", basket);
+				}						
+				payDAO.clearPaysDemand_id(doc_id);
+				Service.spreadDemand(doc_id, infoDAO, logDAO, payDAO,demandDAO, manufacturerDAO);
+				
 				result = "redirect:home";
 				basket.clear();
 			}else{
@@ -2306,13 +2321,29 @@ public class HomeController{
 				
 				
 					if ( "PayPal".equals(card)){
-				    	createPaymentPayPal(request, response, user, basket, logDAO, model);
-					}else if ( "Visa".equals(card)){
+				    	createPaymentPayPal(request, response, user, basket, logDAO, model, shipping);
+				    	
+
+					}else if ( "visa".equals(card)){
 						model.addAttribute("variant",variant);
 						if ( !"New".equals(variant)){
 							model.addAttribute("variant","Confirm");
 							createPaymentCard(lastName, firstName, city, address, countryCode, stateCode, zip, card, cardNumber, cardMonth, cardYear
 								,request, response, user, basket, logDAO, model);
+							
+							GregorianCalendar currentTime = new GregorianCalendar();
+							String doc_id="Demand_"+Service.getFormattedDate(currentTime.getTime())
+								+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
+							if (basket.size()>0){
+								demandDAO.createDemand(doc_id, basket, user, offerStatusDAO.getOfferStatus(1)
+										,userDAO.getUser(Service.ID_EXECUTER), clientDAO.getClient(Service.ID_EMPTY_CLIENT), ("Nalik".equals(card)?0:1), shipping);
+								logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), null, "Создана заявка #"+doc_id));
+								model.addAttribute("listDoc", basket);
+							}						
+							payDAO.clearPaysDemand_id(doc_id);
+							Service.spreadDemand(doc_id, infoDAO, logDAO, payDAO,demandDAO, manufacturerDAO);
+							
+							basket.clear();
 						}else{															//для тестирования  //удалить потом  -->			
 							model.addAttribute("lastName","Shopper");  
 							model.addAttribute("firstName","Joe");
@@ -2325,7 +2356,7 @@ public class HomeController{
 							model.addAttribute("cardMonth","11");
 							model.addAttribute("cardYear","2018");  					//для тестирования  //удалить потом  <--
 						}
-						basket.clear(); 
+						 
 					}
 				}else{
 					result=task;

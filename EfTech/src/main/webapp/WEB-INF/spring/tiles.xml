@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC 
+  "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+  "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+    
+
+
+
+	<!-- //Основной сайт. Корзина, сравнение, логин и прочее, которое выводим без меню -->
+    <definition name="base.definition" template="/WEB-INF/views/TilesTemplates/mainTemplate.jsp">
+    	<put-attribute name="header0" value="/WEB-INF/views/tiles/header0.jsp"></put-attribute>		
+        <put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp"></put-attribute>
+        <put-attribute name="body" value=""></put-attribute>
+        <put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp"></put-attribute>
+    </definition>
+    
+    <!-- //Основной сайт. основные страницы с отборами и index -->
+    <definition name="baseWithSelectAndMenu.definition" template="/WEB-INF/views/TilesTemplates/mainTemplateWithMenu.jsp">
+    	<put-attribute name="header0" value="/WEB-INF/views/tiles/header0.jsp"></put-attribute> 
+        <put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp"></put-attribute>
+        <put-attribute name="menu" value=""></put-attribute>
+        <put-attribute name="body" value=""></put-attribute>
+        <put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp"></put-attribute>
+    </definition>
+ 
+ <!-- baseWithSelectAndMenu.definition -->
+    <definition name="home" extends="baseWithSelectAndMenu.definition">
+        <put-attribute name="menu" value="/WEB-INF/views/tiles/selection.jsp"></put-attribute>
+        <put-attribute name="body" value="/WEB-INF/views/home.jsp"></put-attribute>
+    </definition>
+
+    <definition name="About" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/About.jsp"></put-attribute>
+    </definition>
+
+
+    <definition name="MotorOilhome" extends="baseWithSelectAndMenu.definition">
+        <put-attribute name="menu" value="/WEB-INF/views/MotorOil/tiles/selection.jsp"></put-attribute>
+        <put-attribute name="body" value="/WEB-INF/views/MotorOil/home.jsp"></put-attribute>
+    </definition>
+    
+<!-- base.definition -->
+    <definition name="index" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/index.jsp"></put-attribute>
+    </definition>
+
+    <definition name="Basket" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/Basket.jsp"></put-attribute>
+    </definition>   
+
+    <definition name="Comparison" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/Comparison.jsp"></put-attribute>
+    </definition>
+       
+    <definition name="MotorOilComparison" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/MotorOil/Comparison.jsp"></put-attribute>
+    </definition>   
+
+    <definition name="delivery" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/delivery.jsp"></put-attribute>
+    </definition>   
+
+    <definition name="Download" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/Download.jsp"></put-attribute>
+    </definition>   
+    
+    <definition name="errorPage" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/errorPage.jsp"></put-attribute>
+    </definition>   
+    
+    <definition name="InsertUpdateDoc" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/InsertUpdateDoc.jsp"></put-attribute>
+    </definition>
+       
+    <definition name="listDoc" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/listDoc.jsp"></put-attribute>
+    </definition>
+    
+    <definition name="login" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/login.jsp"></put-attribute>
+    </definition>   
+    
+    <definition name="PayPal" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/PayPal.jsp"></put-attribute>
+    </definition>   
+       
+    <definition name="Report" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/Report.jsp"></put-attribute>
+    </definition>   
+   
+    <definition name="Wishlist" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/Wishlist.jsp"></put-attribute>
+    </definition>   
+   
+    <definition name="ShowOne" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/ShowOne.jsp"></put-attribute>
+    </definition>
+       
+    <definition name="MotorOilShowOne" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/MotorOil/ShowOne.jsp"></put-attribute>
+    </definition>   
+   
+    <definition name="InsertUpdate" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/InsertUpdate.jsp"></put-attribute>
+    </definition>   
+    <definition name="MotorOilInsertUpdate" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/MotorOil/InsertUpdate.jsp"></put-attribute>
+    </definition> 
+  
+</tiles-definitions>
