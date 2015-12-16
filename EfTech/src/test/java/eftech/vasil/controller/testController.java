@@ -31,6 +31,6 @@ public class testController {
 //	  adapter.handle(request, response, controller);
 //	 
 //	  Mockito.verify(controller).createBasket();
-		 xmlConfigSetup("classpath:mvc-test.xml").build()
+//		 xmlConfigSetup("classpath:mvc-test.xml").build()
 	 }
 }

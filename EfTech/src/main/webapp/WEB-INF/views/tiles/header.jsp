@@ -25,11 +25,6 @@
 					    </div>
 					</div><!-- /.contact-row -->
 					<!-- ============================================================ SEARCH AREA ============================================================= -->
-		<form action="searchThing" method="post">
-					        <input type="submit" name="searchButton"  value="BrF">
-					        <button class="le-button" type="submit" name="variant" value="BrF">Отправить</button>
-
-</form>					
 					<div class="search-area">
 					    <form action="searchThing" method="post">
 					        <div class="control-group">
@@ -53,8 +48,6 @@
 					            <a class="search-button" href="#" ></a>    
 					
 					        </div>
-					        <input type="submit" name="searchButton"  value="BrF">
-					        <button class="le-button" type="submit" name="variant" value="BrF">Отправить</button>
 					    </form>
 					</div><!-- /.search-area -->
 					

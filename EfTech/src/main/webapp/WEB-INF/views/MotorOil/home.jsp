@@ -3,6 +3,13 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
+    <style type="text/css">
+		.dropdown-menu:hover {
+		  display: block;
+		}
+    </style>
+
+
           <div class="col-xs-12 col-sm-9 no-margin wide sidebar">
             <section id="recommended-products" class="carousel-holder hover small">
               <div class="title-nav">

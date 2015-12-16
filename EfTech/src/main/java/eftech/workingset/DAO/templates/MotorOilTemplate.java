@@ -28,11 +28,11 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 	}
 
 	private String strSearchFilter(String searchField){
-		String result=null;
+		String result="";
 	
 		if (searchField.length()>0){
-			result=" and ((mo.name like '%"+searchField+"%') or (bf.description  like '%"+searchField+"%') or (bf.enginetype like '%"+searchField+"%') "
-					+ "or (man.name like '%"+searchField+"%') or (fc.name  like '%"+searchField+"%')) ";
+			result=" and ((mo.name like '%"+searchField+"%') or (mo.description  like '%"+searchField+"%') or (et.name like '%"+searchField+"%') "
+					+ "or (man.name like '%"+searchField+"%') or (os.name  like '%"+searchField+"%')) ";
 		}
 		
 		return result;

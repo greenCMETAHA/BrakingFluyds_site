@@ -347,7 +347,7 @@ public class HomeController{
 		if (searchField.length()>0) {
 			model.addAttribute("searchField",searchField);
 		}
-		return ("redirect:"+(Service.MOTOR_OIL_PREFIX.equals(searchButton)?"MotorOil":"home"));
+		return ("redirect:"+("Моторные масла".equals(searchButton)?"motorOil":"home"));
 
 	}
 		 	

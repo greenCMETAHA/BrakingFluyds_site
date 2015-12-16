@@ -492,7 +492,8 @@ public class MotorOilController {
 		
 	}
 	
-	public String defaultHome(HttpSession session, Model model, User user, LinkedList<Basket> basket, LinkedList<Wishlist> wishlist, LinkedList<InterfaceGood> compare){
+	public String defaultHome(HttpSession session, Model model, User user, LinkedList<Basket> basket
+			, LinkedList<Wishlist> wishlist, LinkedList<InterfaceGood> compare, String searchField){
 	
 		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
 		if (manufacturersFilter==null){
@@ -596,13 +597,13 @@ public class MotorOilController {
 		ArrayList<MotorOil> list=motorOilDAO.getMotorOils(1,elementsInList,manufacturersFilter,engineTypeFilter
 				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
-				,currentMinJudgementFilter,currentMaxJudgementFilter); 
+				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField); 
 		
 		model.addAttribute("listMotorOils", list);
 		int totalProduct=motorOilDAO.getCountRows(1,elementsInList,manufacturersFilter,engineTypeFilter
 				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
-				,currentMinJudgementFilter,currentMaxJudgementFilter);		
+				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField);		
 		
 		
 
@@ -850,7 +851,7 @@ public class MotorOilController {
 					
 				}
 				
-				result=defaultHome(session, model, user, basket, wishlist, compare);
+				result=defaultHome(session, model, user, basket, wishlist, compare, "");
 			}
 		}
 		//return Service.isAdminPanel(session,request)+result;

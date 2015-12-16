@@ -26,7 +26,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	}
 	
 	private String strSearchFilter(String searchField){
-		String result=null;
+		String result="";
 		if (searchField.length()>0){
 			result=" and ((bf.name like '%"+searchField+"%') or (bf.description like '%"+searchField+"%')"
 					+ " or (bf.Specification like '%"+searchField+"%') or (man.name like '%"+searchField+"%') or (fc.name like '%"+searchField+"%'))";
