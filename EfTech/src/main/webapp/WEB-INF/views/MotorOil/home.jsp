@@ -69,7 +69,6 @@
 		                    	</div>
 		                    </div>
 		                  </div>
-		               </form>
                   </c:forEach>
                </div>
               <!-- /#recommended-products-carousel .owl-carousel -->

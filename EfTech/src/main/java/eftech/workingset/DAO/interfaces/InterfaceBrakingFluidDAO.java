@@ -24,7 +24,7 @@ public interface InterfaceBrakingFluidDAO {
 			,double currentMinValueFilter,double currentMaxValueFilter
 			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
 			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter);
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField);
 	ArrayList<BrakingFluid> getBrakingFluids(int currentPage, int elementsInList
 			, LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<FluidClassSelected>fluidClassFilter
 			,double minPrice, double maxPrice
@@ -33,6 +33,6 @@ public interface InterfaceBrakingFluidDAO {
 			,double currentMinValueFilter,double currentMaxValueFilter
 			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
 			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter);
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField);
 	ArrayList<BrakingFluid> getBrakingFluidsRecommended();
 }

@@ -25,11 +25,11 @@ public interface InterfaceMotorOilDAO {
 			, LinkedList<ManufacturerSelected> manufacturersSelected, LinkedList<EngineType>engineTypeFilter, LinkedList<OilStuff>oilStuffFilter
 			,HashMap<String,Boolean> viscosityFilter, double minPrice, double maxPrice
 			,double currentMinValueFilter,double currentMaxValueFilter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter);
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField);
 	ArrayList<MotorOil> getMotorOils(int currentPage, int elementsInList
 			, LinkedList<ManufacturerSelected> manufacturersSelected,LinkedList<EngineType>engineTypeFilter, LinkedList<OilStuff>oilStuffFilter
 			,HashMap<String,Boolean> viscosityFilter, double minPrice, double maxPrice
 			,double currentMinValueFilter,double currentMaxValueFilter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter);
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField);
 	ArrayList<MotorOil> getMotorOilsRecommended();
 }

@@ -24,19 +24,28 @@
 					        <i class="fa fa-envelope"></i> <c:out value="${requestScope.email_part1}"/>@<span class="le-color"><c:out value="${requestScope.email_part2}" /></span>
 					    </div>
 					</div><!-- /.contact-row -->
-					<!-- ============================================================= SEARCH AREA ============================================================= -->
+					<!-- ============================================================ SEARCH AREA ============================================================= -->
+		<form action="searchThing" method="post">
+					        <input type="submit" name="searchButton"  value="BrF">
+					        <button class="le-button" type="submit" name="variant" value="BrF">Отправить</button>
+
+</form>					
 					<div class="search-area">
-					    <form action="home" method="GET">
+					    <form action="searchThing" method="post">
 					        <div class="control-group">
-					            <input class="search-field" placeholder="Search for item" />
+					            <input class="search-field" placeholder="Search for item" name="searchField"/>
 					
 					            <ul class="categories-filter animate-dropdown">
 					                <li class="dropdown">
-					
 					                    <a class="dropdown-toggle"  data-toggle="dropdown" href="index">Все категории</a>
 					
 					                    <ul class="dropdown-menu" role="menu" >
-					                        <li role="presentation"><a role="menuitem" tabindex="-1" href="home">Тормозные жидкости</a></li>
+											<li role="presentation">
+									 			<input class="btn-block btn-lg btn " type="submit" name="searchButton" value="Тормозные жидкости">
+											</li>
+											<li role="presentation">
+									 			<input class="btn-block btn-lg btn " type="submit" name="searchButton"  value="Моторные масла">
+											</li>
 					                    </ul>
 					                </li>
 					            </ul>
@@ -44,8 +53,11 @@
 					            <a class="search-button" href="#" ></a>    
 					
 					        </div>
+					        <input type="submit" name="searchButton"  value="BrF">
+					        <button class="le-button" type="submit" name="variant" value="BrF">Отправить</button>
 					    </form>
 					</div><!-- /.search-area -->
+					
 					<!-- ============================================================= SEARCH AREA : END ============================================================= -->	
 				</div><!-- /.top-search-holder -->
 	
@@ -128,8 +140,10 @@
 					            </ul>
 					        </div><!-- /.basket -->
 					    </div><!-- /.top-cart-holder -->
+					    
 					</div><!-- /.top-cart-row-container -->
-					<!-- ============================================================= SHOPPING CART DROPDOWN : END ============================================================= -->	
+					<!-- ============================================================= SHOPPING CART DROPDOWN : END ============================================================= -->
+				
 				</div><!-- /.top-cart-row -->
 				
 			</div><!-- /.container -->

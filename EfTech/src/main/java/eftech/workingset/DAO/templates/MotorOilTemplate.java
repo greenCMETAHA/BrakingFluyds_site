@@ -27,6 +27,19 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
 
+	private String strSearchFilter(String searchField){
+		String result=null;
+	
+		if (searchField.length()>0){
+			result=" and ((mo.name like '%"+searchField+"%') or (bf.description  like '%"+searchField+"%') or (bf.enginetype like '%"+searchField+"%') "
+					+ "or (man.name like '%"+searchField+"%') or (fc.name  like '%"+searchField+"%')) ";
+		}
+		
+		return result;
+	}
+	
+	
+	
 	@Override
 	public ArrayList<MotorOil> getMotorOils() {
 		String sqlQuery="select *, os.name as os_name, et.name as et_name, man.name as man_name from   as mo"
@@ -254,11 +267,11 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 	}
 
 
-	//@Override
+	@Override
 	public  int getCountRows(int currentPage, int elementsInList
 			, LinkedList<ManufacturerSelected> manufacturersSelected,  LinkedList<EngineType>engineTypeFilter, LinkedList<OilStuff>oilStuffFilter
 			,HashMap<String,Boolean> viscosityFilter, double minPrice, double maxPrice, double currentMinValueFilter,double currentMaxValueFilter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField){
 		int result = 0;
 
 		StringBuilder strManufacturerFilter=new StringBuilder();
@@ -358,7 +371,6 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 				strViscosityFilter.insert(0, " and (mo.viscosity IN (");
 				strViscosityFilter.append("))");
 			}
-
 		}
 
 		String sqlQuery="select count(*) from"
@@ -369,7 +381,8 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
 				+ "				 and  (mo.Value>=:currentMinValueFilter) and (mo.Value<=:currentMaxValueFilter)"
 				+ "				 and  (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
-				+ " "+strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+" ORDER BY mo.name ) as rez";
+				+ " "+strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+strSearchFilter(searchField)
+				+" ORDER BY mo.name ) as rez";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("minPrice", minPrice);
@@ -392,7 +405,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 	public ArrayList<MotorOil> getMotorOils(int currentPage, int elementsInList
 			,LinkedList<ManufacturerSelected> manufacturersSelected,  LinkedList<EngineType>engineTypeFilter, LinkedList<OilStuff>oilStuffFilter
 			,HashMap<String,Boolean> viscosityFilter, double minPrice, double maxPrice, double currentMinValueFilter,double currentMaxValueFilter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField){
 
 		StringBuilder strManufacturerFilter=new StringBuilder();
 		if (manufacturersSelected.size()>0){
@@ -507,8 +520,8 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
 				+ "					 and (mo.value>=:currentMinValueFilter) and (mo.value<=:currentMaxValueFilter) "
 				+ "					 and (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
-				+ strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+" ORDER BY mo.name ) as rez"
-				+ " LIMIT :firstRow, :number";
+				+ strEngineTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+strSearchFilter(searchField)
+				+ " ORDER BY mo.name ) as rez LIMIT :firstRow, :number";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("firstRow", (currentPage-1)*elementsInList);
@@ -585,6 +598,9 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 			return oil;
 		}
 	}
+
+
+	
 
 
 }

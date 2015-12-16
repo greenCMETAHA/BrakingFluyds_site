@@ -24,6 +24,16 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
+	
+	private String strSearchFilter(String searchField){
+		String result=null;
+		if (searchField.length()>0){
+			result=" and ((bf.name like '%"+searchField+"%') or (bf.description like '%"+searchField+"%')"
+					+ " or (bf.Specification like '%"+searchField+"%') or (man.name like '%"+searchField+"%') or (fc.name like '%"+searchField+"%'))";
+		}
+		return result;
+	}
+
 
 	@Override
 	public ArrayList<BrakingFluid> getBrakingFluids() {
@@ -263,7 +273,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			,double currentMinValueFilter,double currentMaxValueFilter
 			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
 			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField){
 		int result = 0;
 
 		StringBuilder strManufacturerFilter=new StringBuilder();
@@ -313,8 +323,15 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 				strFluidClassFilter.insert(0, " and (fc.id IN (");
 				strFluidClassFilter.append("))");
 			}
-
 		}
+		
+		String strSearchFilter=null;
+		if (searchField.length()>0){
+			strSearchFilter=" and (("+strSearchFilter+" in bf.name) or ("+strSearchFilter+" in bf.description) or ("
+					+strSearchFilter+" in bf.Specification) or ("+strSearchFilter+" in man.name) or ("+strSearchFilter+" in fc.name)) ";
+		}
+		
+		
 		String sqlQuery="select count(*) from"
 				+ "(select bf.id as id from brakingfluids  as bf"
 				+ "		left join fluidclass as fc on (bf.fluidclass=fc.id)"
@@ -326,7 +343,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 				+ "				 and  (bf.viscosity40>=:currentMinViscosity40Filter) and (bf.viscosity40<=:currentMaxViscosity40Filter)"
 				+ "				 and  (bf.viscosity100>=:currentMinViscosity100Filter) and (bf.viscosity100<=:currentMaxViscosity100Filter)"
 				+ "				 and  (bf.judgement>=:currentMinJudgementFilter) and (bf.judgement<=:currentMaxJudgementFilter)"
-				+ " "+strFluidClassFilter+strManufacturerFilter+" ORDER BY bf.name ) as rez";
+				+ " "+strFluidClassFilter+strManufacturerFilter+strSearchFilter(searchField)+" ORDER BY bf.name ) as rez";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("minPrice", minPrice);
@@ -362,7 +379,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			,double currentMinValueFilter,double currentMaxValueFilter
 			,double currentMinViscosity40Filter,double currentMaxViscosity40Filter
 			,double currentMinViscosity100Filter,double currentMaxViscosity100Filter
-			,double currentMinJudgementFilter,double currentMaxJudgementFilter){
+			,double currentMinJudgementFilter,double currentMaxJudgementFilter, String searchField){
 		StringBuilder strManufacturerFilter=new StringBuilder();
 		if (manufacturersSelected.size()>0){
 			boolean bFind=false;
@@ -412,6 +429,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			}
 
 		}
+		
 
 		String sqlQuery="select * from"
 				+ "(select bf.id as id, bf.name as name, bf.price as price, bf.boilingtemperaturedry AS boilingtemperaturedry"
@@ -426,7 +444,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 				+ ""
 				+ ""
 				+ ""
-				+ ""+strFluidClassFilter+strManufacturerFilter+" ORDER BY bf.name ) as rez"
+				+ ""+strFluidClassFilter+strManufacturerFilter+strSearchFilter(searchField)+" ORDER BY bf.name ) as rez"
 				+ " LIMIT :firstRow, :number";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();

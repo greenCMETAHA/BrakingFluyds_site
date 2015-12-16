@@ -199,6 +199,7 @@ public class MotorOilController {
 			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
+			,@RequestParam(value = "searchField", defaultValue="false", required=false) String searchField
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
@@ -357,13 +358,13 @@ public class MotorOilController {
 		ArrayList<MotorOil> list=motorOilDAO.getMotorOils(currentPage,elementsInList,manufacturersFilter,engineTypeFilter
 				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
-				,currentMinJudgementFilter,currentMaxJudgementFilter); 
+				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField); 
 		
 		model.addAttribute("listMotorOils", list);
 		int totalProduct=motorOilDAO.getCountRows(currentPage,elementsInList,manufacturersFilter,engineTypeFilter
 				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
-				,currentMinJudgementFilter,currentMaxJudgementFilter);
+				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField);
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("currentPage", currentPage);

@@ -24,7 +24,7 @@ public class CountryTemplate implements InterfaceCountryDAO{
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
 
-	public  int getCountRows(){
+	public int getCountRows(){
 		String sqlQuery="select count(*) from country";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();

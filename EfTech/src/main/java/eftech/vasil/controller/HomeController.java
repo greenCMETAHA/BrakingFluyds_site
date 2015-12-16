@@ -337,6 +337,20 @@ public class HomeController{
 		}
 	}
 	
+
+	@RequestMapping(value = {"/searchThing"}, method ={RequestMethod.GET, RequestMethod.POST})   //хз, почему он не отрабатывает на searchGood
+	public String searchThing(
+			@RequestParam(value = "searchField", defaultValue="", required=false) String searchField
+			,@RequestParam(value = "searchButton", defaultValue="", required=false) String searchButton
+			,HttpServletRequest request,Locale locale, Model model) {
+		
+		if (searchField.length()>0) {
+			model.addAttribute("searchField",searchField);
+		}
+		return ("redirect:"+(Service.MOTOR_OIL_PREFIX.equals(searchButton)?"MotorOil":"home"));
+
+	}
+		 	
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
@@ -457,6 +471,7 @@ public class HomeController{
 			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
+			,@RequestParam(value = "searchField", defaultValue="", required=false) String searchField
 			
 			,@RequestParam(value = "viscositySelections", required=false ) int[] viscositySelections  //MotorOils
 			,@RequestParam(value = "engineTypeSelections", required=false ) int[] engineTypeSelections
@@ -724,7 +739,7 @@ public class HomeController{
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
 				,currentMinViscosity40Filter,currentMaxViscosity40Filter
 				,currentMinViscosity100Filter,currentMaxViscosity100Filter
-				,currentMinJudgementFilter,currentMaxJudgementFilter); 
+				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField); 
 		
 
 		
@@ -736,7 +751,7 @@ public class HomeController{
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
 				,currentMinViscosity40Filter,currentMaxViscosity40Filter
 				,currentMinViscosity100Filter,currentMaxViscosity100Filter
-				,currentMinJudgementFilter,currentMaxJudgementFilter);
+				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField);
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("currentPage", currentPage);
@@ -1114,7 +1129,8 @@ public class HomeController{
 		
 	}	
 	
-	public String defaultHome(HttpSession session, Model model, User user, LinkedList<Basket> basket, LinkedList<Wishlist> wishlist, LinkedList<InterfaceGood> compare){
+	public String defaultHome(HttpSession session, Model model, User user, LinkedList<Basket> basket
+			, LinkedList<Wishlist> wishlist, LinkedList<InterfaceGood> compare, String searchField){
 		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
 		if (manufacturersFilter==null){
 			manufacturersFilter = createManufacturersFilter();
@@ -1232,7 +1248,7 @@ public class HomeController{
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
 				,currentMinViscosity40Filter,currentMaxViscosity40Filter
 				,currentMinViscosity100Filter,currentMaxViscosity100Filter
-				,currentMinJudgementFilter,currentMaxJudgementFilter); 
+				,currentMinJudgementFilter,currentMaxJudgementFilter,searchField); 
 
 		model.addAttribute("listBrakFluids", listBakingFluids);
 		int totalProduct=brakingFluidDAO.getCountRows(1,elementsInList
@@ -1243,7 +1259,7 @@ public class HomeController{
 				,currentMinValueFilter/1000,currentMaxValueFilter/1000
 				,currentMinViscosity40Filter,currentMaxViscosity40Filter
 				,currentMinViscosity100Filter,currentMaxViscosity100Filter
-				,currentMinJudgementFilter,currentMaxJudgementFilter); 
+				,currentMinJudgementFilter,currentMaxJudgementFilter,searchField); 
 
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
@@ -1504,7 +1520,7 @@ public class HomeController{
 					
 				}
 				
-				result=defaultHome(session, model, user, basket, wishlist, compare);
+				result=defaultHome(session, model, user, basket, wishlist, compare, "");
 			}
 		}
 		return Service.isAdminPanel(session,request)+result;
@@ -1835,7 +1851,7 @@ public class HomeController{
 					,demandDAO,offerDAO,payDAO,manufacturerDAO,infoDAO,clientDAO,userDAO,offerStatusDAO);
 			result="InsertUpdateDoc";
 		}else if (task.compareTo("home")==0){
-			result=defaultHome(session, model, user, basket, wishlist, compare);
+			result=defaultHome(session, model, user, basket, wishlist, compare, "");
 		}else {
 			synchronized (this) {														//сохраняем
 				if ("Demand".equals(variant)){
@@ -2367,66 +2383,72 @@ public class HomeController{
 			return Service.isAdminPanel(session,request)+result;
 		}
 		
-	
-	 
 	//------------------------------------------------------------------------------------------------------------Pay Pal 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
 
-	 
+
 	 @RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	 public String viewEdit(@PathVariable("name") final String name, Model model
-			 ,@RequestParam(value = "variant", defaultValue="", required=false) String variant
-			 ,@RequestParam(value = "task", defaultValue="", required=false) String task
+			,@RequestParam(value = "variant", defaultValue="", required=false) String variant
+			,@RequestParam(value = "task", defaultValue="", required=false) String task
+
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "goodPrefix", defaultValue="BrF", required=false) String goodPrefix
-			,HttpServletRequest request,HttpServletResponse response) {
-	 
-		HttpSession session=request.getSession();
-		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
-		
-		LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
-		if (basket==null){
-			basket=createBasket();
-		}
-		LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
-		if (wishlist==null){
-			wishlist=createWishlist();
-		}
-		if (user.getId()>0){
-			wishlist=wishlistDAO.getWishList(user.getId());
-		}
-		
-		LinkedList<InterfaceGood> compare = (LinkedList<InterfaceGood>) session.getAttribute("compare");
-		if (compare==null){
-			compare=createComparement();
-		}
-		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
-		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
-		
-		session.setAttribute("basket", basket);
-		session.setAttribute("wishlist", wishlist);
-		session.setAttribute("compare", compare);
-		
-		 if ("Download".equals(name)){  
-			 model.addAttribute("variant", variant);
-			 model.addAttribute("task", task);
-			 return Service.isAdminPanel(session,request)+"Download";
-		 }else{
-			 model.addAttribute("errNumber", "404");
-			 model.addAttribute("errMessage", "Извините, страница не может быть найдена.");
+			,@RequestParam(value = "searchField", defaultValue="", required=false) String searchField
+			,@RequestParam(value = "searchButton", defaultValue="", required=false) String searchButton
 			
-			 return Service.isAdminPanel(session,request)+"errorPage";
-		 }
+			,HttpServletRequest request,HttpServletResponse response) {
+		
+		String result="home";
+		 
+		if ("searchGood".equals(name)){
+			if (searchField.length()>0) {
+				model.addAttribute("searchField",searchField);
+			}
+			if (Service.MOTOR_OIL_PREFIX.equals(searchButton)){
+				result = "redirect:MotorOil";
+			}else if (Service.BRAKING_FLUID_PREFIX.equals(searchButton)){
+				result = "redirect:home";
+			}
+		}else{
+			HttpSession session=request.getSession();
+			User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+			
+			LinkedList<Basket>  basket =  (LinkedList<Basket>) session.getAttribute("basket");
+			if (basket==null){
+				basket=createBasket();
+			}
+			LinkedList<Wishlist>  wishlist =  (LinkedList<Wishlist>) session.getAttribute("wishlist");
+			if (wishlist==null){
+				wishlist=createWishlist();
+			}
+			if (user.getId()>0){
+				wishlist=wishlistDAO.getWishList(user.getId());
+			}
+			
+			LinkedList<InterfaceGood> compare = (LinkedList<InterfaceGood>) session.getAttribute("compare");
+			if (compare==null){
+				compare=createComparement();
+			}
+			Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+			model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
+			
+			session.setAttribute("basket", basket);
+			session.setAttribute("wishlist", wishlist);
+			session.setAttribute("compare", compare);
+			
+			 if ("Download".equals(name)){  
+				 model.addAttribute("variant", variant);
+				 model.addAttribute("task", task);
+				 result = Service.isAdminPanel(session,request)+"Download";
+			 }else{
+				 model.addAttribute("errNumber", "404");
+				 model.addAttribute("errMessage", "Извините, страница не может быть найдена.");
+				
+				 result = Service.isAdminPanel(session,request)+"errorPage";
+			 }
+		}
+		return result;
 
      }
 	 
