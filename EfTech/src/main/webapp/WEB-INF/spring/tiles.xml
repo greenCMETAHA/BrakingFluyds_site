@@ -40,6 +40,15 @@
         <put-attribute name="menu" value="/WEB-INF/views/MotorOil/tiles/selection.jsp"></put-attribute>
         <put-attribute name="body" value="/WEB-INF/views/MotorOil/home.jsp"></put-attribute>
     </definition>
+
+    <definition name="GearBoxOilhome" extends="baseWithSelectAndMenu.definition">
+        <put-attribute name="menu" value="/WEB-INF/views/GearBoxOil/tiles/selection.jsp"></put-attribute>
+        <put-attribute name="body" value="/WEB-INF/views/GearBoxOil/home.jsp"></put-attribute>
+    </definition>
+
+
+
+
     
 <!-- base.definition -->
     <definition name="index" extends="base.definition">
@@ -104,9 +113,28 @@
    
     <definition name="InsertUpdate" extends="base.definition">
         <put-attribute name="body" value="/WEB-INF/views/InsertUpdate.jsp"></put-attribute>
-    </definition>   
+    </definition>  
+     
     <definition name="MotorOilInsertUpdate" extends="base.definition">
         <put-attribute name="body" value="/WEB-INF/views/MotorOil/InsertUpdate.jsp"></put-attribute>
     </definition> 
+
+
+    <definition name="GearBoxOilInsertUpdate" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/GearBoxOil/InsertUpdate.jsp"></put-attribute>
+    </definition> 
+
+    <definition name="GearBoxOilComparison" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/GearBoxOil/Comparison.jsp"></put-attribute>
+    </definition>
+    
+   <definition name="GearBoxOilShowOne" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/GearBoxOil/ShowOne.jsp"></put-attribute>
+    </definition>          
+
+  <definition name="GearBoxOilInsertUpdate" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/GearBoxOil/InsertUpdate.jsp"></put-attribute>
+    </definition> 
+
   
 </tiles-definitions>

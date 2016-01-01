@@ -91,5 +91,12 @@
   <bean id="motorOilDAO" class="eftech.workingset.DAO.templates.MotorOilTemplate">
       <property name="dataSource"  ref="dataSource" />    
    </bean>   
+   
+ <bean id="gearBoxTypeDAO" class="eftech.workingset.DAO.templates.GearBoxTypeTemplate">   <!-- GearBoxOils -->
+     <property name="dataSource"  ref="dataSource" />    
+  </bean>   
+ <bean id="gearBoxOilDAO" class="eftech.workingset.DAO.templates.GearBoxOilTemplate">
+     <property name="dataSource"  ref="dataSource" />    
+  </bean>      
       
 </beans>

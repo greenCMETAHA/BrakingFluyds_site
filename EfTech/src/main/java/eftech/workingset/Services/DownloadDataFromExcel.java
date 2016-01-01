@@ -22,6 +22,8 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.GearBoxOilTemplate;
+import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.MotorOilTemplate;
@@ -31,6 +33,8 @@ import eftech.workingset.beans.BrakingFluid;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.FluidClass;
+import eftech.workingset.beans.GearBoxOil;
+import eftech.workingset.beans.GearBoxType;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.MotorOil;
@@ -288,7 +292,119 @@ public class DownloadDataFromExcel {
        }
 		
 		return list;
-	}		
+	}	
+	
+	public static ArrayList<GearBoxOil> importFromExcelGearBoxOils(File path, String GlobalPath){
+		 //Только для .xlsx !!!!  .xls надо обрабаотывать через HSSF
+		
+      Workbook wb=null;
+		try {
+			wb = new XSSFWorkbook(new FileInputStream(path));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<GearBoxOil> list = new ArrayList<GearBoxOil>();
+		
+      for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+          Sheet sheet = wb.getSheetAt(i);
+          for (Row row : sheet) {
+        	  GearBoxOil currentOil = new  GearBoxOil();
+          	  Manufacturer manufacturer = new Manufacturer();
+          	  OilStuff oilStuff = new OilStuff();
+          	  Country country = new Country();
+          	  GearBoxType gearBoxType = new GearBoxType();
+
+              for (Cell cell : row) { //перебираем значения строки
+              	switch (cell.getColumnIndex()) {
+					case 0:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							currentOil.setName(cell.getStringCellValue());
+						}
+						break;
+					}
+					case 1:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							oilStuff.setName(cell.getStringCellValue());
+						}
+						currentOil.setOilStuff(oilStuff);
+						break;
+					}
+					case 2:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							gearBoxType.setName(cell.getStringCellValue());
+						}
+						currentOil.setGearBoxType(gearBoxType);
+						break;
+					}
+					case 3:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							currentOil.setViscosity(cell.getStringCellValue());
+						}
+						break;
+					}
+					case 4:{
+						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
+							currentOil.setValue(cell.getNumericCellValue());
+						}
+						break;
+					}
+					case 5:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							currentOil.setPhoto(cell.getStringCellValue());
+						}
+						break;
+					}
+					case 6:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){ 
+							manufacturer.setName(cell.getStringCellValue());
+						}
+						currentOil.setManufacturer(manufacturer);
+						break;
+					}
+					case 7:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							currentOil.setDescription(cell.getStringCellValue());
+						}						
+						break;
+					}
+					case 8:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							currentOil.setSpecification(cell.getStringCellValue());
+						}						
+						break;
+					}
+					case 9:{
+						if (cell.getCellType()==cell.CELL_TYPE_STRING){
+							country.setName(cell.getStringCellValue());
+						}
+						manufacturer.setCountry(country);
+						break;
+					}
+					case 10:{
+						if (cell.getCellType()==cell.CELL_TYPE_NUMERIC){
+							currentOil.setJudgement(cell.getNumericCellValue());
+						}							
+						break;
+					}
+					default:
+						break;
+					}                	
+              }
+          	//теперь собираем список.
+          	
+          	//System.out.println(currentBF.toString());
+          	if (currentOil.getName().length()>0)
+          		list.add(currentOil);
+          }
+      }
+		
+		return list;
+	}			
 
 	public static ArrayList<BrakingFluid> importFromExcelPrices(File path){
 		
@@ -341,9 +457,10 @@ public class DownloadDataFromExcel {
 		
 	
 	public static ArrayList<String> downloadExcel(String variant,User user, String good, MultipartFile fileExcel
-			,CountryTemplate countryDAO, ManufacturerTemplate manufacturerDAO, FluidClassTemplate fluidClassDAO, BrakingFluidTemplate brakingFluidDAO,
-			OilStuffTemplate oilStuffDAO, EngineTypeTemplate engineTypeDAO, MotorOilTemplate motorOilDAO, LogTemplate logDAO, PriceTemplate priceDAO
-			, HttpSession session) {
+			,CountryTemplate countryDAO, ManufacturerTemplate manufacturerDAO, FluidClassTemplate fluidClassDAO
+			, BrakingFluidTemplate brakingFluidDAO, OilStuffTemplate oilStuffDAO, EngineTypeTemplate engineTypeDAO
+			, MotorOilTemplate motorOilDAO, GearBoxTypeTemplate gearBoxTypeDAO, GearBoxOilTemplate gearBoxOilDAO
+			, LogTemplate logDAO, PriceTemplate priceDAO, HttpSession session) {
 		ArrayList<String> errors=new ArrayList<String>();
 		
 		 if ("Product".equals(variant)){
@@ -354,7 +471,49 @@ public class DownloadDataFromExcel {
     			if (!productFile.contains(".xlsx")){
     				errors.add("Указанный Вами файл с номенклатурой не соответствует формату. Используйте Excel-файл с расширением *.xlsx");
     			}else{
-    				if ("MotorOils".equals(good)){
+    				if ("GearBoxOils".equals(good)){
+    					ArrayList<GearBoxOil> list = importFromExcelGearBoxOils(convertMultipartFile(fileExcel)
+    							,session.getServletContext().getRealPath("/"));
+    				
+	    			    synchronized (list){
+	    		        	for (GearBoxOil current:list){
+	    		        		if (!Service.isFileExist(current.getPhoto())){
+	    		        			errors.add("Указанный Вами файл c изображением не существует");
+	    		        		}
+	    		        		current.setPhoto(Service.copyPhoto(current.getPhoto(), session.getServletContext().getRealPath("/")));
+	    		        		Manufacturer currentManufacturer=(Manufacturer)current.getManufacturer();	
+	    		        		if (currentManufacturer==null){
+	    		        			currentManufacturer=new Manufacturer();
+	    		        		}
+	    		    			Country country=(Country)currentManufacturer.getCountry();
+	    		    			if (country.getId()==0){
+	    		    				country=countryDAO.createCountry(country.getName());
+	    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),country, "Загрузили из Excel"));
+	    		    				currentManufacturer.setCountry(country);
+	    		    			}
+	    		    			OilStuff currentOilStuff=(OilStuff)current.getOilStuff();
+	    		    			if (currentOilStuff.getId()==0){
+	    		    				currentOilStuff=oilStuffDAO.createOilStuff(currentOilStuff.getName());
+	    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentOilStuff, "Загрузили из Excel"));
+	    		    			}
+	    		    			current.setOilStuff(currentOilStuff);
+	    		    			GearBoxType currentGearBoxType=(GearBoxType)current.getGearBoxType();
+	    		    			if (currentGearBoxType.getId()==0){
+	    		    				currentGearBoxType=gearBoxTypeDAO.createGearBoxType(currentGearBoxType.getName());
+	    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentGearBoxType, "Загрузили из Excel"));
+	    		    			}
+	    		    			current.setGearBoxType(currentGearBoxType);
+	    		    			if (currentManufacturer.getId()==0){
+	    		    				currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
+	    		    				Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),currentManufacturer, "Загрузили из Excel"));
+	    		    				current.setManufacturer(currentManufacturer);
+	    		    			}
+	    		    			current.setManufacturer(currentManufacturer);
+	    		        		current = gearBoxOilDAO.createGearBoxOil(current); 		
+	    		        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(),current, "Загрузили из Excel"));
+			    			}
+			    		}
+	    			}else if ("MotorOils".equals(good)){
     					ArrayList<MotorOil> list = importFromExcelMotorOils(convertMultipartFile(fileExcel)
     							,session.getServletContext().getRealPath("/"));
     				

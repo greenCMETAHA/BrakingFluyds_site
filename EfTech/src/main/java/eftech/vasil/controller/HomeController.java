@@ -75,6 +75,8 @@ import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.DemandTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.GearBoxOilTemplate;
+import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
@@ -185,6 +187,12 @@ public class HomeController{
 
 	@Autowired
 	MotorOilTemplate motorOilDAO;
+	
+	@Autowired
+	GearBoxTypeTemplate gearBoxTypeDAO;
+	
+	@Autowired
+	GearBoxOilTemplate gearBoxOilDAO;	
 	
 	private LinkedList<ManufacturerSelected> fillSelectedManufacturers(int[] manufacturerSelections, LinkedList<ManufacturerSelected> listManufacturerSelected){
 		for (ManufacturerSelected manufacturer:listManufacturerSelected){
@@ -347,7 +355,17 @@ public class HomeController{
 		if (searchField.length()>0) {
 			model.addAttribute("searchField",searchField);
 		}
-		return ("redirect:"+("Моторные масла".equals(searchButton)?"motorOil":"home"));
+		
+		String strRedirectTo=null;
+		if ("Моторные масла".equals(searchButton)){
+			strRedirectTo="motorOil";
+		} else if ("Трансмиссионные масла".equals(searchButton)){
+			strRedirectTo="gearBoxOil";
+		} else {
+			strRedirectTo="home";
+		}
+		
+		return ("redirect:"+strRedirectTo);
 
 	}
 		 	
@@ -388,8 +406,8 @@ public class HomeController{
 			compare=createComparement();
 		}
 		
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0, 0, 1);
 		
 		session.setAttribute("user", user);
 		session.setAttribute("basket", basket);
@@ -439,8 +457,8 @@ public class HomeController{
 			compare=createComparement();
 		}
 		
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session, 0,0, 0, 1);
 		
 		session.setAttribute("user", user);
 		session.setAttribute("basket", basket);
@@ -558,8 +576,8 @@ public class HomeController{
 			elementsInList = (Integer) session.getAttribute("elementsInList");
 		}
  
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				,logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1);
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
@@ -850,7 +868,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, task, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, task, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -898,7 +916,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
@@ -953,7 +971,7 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, goodPrefix, quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+		Service.workWithList(id, goodPrefix, quantity, true, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, clientDAO
 				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		
 		createBussinessOffer(id, client, variant, user, basket, session);
@@ -1014,14 +1032,14 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		ArrayList<String> errors=new ArrayList<String>();
 		if (variant!="download"){
 			errors=DownloadDataFromExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
-					oilStuffDAO, engineTypeDAO, motorOilDAO, logDAO, priceDAO, session);
+					oilStuffDAO, engineTypeDAO, motorOilDAO, gearBoxTypeDAO, gearBoxOilDAO, logDAO, priceDAO, session);
 		}
 		
 		model.addAttribute("variant", variant);
@@ -1087,8 +1105,8 @@ public class HomeController{
 			reviewDAO.createReview(review,Service.BRAKING_FLUID_PREFIX);
 		}		
 		
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1351,8 +1369,8 @@ public class HomeController{
 		}
 		
 		
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1551,8 +1569,8 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -1633,7 +1651,7 @@ public class HomeController{
 		}else{
 			model.addAttribute("showNew","showNew");
 			result=Service.createAdminEdit(model,task, 1, manufacturerDAO,fluidClassDAO,countryDAO,clientDAO,userDAO,logDAO
-					, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
+					, oilStuffDAO, engineTypeDAO, gearBoxTypeDAO, new LinkedList<String>());
 		}
 		return "adminpanel/"+result;//Service.isAdminPanel(session,request)+result;
 	}
@@ -1702,8 +1720,8 @@ public class HomeController{
 		}
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
-			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+					, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		}
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -1798,8 +1816,9 @@ public class HomeController{
 		}
  		
 		if (task.length()==0){ //если task=="New/Open/Save" не нужно выводить pdf. Будет сформирован документ
-			Service.workWithList(new Integer(id), Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+			Service.workWithList(new Integer(id), Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare
+					, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+					, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		}
 		
 		GregorianCalendar currentTime = new GregorianCalendar();
@@ -1979,8 +1998,8 @@ public class HomeController{
 		}
 		
 		if (!"Demand".equals(variant)){  //если только в шапке
-			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+					, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		}
 		
 		if ("Pay".equals(variant)){
@@ -2293,8 +2312,8 @@ public class HomeController{
 				compare=createComparement();
 			}
 			
-			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session
+			Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+					, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session
 					,Service.countBasket(basket),client_id, ("Nalik".equals(card)?0:1), shipping);
 			model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 			
@@ -2429,7 +2448,7 @@ public class HomeController{
 			if (compare==null){
 				compare=createComparement();
 			}
-			Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
+			Service.workWithList(id, goodPrefix, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, clientDAO
 					, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 			model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 			
@@ -2509,8 +2528,8 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -2548,8 +2567,8 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -2587,8 +2606,8 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, logDAO, clientDAO
-				, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);

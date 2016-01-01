@@ -77,7 +77,8 @@
 	            <br> <br>
 				<div>
 					<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br>
-					<input checked type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+					<input type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+					<input checked type="radio"  name="good" value="GearBoxOils" >Трансмиссионные масла<br>
 				</div>
 	            <br><br>
 	            <div class="con"><input type="file"  name="fileExcel" class="upload-file" id="file" value=""/>  

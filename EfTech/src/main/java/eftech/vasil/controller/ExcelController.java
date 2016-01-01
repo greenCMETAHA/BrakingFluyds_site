@@ -18,6 +18,8 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.GearBoxOilTemplate;
+import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.MotorOilTemplate;
@@ -58,6 +60,13 @@ public class ExcelController {
 	@Autowired
 	PriceTemplate priceDAO;
 	
+	@Autowired
+	GearBoxTypeTemplate gearBoxTypeDAO;
+	
+	@Autowired
+	GearBoxOilTemplate gearBoxOilDAO;		
+	
+	
 	@RequestMapping(value = "/action", method = RequestMethod.POST)
 	public String compare(@ModelAttribute User user
 			, @RequestParam("variant") String variant
@@ -81,7 +90,7 @@ public class ExcelController {
 			ArrayList<String> errors=new ArrayList<String>();
 			if (variant!=""){
 				errors=DownloadDataFromExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
-						oilStuffDAO, engineTypeDAO, motorOilDAO, logDAO, priceDAO, request.getSession());
+						oilStuffDAO, engineTypeDAO, motorOilDAO, gearBoxTypeDAO, gearBoxOilDAO, logDAO, priceDAO, request.getSession());
 			}
 			
 			model.addAttribute("errors", errors);		

@@ -19,8 +19,9 @@
 						<form action="Download" method="POST" enctype="multipart/form-data">
 <%-- 							<input name="variant" type="hidden" value="${requestScope.variant}" > --%>
 							<div class="col-xs-12 col-sm-4 no-margin">
-								<input checked type="radio"  name="good" value="MotorOils" >Моторные масла<br>
 								<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br><br>
+								<input type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+								<input checked type="radio"  name="good" value="GearBoxOils">Трансмиссионные масла<br><br>
 							</div>
 							<div class="col-xs-12 col-sm-4 no-margin">
 								<input type="file"  name="fileExcel" class="upload-file" id="file" value=""/>
@@ -48,8 +49,9 @@
 						<form action="Download" method="POST" enctype="multipart/form-data">
 <%-- 							<input name="variant" type="hidden" value="${requestScope.variant}" > --%>
 							<div class="col-xs-12 col-sm-4 no-margin">
-								<input checked type="radio"  name="good" value="MotorOils" >Моторные масла<br>
+								<input type="radio"  name="good" value="MotorOils" >Моторные масла<br>
 								<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br><br>
+								<input checked type="radio"  name="good" value="GearBoxOils">Трансмиссионные масла<br><br>
 							</div>
 							<div class="col-xs-12 col-sm-4 no-margin">
 								<input type="file"  name="fileExcel" class="upload-file" id="file" value=""/>  

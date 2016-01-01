@@ -23,6 +23,8 @@ import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.GearBoxOilTemplate;
+import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
@@ -38,6 +40,7 @@ import eftech.workingset.beans.Client;
 import eftech.workingset.beans.Country;
 import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.FluidClass;
+import eftech.workingset.beans.GearBoxType;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.OilStuff;
@@ -95,6 +98,14 @@ public class AddEditElementController {
 
 	@Autowired
 	MotorOilTemplate motorOilDAO;
+
+	@Autowired
+	GearBoxTypeTemplate gearBoxTypeDAO;
+	
+	
+	@Autowired
+	GearBoxOilTemplate gearBoxOilDAO;
+	
 	
 	
 	@RequestMapping(value = "/ShowList", method = {RequestMethod.GET,RequestMethod.POST})
@@ -117,7 +128,8 @@ public class AddEditElementController {
 		String page="AddEdit";
 		
 		if (task.isEmpty()){
-			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
+			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO
+					, oilStuffDAO, engineTypeDAO, gearBoxTypeDAO, new LinkedList<String>());
 			
 		}else if (task.compareTo("На главную")==0){
 			ArrayList<BrakingFluid> basket = new ArrayList<BrakingFluid>();
@@ -158,10 +170,13 @@ public class AddEditElementController {
 				oilStuffDAO.deleteOilStuff(id);
 			}else if ((variant.compareTo("engineType")==0) || (variant.compareTo("Тип двигателя")==0)){
 				engineTypeDAO.deleteEngineType(id);
+			}else if ((variant.compareTo("gearBoxType")==0) || (variant.compareTo("Тип КПП")==0)){
+				gearBoxTypeDAO.deleteGearBoxType(id);
 			}else if ((variant.compareTo("log")==0) || (variant.compareTo("Логирование")==0)){
 				logDAO.deleteLog(id);
 			}
-			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO, oilStuffDAO, engineTypeDAO, new LinkedList<String>());
+			page=Service.createAdminEdit(model, variant, currentPage, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO
+					, oilStuffDAO, engineTypeDAO, gearBoxTypeDAO, new LinkedList<String>());
 		} else{
 			int totalRows = 0;
 			if ((variant.compareTo("user")==0) || (variant.compareTo("Пользователи")==0)){
@@ -200,6 +215,10 @@ public class AddEditElementController {
 				EngineType current=engineTypeDAO.getEngineType(id);
 				model.addAttribute("current",current);
 				model.addAttribute("id",current.getId());
+			}else if ((variant.compareTo("gearBoxType")==0) || (variant.compareTo("Тип КПП")==0)){
+				GearBoxType current=gearBoxTypeDAO.getGearBoxType(id);
+				model.addAttribute("current",current);
+				model.addAttribute("id",current.getId());
 			}else if ((variant.compareTo("log")==0) || (variant.compareTo("Логирование")==0)){
 				Log current=logDAO.getLogById(id);
 				model.addAttribute("current",current);
@@ -231,27 +250,12 @@ public class AddEditElementController {
 			
 		String page="home";
 		int id=new Integer(id_current);
-		
-//		try {
-//			variant=new String(variant.getBytes("iso-8859-1"), "UTF-8"); 
-//			task = new String(task.getBytes("iso-8859-1"), "UTF-8");
-//			name =new String(name.getBytes("iso-8859-1"), "UTF-8");
-//			email =new String(email.getBytes("iso-8859-1"), "UTF-8");
-//			country_name =new String(country_name.getBytes("iso-8859-1"), "UTF-8");
-//			login =new String(login.getBytes("iso-8859-1"), "UTF-8");
-//			login_current =new String(login_current.getBytes("iso-8859-1"), "UTF-8");
-//			password =new String(password.getBytes("iso-8859-1"), "UTF-8");
-//			address =new String(address.getBytes("iso-8859-1"), "UTF-8");
-//			info =new String(info.getBytes("iso-8859-1"), "UTF-8");
-//		} catch (UnsupportedEncodingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
 		LinkedList<String> errors=new LinkedList<String>();
 		
 		if (task.compareTo("К списку")==0){
 			page=Service.createAdminEdit(model, variant, 1, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO
-					, oilStuffDAO, engineTypeDAO, errors);
+					, oilStuffDAO, engineTypeDAO, gearBoxTypeDAO, errors);
 		}else {
 			synchronized (this) {
 				if (variant.compareTo("user")==0){
@@ -372,6 +376,19 @@ public class AddEditElementController {
 						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил тип двигателя"));
 					}
 					
+				}else if (variant.compareTo("gearBoxType")==0){
+					GearBoxType current=new GearBoxType(id_current,name);
+					if (name.isEmpty()){
+						errors.add("нужно обязательно заполнить наименование!");
+					}
+					if (errors.size()>0){
+						model.addAttribute("current",current);
+						model.addAttribute("id",current.getId());
+					}else{
+						current=gearBoxTypeDAO.createGearBoxType(current);
+						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), current, "Админ добавил/исправил тип КПП"));
+					}
+					
 				}else if (variant.compareTo("client")==0){
 					Client current=new Client(id,name,email,address,countryDAO.getCountryByName(country_name));
 					if (name.isEmpty()){
@@ -410,7 +427,7 @@ public class AddEditElementController {
 			}
 			if (errors.size()==0){
 				page=Service.createAdminEdit(model, variant, 1, manufacturerDAO, fluidClassDAO, countryDAO, clientDAO, userDAO, logDAO
-						, oilStuffDAO, engineTypeDAO, errors);
+						, oilStuffDAO, engineTypeDAO, gearBoxTypeDAO, errors);
 			}
 		}
 		return "adminpanel/"+page;	

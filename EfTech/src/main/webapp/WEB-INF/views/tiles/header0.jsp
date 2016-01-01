@@ -16,6 +16,7 @@
 		                        <li><a href="index">В начало</a></li>
 		                        <li><a href="home?good=BrakinFluids">Список тормозных жидкостей</a></li>
 	 		                    <li><a href="motorOil">Список моторных масел</a></li>
+	 		                    <li><a href="gearBoxOil">Список трансмиссионных масел</a></li>
 		                        <li><a href="Basket">Корзина</a></li>
 		                        <sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                        	<li><a href="Wishlist">Избранное</a></li>

@@ -13,31 +13,18 @@ public class Basket implements InterfaceBasket {
 		qauntity=0;
 	}
 
-	public Basket(BrakingFluid brakingFluid, int qauntity) {
+	public Basket(InterfaceGood good, int qauntity) {
 		super();
-		this.good = (InterfaceGood) brakingFluid;
+		this.good = good;
 		this.qauntity = qauntity;
 	}
 	
-	public Basket(MotorOil motorOil, int qauntity) {
+	public Basket(InterfaceGood good) {
 		super();
-		this.good = motorOil;
-		this.qauntity = qauntity;
-	}	
-	
-	public Basket(BrakingFluid brakingFluid) {
-		super();
-		this.good = (InterfaceGood) brakingFluid;
+		this.good = good;
 		this.qauntity = 1;
 	}	
 	
-	public Basket(MotorOil motorOil) {
-		super();
-		this.good = motorOil;
-		this.qauntity = 1;
-	}	
-	
-
 	/**
 	 * @return the brakingFluid
 	 */

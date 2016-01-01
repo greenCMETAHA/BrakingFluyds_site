@@ -41,6 +41,9 @@
 											<li role="presentation">
 									 			<input class="btn-block btn-lg btn " type="submit" name="searchButton"  value="Моторные масла">
 											</li>
+											<li role="presentation">
+									 			<input class="btn-block btn-lg btn " type="submit" name="searchButton"  value="Трансмиссионные масла">
+											</li>
 					                    </ul>
 					                </li>
 					            </ul>

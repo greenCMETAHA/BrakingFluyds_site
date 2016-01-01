@@ -36,6 +36,8 @@ import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.DemandTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
+import eftech.workingset.DAO.templates.GearBoxOilTemplate;
+import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
 import eftech.workingset.DAO.templates.InfoTemplate;
 import eftech.workingset.DAO.templates.LogTemplate;
 import eftech.workingset.DAO.templates.ManufacturerTemplate;
@@ -78,6 +80,7 @@ public class Service {
 	public static int ID_EMPTY_CLIENT = 8;  //эта фирма предоставляет товар (условно: оптовый склад)
 	public static String BRAKING_FLUID_PREFIX = "BrF";
 	public static String MOTOR_OIL_PREFIX = "Oil";
+	public static String GEARBOX_OIL_PREFIX = "GrO";	
 
 	public static boolean isFileExist(String file){
 		File oldFile=new File(file);
@@ -137,15 +140,15 @@ public class Service {
 	}
 	
 	private static void createTableOffer(LinkedList<Basket> basket,BaseFont times, String globalPath, User user, Document document) throws DocumentException, MalformedURLException, IOException {
-		boolean bFluids=false, bMotorOils=false;
+		boolean bFluids=false, bMotorOils=false, bGearBoxOils=false;
 		 for (Basket currentBasket:basket) {
 			 if (Service.BRAKING_FLUID_PREFIX.equals(currentBasket.getGood().getGoodName())){
 				 bFluids=true;
 			 }else if (Service.MOTOR_OIL_PREFIX.equals(currentBasket.getGood().getGoodName())){
 				 bMotorOils=true;
+			 }else if (Service.GEARBOX_OIL_PREFIX.equals(currentBasket.getGood().getGoodName())){
+				 bGearBoxOils=true;
 			 }
-			 
-			 
 		 }
 		if (bFluids){
 			document.add(new Paragraph("Тормозные жидкости:",new Font(times,14)));
@@ -303,7 +306,82 @@ public class Service {
 	        }
 	        document.add(table);
 	        document.add(new Paragraph(""));
+		}	
+		if (bGearBoxOils){
+			document.add(new Paragraph("Трансмиссионные масла:",new Font(times,14)));
+			document.add(new Paragraph("", new Font(times,10)));
+			
+			 PdfPTable table = null;
+	        float[] columnWidths			 = {60, 30, 20, 20, 25, 15, 15, 15, 40, 30, 30};
+	        float[] columnWidthsWithoutPrice = {60, 30, 20, 20, 25, 15, 15, 40, 30, 30};
+	        //table.setWidths ((user.canChangePrice()?columnWidths:columnWidthsWithoutPrice));
+	        if (user.canChangePrice()){
+	        	table = new PdfPTable(columnWidths.length);
+	        	table.setWidths(columnWidths);
+	        }else{
+	        	table = new PdfPTable(columnWidthsWithoutPrice.length);
+	        	table.setWidths(columnWidthsWithoutPrice);
+	        }
+	        
+	        PdfPCell cell=new PdfPCell(new Phrase("Наименование",new Font(times,8)));
+	        cell.setRotation(90);
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Производитель",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Тип КПП",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Тип масла",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Вязкость",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Объём",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Количество",new Font(times,8)));
+	        table.addCell(cell);
+	        if (user.canChangePrice()){
+	        	cell.setPhrase(new Phrase("Цена",new Font(times,8)));
+	        	table.addCell(cell);
+	        }
+	        cell.setPhrase(new Phrase("Описание",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Изображение",new Font(times,8)));
+	        table.addCell(cell);
+	        cell.setPhrase(new Phrase("Спецификация",new Font(times,8)));
+	        table.addCell(cell);
+	        
+	        for (Basket currentBasket:basket) {
+	        	if (Service.GEARBOX_OIL_PREFIX.equals(currentBasket.getGood().getGoodName())){
+		        	GearBoxOil current=(GearBoxOil) currentBasket.getGood();
+		            table.addCell(new Phrase(current.getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((Manufacturer)current.getManufacturer()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((GearBoxType)current.getGearBoxType()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(((OilStuff)current.getOilStuff()).getName(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getViscosity(),new Font(times,8)));
+		            table.addCell(new Phrase(""+current.getValue(),new Font(times,8)));
+		            table.addCell(new Phrase(""+currentBasket.getQauntity(),new Font(times,8)));
+		            if (user.canChangePrice()){
+		            	table.addCell(new Phrase(""+current.getPriceWithDiscount(),new Font(times,8)));
+		            }
+		            table.addCell(new Phrase(current.getDescription(),new Font(times,8)));
+		            
+		            if (current.hasPhoto()){
+		            	Image image = Image.getInstance(globalPath+PATH_TO_JPG+current.getPhoto());
+			            image.setAlignment(Image.MIDDLE);
+			            image.scaleToFit(30, 30);
+			            table.addCell(image);
+			            
+		            }else{
+		            	table.addCell("");
+		            }
+		            
+		            table.addCell(new Phrase(current.getSpecification(),new Font(times,8)));
+	        	}
+
+	        }
+	        document.add(table);
+	        document.add(new Paragraph(""));
 		}		
+				
 		
 //		
 //        PdfPTable table = null;
@@ -449,6 +527,7 @@ public class Service {
 	public static String createAdminEdit(Model model, String variant, int currentPage
 			, ManufacturerTemplate manufacturerDAO, FluidClassTemplate fluidClassDAO, CountryTemplate countryDAO
 			,ClientTemplate clientDAO, UserTemplate userDAO,LogTemplate logDAO, OilStuffTemplate oilStuffDAO, EngineTypeTemplate engineTypeDAO
+			, GearBoxTypeTemplate gearBoxTypeDAO
 			, LinkedList<String> errors){
 		
 		String result="ShowList";
@@ -498,6 +577,11 @@ public class Service {
 			model.addAttribute("list",engineTypeDAO.getEngineTypes(currentPage, elementsInList));
 			model.addAttribute("variant", "engineType");
 
+		}else if ((variant.compareTo("Тип КПП")==0) || (variant.compareTo("gearBoxType")==0)){
+			totalRows=gearBoxTypeDAO.getCountRows();
+			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
+			model.addAttribute("list",gearBoxTypeDAO.getGearBoxTypes(currentPage, elementsInList));
+			model.addAttribute("variant", "engineType");
 			
 		}else if ((variant.compareTo("Логирование")==0) || (variant.compareTo("log")==0)){
 			totalRows=logDAO.getCountRows();
@@ -987,7 +1071,7 @@ public class Service {
 	//isChanging - это для Корзины. если = false - просто устанавливаем quantity. Если нет - смещаем на +/-1. если <=0 - удалим из корзины
 	public static void workWithList(int id, String goodPrefix, int quantity, boolean isChanging, String variant, User user, LinkedList<Basket>  basket
 			, LinkedList<Wishlist>  wishlist, LinkedList<InterfaceGood>  compare
-			,BrakingFluidTemplate brakingFluidDAO, MotorOilTemplate motorOilDAO, LogTemplate logDAO, ClientTemplate clientDAO
+			,BrakingFluidTemplate brakingFluidDAO, MotorOilTemplate motorOilDAO, GearBoxOilTemplate gearBoxOilDAO, LogTemplate logDAO, ClientTemplate clientDAO
 			, ManufacturerTemplate manufacturerDAO,OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO
 			, PayTemplate payDAO, WishlistTemplate wishlistDAO			
 			, HttpSession session, double paySumm, int client_id, int paid, int shipping){  
@@ -1002,6 +1086,8 @@ public class Service {
 					listBasket.add(new Basket(brakingFluidDAO.getBrakingFluid(id)));
 				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 					listBasket.add(new Basket(motorOilDAO.getMotorOil(id)));
+				}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+					listBasket.add(new Basket(gearBoxOilDAO.getGearBoxOil(id)));
 				}
 			} 
 		
@@ -1058,6 +1144,8 @@ public class Service {
 					basket.add(new Basket(brakingFluidDAO.getBrakingFluid(id),(quantity==0?1:quantity)));
 				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 					basket.add(new Basket(motorOilDAO.getMotorOil(id),(quantity==0?1:quantity)));
+				}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+					basket.add(new Basket(gearBoxOilDAO.getGearBoxOil(id),(quantity==0?1:quantity)));
 				}
 			}
 		}
@@ -1120,6 +1208,8 @@ public class Service {
 					compare.add(brakingFluidDAO.getBrakingFluid(id));
 				}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 					compare.add(motorOilDAO.getMotorOil(id));
+				}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+					compare.add(gearBoxOilDAO.getGearBoxOil(id));
 				}
 			}
 		}
