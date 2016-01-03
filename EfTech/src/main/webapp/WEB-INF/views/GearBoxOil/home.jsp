@@ -49,7 +49,7 @@
 			                    </div>
 			                    <div class="hover-area">
 			                      <div class="add-cart-button">
-				                    <c:url value="motorOil" var="UpdateGood">
+				                    <c:url value="gearBoxOil" var="UpdateGood">
 										<c:param name="id" value="${current.getId()}"/>
 										<c:param name="variant" value="inBasket"/>
 										<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -58,7 +58,7 @@
 			                      </div>
 			                      <div class="wish-compare">
 			                      	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
-				                        <c:url value="motorOil" var="UpdateGood">
+				                        <c:url value="gearBoxOil" var="UpdateGood">
 											<c:param name="id" value="${current.getId()}"/>
 											<c:param name="variant" value="inWishlist"/>
 											<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -66,7 +66,7 @@
 										
 					                    <a class="btn-add-to-wishlist" href="${UpdateGood}">В избранное</a>
 				                    </sec:authorize>
-			                        <c:url value="motorOil" var="UpdateGood">
+			                        <c:url value="gearBoxOil" var="UpdateGood">
 										<c:param name="id" value="${current.getId()}"/>
 										<c:param name="variant" value="inCompare"/>
 										<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -131,7 +131,7 @@
 	                                <p><c:out value="${current.getDescription()}"/></p>
 	                              </div>
 	                              <div class="addto-compare">
-	                               <c:url value="motorOil" var="UpdateGood">
+	                               <c:url value="gearBoxOil" var="UpdateGood">
 										<c:param name="id" value="${current.getId()}"/>
 										<c:param name="variant" value="inCompare"/>
 										<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -161,7 +161,7 @@
 		                              </c:if>
 	                              </div>
 	                              <div class="add-cart-button">
-	                                <c:url value="motorOil" var="UpdateGood">
+	                                <c:url value="gearBoxOil" var="UpdateGood">
 										<c:param name="id" value="${current.getId()}"/>
 										<c:param name="variant" value="inBasket"/>
 										<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -169,7 +169,7 @@
 				                    <a href="${UpdateGood}" class="le-button">В корзину</a>
 		                            <div class="wish-compare">
 			                            <sec:authorize access="!isAnonymous()  and !hasRole('ROLE_ADMIN')">
-					                        <c:url value="motorOil" var="UpdateGood">
+					                        <c:url value="gearBoxOil" var="UpdateGood">
 												<c:param name="id" value="${current.getId()}"/>
 												<c:param name="variant" value="inWishlist"/>
 												<c:param name="currentPage" value="${requestScope.currentPage}"/>
@@ -196,7 +196,7 @@
                         <div class="col-xs-12 col-sm-6 text-left">
                           <ul class="pagination ">
                           	<c:forEach var="page" begin="1" end="${requestScope.totalPages}">
-                          		<c:url value="motorOil" var="UpdateGood">
+                          		<c:url value="gearBoxOil" var="UpdateGood">
 									<c:param name="variant" value="home"/>
 									<c:param name="currentPage" value="${page}"/>
 								</c:url>
@@ -207,7 +207,7 @@
                           	    <li <c:out value="${current}"  />  ><a  href="${UpdateGood}"><c:out value="${page}"/></a></li>
                           	</c:forEach>
                           	<c:if test="${requestScope.totalPages>requestScope.currentPage}">
-	                          	<c:url value="motorOil" var="UpdateGood">
+	                          	<c:url value="gearBoxOil" var="UpdateGood">
 									<c:param name="variant" value="home"/>
 									<c:param name="currentPage" value="${requestScope.currentPage+1}"/>
 								</c:url>

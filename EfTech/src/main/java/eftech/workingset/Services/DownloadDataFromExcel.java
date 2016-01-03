@@ -606,6 +606,8 @@ public class DownloadDataFromExcel {
 		 	        			price.setGood(motorOilDAO.getMotorOilByName(current.getName()));
 		 	        		}else if ("BrakingFluids".equals(good)){
 		 	        			price.setGood(brakingFluidDAO.getBrakingFluidByName(current.getName()));
+		 	        		}else if ("GearBoxOils".equals(good)){
+		 	        			price.setGood(gearBoxOilDAO.getGearBoxOilByName(current.getName()));
 		 	        		}
 		 	        		price.setPrice(current.getPrice());  //это нова€ загруженна€ цена. ƒалее еЄ сравним с той, что была. 
 		 	        		price.setTime(new GregorianCalendar().getTime());
@@ -618,6 +620,13 @@ public class DownloadDataFromExcel {
 					 	        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), value, "«агрузили из Excel, изменение цен"));
 
 					 	        		price=priceDAO.createPrice(price, Service.MOTOR_OIL_PREFIX);					//...и в историю изменени€ цены
+						        		log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), price, "«агрузили из Excel, изменение цен"));
+				 	        		}else if ("GearBoxOils".equals(good)){					//еЄ сравним с той, что была
+			 	        				price.getGood().setPrice(price.getPrice());										//запишем цены в карточку товара...
+			 	        				GearBoxOil value = gearBoxOilDAO.fillPrices((GearBoxOil)price.getGood());
+					 	        		Log log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), value, "«агрузили из Excel, изменение цен"));
+
+					 	        		price=priceDAO.createPrice(price, Service.GEARBOX_OIL_PREFIX);					//...и в историю изменени€ цены
 						        		log=logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), price, "«агрузили из Excel, изменение цен"));
 				 	        		}else if ("BrakingFluids".equals(good)){
 				 	        			BrakingFluid value = brakingFluidDAO.fillPrices((BrakingFluid)price.getGood());  //запишем цены в карточку товара...

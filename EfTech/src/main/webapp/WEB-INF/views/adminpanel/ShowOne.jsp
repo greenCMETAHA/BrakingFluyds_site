@@ -34,6 +34,10 @@
      	 <div class="con"><input readonly type="text" class="input" value="${currentBrakFluid.getName()}" name="" id="input-three" /></div>
      	</div>
 		<div class="clearfix">
+         <div class="lab"><label for="input-three">Наименование/код по производителю:</label></div>
+     	 <div class="con"><input readonly type="text" class="input" value="${currentBrakFluid.getManufacturerCode()}" name="" id="input-three" /></div>
+     	</div>
+		<div class="clearfix">
          <div class="lab"><label for="input-three">Производитель:</label></div>
      	 <div class="con"><input readonly type="text" class="input" value="${currentBrakFluid.getManufacturer().getName()}" name="" id="input-three" /></div>
      	</div>

@@ -12,6 +12,7 @@ import eftech.workingset.beans.intefaces.InterfaceOilStuff;
 public class GearBoxOil implements InterfaceGearBoxOil{
 	
 	private int id;
+	private String manufacturerCode;
 	private String name;
 	private InterfaceManufacturer manufacturer;
 	private double price; 
@@ -161,6 +162,14 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 			this.name = name;
 		}
 
+		public String getManufacturerCode() {
+			return manufacturerCode;
+		}
+
+		public void setManufacturerCode(String manufacturerCode) {
+			this.manufacturerCode = manufacturerCode;
+		}
+
 		/**
 		 * @return the manufacturer
 		 */
@@ -305,7 +314,7 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 
 		@Override
 		public String getGoodName() {
-			return Service.MOTOR_OIL_PREFIX;
+			return Service.GEARBOX_OIL_PREFIX;
 		}
 
 		public double getDiscount() {

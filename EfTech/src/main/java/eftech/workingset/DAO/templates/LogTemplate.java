@@ -203,6 +203,10 @@ public class LogTemplate implements InterfaceLogDAO {
 				object=new MotorOil();
 				((MotorOil) object).setId(rs.getInt("object_id"));
 				((MotorOil) object).setName(rs.getString("object_name"));
+			}else if ("GearBoxOil".equals(strObj)){
+				object=new GearBoxOil();
+				((GearBoxOil) object).setId(rs.getInt("object_id"));
+				((GearBoxOil) object).setName(rs.getString("object_name"));
 			}else if ("Client".equals(strObj)){
 				object=new Client();
 				((Client) object).setId(rs.getInt("object_id"));
@@ -219,6 +223,10 @@ public class LogTemplate implements InterfaceLogDAO {
 				object=new EngineType();
 				((EngineType) object).setId(rs.getInt("object_id"));
 				((EngineType) object).setName(rs.getString("object_name"));
+			}else if ("GearBoxType".equals(strObj)){
+				object=new GearBoxType();
+				((GearBoxType) object).setId(rs.getInt("object_id"));
+				((GearBoxType) object).setName(rs.getString("object_name"));
 			}else if ("FluidClass".equals(strObj)){
 				object=new FluidClass();
 				((FluidClass) object).setId(rs.getInt("object_id"));

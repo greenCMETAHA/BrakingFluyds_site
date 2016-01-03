@@ -184,6 +184,13 @@
 		     	</div>
               </c:if>
               
+              <c:if test="${requestScope.variant=='gearBoxType'}">
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              </c:if>              
+              
               
 		      <c:if test="${requestScope.variant=='client'}">
               	<div class="clearfix">
@@ -293,6 +300,10 @@
               	<div class="clearfix">
 		         <div class="lab"><label for="input-three">Наименование:</label></div>
 		     	 <div class="con"><input type="text" class="input" value="${current.getName()}" name="name_current" id="input-three" /></div>
+		     	</div>
+              	<div class="clearfix">
+		         <div class="lab"><label for="input-three">Полное наименование:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${current.getFullName()}" name="fullname_current" id="input-three" /></div>
 		     	</div>
               	<div class="clearfix">
 			         <div class="lab"><label for="input-three">Страна происхождения:</label></div>

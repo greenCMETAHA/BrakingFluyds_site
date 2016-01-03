@@ -3,6 +3,7 @@ package eftech.workingset.DAO.templates;
 import eftech.workingset.DAO.interfaces.InterfacePriceDAO;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
+import eftech.workingset.beans.GearBoxOil;
 import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.Price;
 import eftech.workingset.beans.User;
@@ -45,13 +46,27 @@ public class PriceTemplate implements InterfacePriceDAO{
 		}
 
 	}
+	
+	private String getTable(String goodPrefix){
+		String result="";
+		
+		if (goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)){
+			result="brakingfluids";
+		}else if (goodPrefix.equals(Service.MOTOR_OIL_PREFIX)){
+			result="motorOils";
+		}else if (goodPrefix.equals(Service.GEARBOX_OIL_PREFIX)){
+			result="gearboxOils";
+		}
+		
+		return result;
+	}
 
 	@Override
 	public ArrayList<Price> getPrices(String goodPrefix) {
 		String sqlQuery="select *, bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price, p.goodPrefix as goodPrefix"
 				+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login from prices as p "
 				+ " left join users AS u on (p.user=u.id)"
-				+ " left join "+(goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)?"brakingfluids":"motorOils")+" AS bf on (p.good=bf.id)"
+				+ " left join "+getTable(goodPrefix)+" AS bf on (p.good=bf.id)"
 				+ " where p.goodprefix=:goodPrefix";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -69,7 +84,7 @@ public class PriceTemplate implements InterfacePriceDAO{
 		String sqlQuery="select *, u.id as user_id, u.name as user_name, u.login as user_login, u.email as user_email, p.goodPrefix as goodPrefix"
 				+ ", bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price from prices as p "
 				+ " left join users AS u on (p.user=u.id) "
-				+ " left join "+(goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)?"brakingfluids":"motoroils")+" AS bf on (p.good=bf.id)"
+				+ " left join "+getTable(goodPrefix)+" AS bf on (p.good=bf.id)"
 				+ "where p.good=:id and p.goodprefix=:goodPrefix order by time DESC";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -88,7 +103,7 @@ public class PriceTemplate implements InterfacePriceDAO{
 		String sqlQuery="select *, u.id as user_id, u.name as user_name, u.login as user_login, u.email as user_email, p.goodPrefix as goodPrefix"
 				+ ", bf.id AS fluid_id, bf.name AS fluid_name, bf.price AS fluid_price from prices as p "
 				+ " left join users AS u on (p.user=u.id) "
-				+ " left join "+(goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)?"brakingfluids":"motoroils")+" AS bf on (p.good=bf.id)"
+				+ " left join "+getTable(goodPrefix)+" AS bf on (p.good=bf.id)"
 				+ "where p.id=:id and p.goodprefix=:goodPrefix order by time DESC";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -157,6 +172,8 @@ public class PriceTemplate implements InterfacePriceDAO{
 				good=new MotorOil();
 			}else if (Service.BRAKING_FLUID_PREFIX.equals(goodPrefix)){
 				good=new BrakingFluid();
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+				good=new GearBoxOil();
 			}
 			good.setId(rs.getInt("fluid_id"));
 			good.setName(rs.getString("fluid_name"));

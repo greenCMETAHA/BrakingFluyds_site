@@ -132,7 +132,7 @@
                 </div>
                 <!-- /.category-filter -->                    
                 
-               <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+<%--                <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')"> --%>
 					<div class="price-filter">
 	                  <h2>Цена</h2>
 	                  <hr>
@@ -146,7 +146,7 @@
 	                  </div>
 	                </div>                
                 <!-- /.price-filter -->
-                 </sec:authorize>
+<%--                  </sec:authorize> --%>
                 
  	                <div class="price-filter">
 	                  <h2>Объём</h2>

@@ -84,6 +84,19 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 						+ " left join oilstuff as os on (mo.oilstuff=os.id)"
 						+ " left join enginetype as et on (mo.engineType=et.id)"
 						+ " left join manufacturer as m on (mo.manufacturer=m.id) where w.id=:id";
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+				sqlQuery="select w.id AS wish_id, w.goodPrefix as goodPrefix"
+						+ ", u.id AS User_id, u.name AS User_name, u.email AS user_email, u.login AS user_login"
+						+ ", os.id AS oilstuff, os.name AS os_name"
+						+ ", gbt.id AS gearBoxType, gbt.name AS gbt_name"
+						+ ", m.id AS man_id, m.name AS man_name"
+						+ ", go.id AS good_id, go.name AS good_name, go.price AS price, go.photo AS photo, go.value AS value, go.judgement AS judgement"
+						+ " from wishlist w"
+						+ " left join users AS u ON (w.user=u.id)"
+						+ " left join gearboxoils AS go ON (w.good=go.id)"
+						+ " left join oilstuff as os on (go.oilstuff=os.id)"
+						+ " left join gearboxtype as gbt on (go.engineType=gbt.id)"
+						+ " left join manufacturer as m on (go.manufacturer=m.id) where w.id=:id";
 			}
 
 			MapSqlParameterSource params = new MapSqlParameterSource();
@@ -228,6 +241,28 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 			params.addValue("goodPrefix", Service.MOTOR_OIL_PREFIX);
 
 			result.addAll((ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()));
+			
+			sqlQuery="select w.id AS wish_id, w.goodPrefix as goodprefix"                          //теперь - по MotorOil
+					+ ", u.id AS user_id, u.name AS user_name, u.email AS user_email, u.login AS user_login"
+					+ ", os.id AS oilstuff, os.name AS os_name"
+					+ ", gbt.id AS gearboxtype, gbt.name AS gbt_name"
+					+ ", m.id AS man_id, m.name AS man_name"
+					+ ", go.id AS good_id, go.name AS good_name, go.price AS price, go.photo AS photo, go.value AS value, go.judgement AS judgement"
+					+ " from wishlist w"
+					+ " left join users AS u ON (w.user=u.id)"
+					+ " left join gearboxoils AS go ON (w.good=go.id)"
+					+ " left join oilstuff as os on (go.oilstuff=os.id)"
+					+ " left join gearboxtype as gbt on (go.gearboxtype=gbt.id)"
+					+ " left join manufacturer as m on (go.manufacturer=m.id) "
+					+ " where w.goodprefix=:goodPrefix"+(User_id!=0?" and u.id=:User_id":"")
+					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+
+
+			params = new MapSqlParameterSource();
+			params.addValue("User_id", User_id);
+			params.addValue("goodPrefix", Service.GEARBOX_OIL_PREFIX);
+
+			result.addAll((ArrayList<Wishlist>)jdbcTemplate.query(sqlQuery,params,new WishlistRowMapper()));			
 
 			try{
 				return new LinkedList<Wishlist>(result);
@@ -258,6 +293,8 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				currentGood=new BrakingFluid();
 			}else if (Service.MOTOR_OIL_PREFIX.equals(rs.getInt("goodPrefix"))){
 				currentGood=new MotorOil();
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(rs.getInt("goodPrefix"))){
+				currentGood=new GearBoxOil();
 			}
 			currentGood.setId(rs.getInt("good"));
 
@@ -311,8 +348,8 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				oil.setOilStuff(oilStuff);
 
 				EngineType engineType =new EngineType();
-				engineType.setId(rs.getInt("engineType"));
-				engineType.setName(rs.getString("et_name"));
+				engineType.setId(rs.getInt("gearBoxType"));
+				engineType.setName(rs.getString("gbt_name"));
 				oil.setEngineType(engineType);
 
 				oil.setPhoto(rs.getString("photo"));
@@ -320,6 +357,26 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				oil.setJudgement(rs.getDouble("judgement"));
 
 				good=oil;
+			}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+				GearBoxOil oil=new GearBoxOil();
+
+				oil.setManufacturer(manufacturer);
+
+				OilStuff oilStuff =new OilStuff();
+				oilStuff.setId(rs.getInt("oilstuff"));
+				oilStuff.setName(rs.getString("os_name"));
+				oil.setOilStuff(oilStuff);
+
+				GearBoxType gearBoxType =new GearBoxType();
+				gearBoxType.setId(rs.getInt("engineType"));
+				gearBoxType.setName(rs.getString("et_name"));
+				oil.setGearBoxType(gearBoxType);
+
+				oil.setPhoto(rs.getString("photo"));
+				oil.setValue(rs.getDouble("value"));
+				oil.setJudgement(rs.getDouble("judgement"));
+
+				good=oil;				
 			}
 			good.setId(rs.getInt("good_id"));
 			good.setName(rs.getString("good_name"));

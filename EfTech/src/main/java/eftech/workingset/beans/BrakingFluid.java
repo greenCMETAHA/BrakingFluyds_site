@@ -8,6 +8,7 @@ import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 
 public class BrakingFluid implements InterfaceBrakingFluid {
 	private int id;
+	private String manufacturerCode;
 	private String name;
 	private InterfaceManufacturer manufacturer;
 	private double price; //private InterfacePrice price;
@@ -126,6 +127,14 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getManufacturerCode() {
+		return manufacturerCode;
+	}
+
+	public void setManufacturerCode(String manufacturerCode) {
+		this.manufacturerCode = manufacturerCode;
 	}
 
 	/**

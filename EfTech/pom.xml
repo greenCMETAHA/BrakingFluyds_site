@@ -130,7 +130,7 @@
 		<dependency>				<!-- Для .xls              		  Чтение Excel -->
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.12</version>
+            <version>3.13</version>
         </dependency>  
         
 		<dependency>				<!-- Для .xlsx -->

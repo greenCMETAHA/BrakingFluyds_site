@@ -7,11 +7,13 @@ import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 public class Manufacturer implements InterfaceManufacturer{
 	private int id;
 	private String name;
+	private String fullName;
 	private InterfaceCountry country;
 	
 	public Manufacturer() {
 		super();
 		name=Service.EMPTY;
+		fullName=name;
 		country=new Country();
 	}
 
@@ -20,8 +22,18 @@ public class Manufacturer implements InterfaceManufacturer{
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
 		this.name = name;
+		this.fullName=name;
 		this.country = country;
 	}
+	
+	public Manufacturer(int id, String name, String fullName, InterfaceCountry country) {
+		super();
+		this.id = id;
+		name=(name.length()==0?Service.EMPTY:name);
+		this.name = name;
+		this.fullName=fullName;
+		this.country = country;
+	}	
 
 	/**
 	 * @return the id
@@ -50,6 +62,14 @@ public class Manufacturer implements InterfaceManufacturer{
 	public void setName(String name) {
 		name=(name.length()==0?Service.EMPTY:name);
 		this.name = name;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 
 	/**

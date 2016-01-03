@@ -93,14 +93,15 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 			currentBrFluid=getBrakingFluidByName(brFluid.getName());
 		}
 		String sqlUpdate="insert into brakingfluids (name, boilingtemperaturedry, boilingtemperaturewet, description, fluidclass, judgement, manufacturer"
-				+ ", photo, price, specification, value, viscosity40, viscosity100, discount, instock) Values (:name, :boilingTemperatureDry"
+				+ ", photo, price, specification, value, viscosity40, viscosity100, discount, instock, manufacturer_code) Values (:name, :boilingTemperatureDry"
 				+ ", :boilingTemperatureWet, :description, :fluidClass, :judgement, :manufacturer, :photo, :price, :specification, :value"
-				+ ", :viscosity40, :viscosity100, :discount, :instock)";
+				+ ", :viscosity40, :viscosity100, :discount, :instock, :manufacturer_code)";
 		if (currentBrFluid.getId()>0){ // В БД есть такой элемент
 			sqlUpdate="update brakingfluids set name=:name, boilingtemperaturedry=:boilingTemperatureDry"
 					+ ", boilingtemperaturewet=:boilingTemperatureWet, description=:description, fluidclass=:fluidClass, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, price=:price, specification=:specification, value=:value"
-					+ ", viscosity40=:viscosity40, viscosity100=:viscosity100, discount=:discount, instock=:instock where id=:id";
+					+ ", viscosity40=:viscosity40, viscosity100=:viscosity100, discount=:discount, instock=:instock, manufacturer_code=:manufacturer_code"
+					+ " where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -124,6 +125,7 @@ public class BrakingFluidTemplate implements InterfaceBrakingFluidDAO {
 		params.addValue("viscosity100", brFluid.getViscosity100());
 		params.addValue("discount", brFluid.getDiscount());
 		params.addValue("instock", brFluid.getInStock());
+		params.addValue("manufacturer_code", brFluid.getManufacturerCode());
 
 		if (currentBrFluid.getId()>0){ // В БД есть элемент
 			params.addValue("id", brFluid.getId());

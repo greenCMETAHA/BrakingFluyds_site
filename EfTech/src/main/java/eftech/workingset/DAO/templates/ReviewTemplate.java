@@ -3,6 +3,7 @@ package eftech.workingset.DAO.templates;
 import eftech.workingset.DAO.interfaces.InterfaceReviewDAO;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.BrakingFluid;
+import eftech.workingset.beans.GearBoxOil;
 import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.Review;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
@@ -103,6 +104,8 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 			sqlQuery+="left join brakingfluids as bf on  (bf.id=review.good) ";
 		}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 			sqlQuery+="left join motoroils as bf on  (bf.id=review.good) ";
+		}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+			sqlQuery+="left join gearboxoils as bf on  (bf.id=review.good) ";
 		}
 
 		sqlQuery+= (id>0?" where review.good=:id and review.goodprefix=:goodPrefix":"")
@@ -153,6 +156,9 @@ public class ReviewTemplate implements InterfaceReviewDAO {
 				good=new BrakingFluid();
 			}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 				good=new MotorOil();
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+				good=new GearBoxOil();
+				
 			}
 			good.setId(rs.getInt("good"));
 			//good.setName(rs.getString("bf_name"));

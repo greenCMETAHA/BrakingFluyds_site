@@ -581,7 +581,7 @@ public class Service {
 			totalRows=gearBoxTypeDAO.getCountRows();
 			totalPages = (int)(totalRows/elementsInList)+(totalRows%elementsInList>0?1:0);
 			model.addAttribute("list",gearBoxTypeDAO.getGearBoxTypes(currentPage, elementsInList));
-			model.addAttribute("variant", "engineType");
+			model.addAttribute("variant", "gearBoxType");
 			
 		}else if ((variant.compareTo("Логирование")==0) || (variant.compareTo("log")==0)){
 			totalRows=logDAO.getCountRows();

@@ -127,15 +127,17 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 		}else{
 			currentManufacturer=manufacturer;
 		}
-		String sqlUpdate="insert into manufacturer (name, country, ismanufacturer) Values (:name, :country, :isManufacturer)";
+		String sqlUpdate="insert into manufacturer (name, country, ismanufacturer, fullname)"
+				+ " Values (:name, :country, :isManufacturer,:fullname)";
 		if (currentManufacturer.getId()>0){ // В БД есть такой элемент
-			sqlUpdate="update manufacturer set name=:name, country=:country, ismanufacturer=:isManufacturer where id=:id";
+			sqlUpdate="update manufacturer set name=:name, country=:country, ismanufacturer=:isManufacturer, fullname=:fullname where id=:id";
 		}
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("name", manufacturer.getName());
 		params.addValue("country", ((Country)manufacturer.getCountry()).getId());
 		params.addValue("isManufacturer", 1);
+		params.addValue("fullname", manufacturer.getFullName());
 
 		if (currentManufacturer.getId()>0){ // В БД есть элемент
 			params.addValue("id", currentManufacturer.getId());

@@ -6,7 +6,7 @@
           <!-- ========================================= SIDEBAR ========================================= -->
           <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
             <!-- ========================================= PRODUCT FILTER ========================================= -->
-            <form action="motorOil" method="POST">
+            <form action="gearBoxOil" method="POST">
             <div class="widget">
               <h1>Фильтр по товарам</h1>
               <div class="body bordered">
@@ -132,7 +132,7 @@
                 </div>
                 <!-- /.category-filter -->                    
                 
-               <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
+<%--                <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')"> --%>
 					<div class="price-filter">
 	                  <h2>Цена</h2>
 	                  <hr>
@@ -146,7 +146,7 @@
 	                  </div>
 	                </div>                
                 <!-- /.price-filter -->
-                 </sec:authorize>
+<%--                  </sec:authorize> --%>
                 
  	                <div class="price-filter">
 	                  <h2>Объём</h2>
@@ -170,13 +170,13 @@
             <!-- /.widget -->
             </form>
             <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-            	<form action="InsertUpdateMotorOil" method="POST"  enctype="multipart/form-data">
+            	<form action="InsertUpdateGearBoxOil" method="POST"  enctype="multipart/form-data">
             		<input name="variant" type="hidden" value="New" >
 		            <div class="widget">
 		            	<div class="body bordered">
 			            	<div class="buttons-holder">
 			            	  <button class="le-button" type="submit" name="sss">Новый товар</button>	
-<!-- 			                  <a class="le-button big" href="InsertUpdateMotorOil?variant=New" >Новый товар</a> -->
+<!-- 			                  <a class="le-button big" href="InsertUpdateGearBoxOil?variant=New" >Новый товар</a> -->
 			                </div>
 		            	</div>
 		            </div>

@@ -190,7 +190,7 @@ public class GearBoxOilController {
 		return list;
 	}		
 
-	@RequestMapping(value = {"/motorOil","/adminpanel/motorOil"}, method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"/gearBoxOil","/adminpanel/gearBoxOil"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String _home(
 			@RequestParam(value = "good", defaultValue="", required=false) String good
 			
@@ -205,7 +205,7 @@ public class GearBoxOilController {
 			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
-			,@RequestParam(value = "searchField", defaultValue="false", required=false) String searchField
+			,@RequestParam(value = "searchField", defaultValue="", required=false) String searchField
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
@@ -287,19 +287,19 @@ public class GearBoxOilController {
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
 		//--1
-		int minPrice=new Double(motorOilDAO.minData("Price")).intValue();
-		int currentMinPriceFilter = new Double(minPrice).intValue();
-		double maxPriceDouble=motorOilDAO.maxData("Price");
+		int minPrice=new Double(gearBoxOilDAO.minData("Price")).intValue();
+		double maxPriceDouble=gearBoxOilDAO.maxData("Price");
 		int maxPrice=new Double(maxPriceDouble).intValue();
 		if (maxPrice<maxPriceDouble){
 			maxPrice++;
 		}
-		int currentMaxPriceFilter=maxPrice;
 		
-		currentMinPriceFilter = Math.max(new Integer(currentPriceFilter.substring(0, currentPriceFilter.indexOf(","))), minPrice);
-		int oldValue=new Integer(currentPriceFilter.substring(currentPriceFilter.indexOf(",")+1, currentPriceFilter.length()));
-		currentMaxPriceFilter = Math.min((oldValue==0?maxPrice:currentMaxPriceFilter),maxPrice);  //нужно взять минимум из верхнего интервала. Но может быть 0, его надо убрать.
-			
+		int currentMinPriceFilter = new Integer(currentPriceFilter.substring(0, currentPriceFilter.indexOf(",")));
+		int currentMaxPriceFilter = new Integer(currentPriceFilter.substring(currentPriceFilter.indexOf(",")+1, currentPriceFilter.length()));
+		if (currentMaxPriceFilter==0){
+			currentMaxPriceFilter=(int) Math.ceil(gearBoxOilDAO.maxData("Price"));
+		}		
+		
 		currentPriceFilter=currentMinPriceFilter+","+currentMaxPriceFilter;
 
 		model.addAttribute("MinPrice", minPrice);
@@ -312,18 +312,15 @@ public class GearBoxOilController {
 		model.addAttribute("currentPriceFilter",currentPriceFilter);
 
 		//--2
-		int minValue=new Double(motorOilDAO.minData("Value")*1000).intValue();
-		int currentMinValueFilter = new Double(minValue).intValue();
-		double maxValueDouble=motorOilDAO.maxData("Value")*1000;
-		int maxValue=new Double(maxValueDouble).intValue();
-		if (maxValue<maxValueDouble){
-			maxValue++;
-		}
-		int currentMaxValueFilter=maxValue;
-		
-		currentMinValueFilter = Math.max(new Integer(currentValueFilter.substring(0, currentValueFilter.indexOf(","))), minValue);
-		oldValue=new Integer(currentValueFilter.substring(currentValueFilter.indexOf(",")+1, currentValueFilter.length()));
-		currentMaxValueFilter = Math.min((oldValue==0?maxValue:currentMaxValueFilter),maxValue);
+		int minValue=new Double(gearBoxOilDAO.minData("Value")*1000).intValue();
+		int maxValue=new Double(gearBoxOilDAO.maxData("Value")*1000).intValue();
+		double maxValueDouble=gearBoxOilDAO.maxData("Value")*1000;
+		int currentMinValueFilter = new Integer(currentValueFilter.substring(0, currentValueFilter.indexOf(",")));
+		int currentMaxValueFilter = new Integer(currentValueFilter.substring(currentValueFilter.indexOf(",")+1, currentValueFilter.length()));
+		if (currentMaxValueFilter==0){
+			currentMaxValueFilter=(int) Math.ceil(gearBoxOilDAO.maxData("value")*1000);
+		}		
+	
 		model.addAttribute("MinValue", minValue);
 		model.addAttribute("MaxValue", maxValue);		
 		model.addAttribute("currentMinValueFilter", currentMinValueFilter);
@@ -334,22 +331,22 @@ public class GearBoxOilController {
 		model.addAttribute("currentValueFilter",currentValueFilter);
 		
 		//--3
-		int minJudgement=new Double(motorOilDAO.minData("Judgement")).intValue();  //пока отключим. Бо не получается позиционировать на [0:5], вываливает на [100:0]
-		int currentMinJudgementFilter = new Double(minJudgement).intValue();
-		double maxJudgementDouble=motorOilDAO.maxData("Judgement");
-		int maxJudgement=new Double(maxJudgementDouble).intValue();
-		if (maxJudgement<maxJudgementDouble){
-			maxJudgement++;
-		}
-		int currentMaxJudgementFilter=maxJudgement;
-		
-		currentMinJudgementFilter = Math.max(new Integer(currentJudgementFilter.substring(0, currentJudgementFilter.indexOf(","))), minJudgement);
-		oldValue=new Integer(currentJudgementFilter.substring(currentJudgementFilter.indexOf(",")+1, currentJudgementFilter.length()));
-		currentMaxJudgementFilter = Math.min((oldValue==0?maxJudgement:currentMaxJudgementFilter),maxJudgement);
-		model.addAttribute("MinJudgement", minJudgement);
-		model.addAttribute("MaxJudgement", maxJudgement);
-		model.addAttribute("currentMinJudgementFilter", currentMinJudgementFilter);
-		model.addAttribute("currentMaxJudgementFilter", currentMaxJudgementFilter);		
+//		int minJudgement=new Double(gearBoxOilDAO.minData("Judgement")).intValue();  //пока отключим. Бо не получается позиционировать на [0:5], вываливает на [100:0]
+		int currentMinJudgementFilter = 0; //new Double(minJudgement).intValue();
+//		double maxJudgementDouble=gearBoxOilDAO.maxData("Judgement");
+//		int maxJudgement=new Double(maxJudgementDouble).intValue();
+//		if (maxJudgement<maxJudgementDouble){
+//			maxJudgement++;
+//		}
+		int currentMaxJudgementFilter=5; //maxJudgement;
+//		
+//		currentMinJudgementFilter = Math.max(new Integer(currentJudgementFilter.substring(0, currentJudgementFilter.indexOf(","))), minJudgement);
+//		oldValue=new Integer(currentJudgementFilter.substring(currentJudgementFilter.indexOf(",")+1, currentJudgementFilter.length()));
+//		currentMaxJudgementFilter = Math.min((oldValue==0?maxJudgement:currentMaxJudgementFilter),maxJudgement);
+		model.addAttribute("MinJudgement", 0); //minJudgement);
+		model.addAttribute("MaxJudgement", 5); //maxJudgement);
+		model.addAttribute("currentMinJudgementFilter", 0); //currentMinJudgementFilter);
+		model.addAttribute("currentMaxJudgementFilter", 5); //currentMaxJudgementFilter);		
 			
 		currentJudgementFilter=currentMinJudgementFilter+","+currentMaxJudgementFilter;
 		session.setAttribute("currentJudgementFilter", currentJudgementFilter);
@@ -532,22 +529,22 @@ public class GearBoxOilController {
 		}
 		
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
-		double currentMinPriceFilter=motorOilDAO.minData("Price");
-		double currentMaxPriceFilter=motorOilDAO.maxData("Price");
+		double currentMinPriceFilter=gearBoxOilDAO.minData("Price");
+		double currentMaxPriceFilter=gearBoxOilDAO.maxData("Price");
 		model.addAttribute("MinPrice", currentMinPriceFilter);
 		model.addAttribute("MaxPrice", currentMaxPriceFilter);
 		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
 		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);		
 
-		double currentMinValueFilter=motorOilDAO.minData("Value")*1000;
-		double currentMaxValueFilter=motorOilDAO.maxData("Value")*1000;
+		double currentMinValueFilter=gearBoxOilDAO.minData("Value")*1000;
+		double currentMaxValueFilter=gearBoxOilDAO.maxData("Value")*1000;
 		model.addAttribute("MinValue", currentMinValueFilter);
 		model.addAttribute("MaxValue", currentMaxValueFilter);
 		model.addAttribute("currentMinValueFilter", currentMinValueFilter);
 		model.addAttribute("currentMaxValueFilter", currentMaxValueFilter);		
 		
-		double currentMinJudgementFilter=motorOilDAO.minData("Judgement");
-		double currentMaxJudgementFilter=motorOilDAO.maxData("Judgement");
+		double currentMinJudgementFilter=gearBoxOilDAO.minData("Judgement");
+		double currentMaxJudgementFilter=gearBoxOilDAO.maxData("Judgement");
 		model.addAttribute("MinJudgement", currentMinJudgementFilter);
 		model.addAttribute("MaxJudgement", currentMaxJudgementFilter);
 		model.addAttribute("currentMinJudgementFilter", currentMinJudgementFilter);
@@ -775,24 +772,24 @@ public class GearBoxOilController {
 				};
 			}
 			
-			GearBoxOil motorOil= new GearBoxOil(id_GearBoxOil,fieldName, fieldManufacturer, fieldOilStuff
+			GearBoxOil gearBoxOil= new GearBoxOil(id_GearBoxOil,fieldName, fieldManufacturer, fieldOilStuff
 					,fieldGearBoxType, fieldViscosity, new Double(fieldValue),new Double(fieldPrice), fieldPhoto, fieldDescription, fieldSpecification
 					,new Double(fieldJudgement), new Double(discount), new Integer(inStock));
 					
 			model.addAttribute("pageInfo", pageInfo);
 			if (("Refresh".equals(variant)) || (errors.size()>0)){
 				if (formPhoto.getOriginalFilename().length()>0){
-					motorOil.setPhoto(Service.copyPhoto(DownloadDataFromExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
+					gearBoxOil.setPhoto(Service.copyPhoto(DownloadDataFromExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
 				}
 				String photo="";
-				if (motorOil.hasPhoto()){
-					photo=motorOil.getPhoto();
+				if (gearBoxOil.hasPhoto()){
+					photo=gearBoxOil.getPhoto();
 				}
 				model.addAttribute("Photo", photo);
 				model.addAttribute("photoBackUp", photo);
 				
 				model.addAttribute("errors", errors);
-				model.addAttribute("currentGearBoxOil", motorOil);
+				model.addAttribute("currentGearBoxOil", gearBoxOil);
 				model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
 				model.addAttribute("combobox_GearBoxType", gearBoxTypeDAO.getGearBoxTypes());
 				model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
@@ -801,9 +798,9 @@ public class GearBoxOilController {
 				
 			}else if(("Update".equals(variant)) || ("Save".equals(variant))){
 				if (request.isUserInRole("ROLE_PRODUCT")){
-					Manufacturer currentManufacturer=(Manufacturer)motorOil.getManufacturer();
-					GearBoxType currentGearBoxType=(GearBoxType)motorOil.getGearBoxType();
-					OilStuff currentOilStuff=(OilStuff)motorOil.getOilStuff();
+					Manufacturer currentManufacturer=(Manufacturer)gearBoxOil.getManufacturer();
+					GearBoxType currentGearBoxType=(GearBoxType)gearBoxOil.getGearBoxType();
+					OilStuff currentOilStuff=(OilStuff)gearBoxOil.getOilStuff();
 					
 					Country country=(Country)currentManufacturer.getCountry();
 					if (country.getId()==0){
@@ -812,45 +809,45 @@ public class GearBoxOilController {
 					}
 					if (currentManufacturer.getId()==0){
 						currentManufacturer=manufacturerDAO.createManufacturer(currentManufacturer.getName(),country.getId());
-						motorOil.setManufacturer(currentManufacturer);
+						gearBoxOil.setManufacturer(currentManufacturer);
 					}
 					if (currentGearBoxType.getId()==0){
 						currentGearBoxType=gearBoxTypeDAO.createGearBoxType(currentGearBoxType.getName());
-						motorOil.setGearBoxType(currentGearBoxType);
+						gearBoxOil.setGearBoxType(currentGearBoxType);
 					}	
 					if (currentOilStuff.getId()==0){
 						currentOilStuff=oilStuffDAO.createOilStuff(currentOilStuff.getName());
-						motorOil.setOilStuff(currentOilStuff);
+						gearBoxOil.setOilStuff(currentOilStuff);
 					}	
 				
-					if (motorOil.getId()==0){
+					if (gearBoxOil.getId()==0){
 						GearBoxOil currentGearBoxOil = null;
 						if (request.isUserInRole("ROLE_PRICE") || request.isUserInRole("ROLE_ADMIN")){
-							currentGearBoxOil = gearBoxOilDAO.createGearBoxOil(motorOil);
+							currentGearBoxOil = gearBoxOilDAO.createGearBoxOil(gearBoxOil);
 						}else{
-							currentGearBoxOil = gearBoxOilDAO.createGearBoxOilWithoutPrice(motorOil);
+							currentGearBoxOil = gearBoxOilDAO.createGearBoxOilWithoutPrice(gearBoxOil);
 						}
 						
 						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentGearBoxOil, "Создан товар: моторное масло"));
 						if (currentGearBoxOil.getPrice()>0){
 							Price currentPrice = priceDAO.createPrice(new Price(currentGearBoxOil.getId(),new GregorianCalendar().getTime()
-									,motorOil.getPrice(),currentGearBoxOil,user), Service.GEARBOX_OIL_PREFIX);
+									,gearBoxOil.getPrice(),currentGearBoxOil,user), Service.GEARBOX_OIL_PREFIX);
 							logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 									, "Создана цена для "+currentGearBoxOil.getId()+". "+currentGearBoxOil.getName()));
 						}
 					}else{
 
-						GearBoxOil currentGearBoxOil = gearBoxOilDAO.createGearBoxOilWithoutPrice(motorOil);
+						GearBoxOil currentGearBoxOil = gearBoxOilDAO.createGearBoxOilWithoutPrice(gearBoxOil);
 						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentGearBoxOil, "Изменён товар: моторное масло"));
 					}
 				}else if (request.isUserInRole("ROLE_PRICE")){
-					GearBoxOil oldGearBoxOil = gearBoxOilDAO.getGearBoxOil(motorOil.getId());
-					gearBoxOilDAO.fillPrices(motorOil);
-					GearBoxOil currentGearBoxOil = gearBoxOilDAO.getGearBoxOil(motorOil.getId());
+					GearBoxOil oldGearBoxOil = gearBoxOilDAO.getGearBoxOil(gearBoxOil.getId());
+					gearBoxOilDAO.fillPrices(gearBoxOil);
+					GearBoxOil currentGearBoxOil = gearBoxOilDAO.getGearBoxOil(gearBoxOil.getId());
 					
 					if (oldGearBoxOil.getPrice()!=currentGearBoxOil.getPrice()){
 						Price currentPrice = priceDAO.createPrice(new Price(0,new GregorianCalendar().getTime()
-								,motorOil.getPrice(),currentGearBoxOil,user), Service.GEARBOX_OIL_PREFIX);
+								,gearBoxOil.getPrice(),currentGearBoxOil,user), Service.GEARBOX_OIL_PREFIX);
 						logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), currentPrice
 								, "Создана цена для "+currentGearBoxOil.getId()+". "+currentGearBoxOil.getName()));
 					}
@@ -921,18 +918,32 @@ public class GearBoxOilController {
 	}
 	
 	private String createFilterValue(String param){
-		double minPrice=motorOilDAO.minData(param);  //если текущая цена в фильтре не задана - возьмём максимум
+		double minPrice=gearBoxOilDAO.minData(param);  //если текущая цена в фильтре не задана - возьмём максимум
 		int i=new Double(minPrice).intValue();
-		double maxPrice=motorOilDAO.maxData(param);
+		
+		double maxPrice=gearBoxOilDAO.maxData(param);
 		int j=new Double(maxPrice).intValue();
 		if (j<maxPrice){
 			j++;
 		}
+		
 		return i+","+j;
 	}
 	
 	@ModelAttribute("currentPriceFilter")
 	public String createCurrentPriceFilter(){
 		return createFilterValue("price");
+	}
+	
+	@ModelAttribute("currentValueFilter")
+	public String createCurrentValueFilter(){
+		double minPrice=gearBoxOilDAO.minData("Value")*1000;  //если текущая цена в фильтре не задана - возьмём максимум
+		int i=new Double(minPrice).intValue();
+		double maxPrice=gearBoxOilDAO.maxData("Value")*1000;
+		int j=new Double(maxPrice).intValue();
+		if (j<maxPrice){
+			j++;
+		}
+		return i+","+j;
 	}	
 }

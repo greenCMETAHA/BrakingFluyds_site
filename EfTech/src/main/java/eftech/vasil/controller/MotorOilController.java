@@ -207,7 +207,7 @@ public class MotorOilController {
 			,@RequestParam(value = "currentJudgementFilter", defaultValue="0,0", required=false) String currentJudgementFilter
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
 			,@RequestParam(value = "adminpanel", defaultValue="false", required=false) boolean adminpanel
-			,@RequestParam(value = "searchField", defaultValue="false", required=false) String searchField
+			,@RequestParam(value = "searchField", defaultValue="", required=false) String searchField
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
@@ -935,5 +935,17 @@ public class MotorOilController {
 	@ModelAttribute("currentPriceFilter")
 	public String createCurrentPriceFilter(){
 		return createFilterValue("price");
+	}	
+	
+	@ModelAttribute("currentValueFilter")
+	public String createCurrentValueFilter(){
+		double minPrice=motorOilDAO.minData("Value")*1000;  //если текущая цена в фильтре не задана - возьмём максимум
+		int i=new Double(minPrice).intValue();
+		double maxPrice=motorOilDAO.maxData("Value")*1000;
+		int j=new Double(maxPrice).intValue();
+		if (j<maxPrice){
+			j++;
+		}
+		return i+","+j;
 	}	
 }

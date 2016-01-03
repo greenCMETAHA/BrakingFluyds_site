@@ -146,6 +146,7 @@
               </c:if> 
               <c:if test="${requestScope.variant=='manufacturer'}">
               	<th>Наименование</th>
+              	<th>Полное наименование</th>
               	<th>Страна</th>
               </c:if> 
               <c:if test="${requestScope.variant=='country'}">
@@ -208,6 +209,9 @@
 	              <c:if test="${requestScope.variant=='manufacturer'}">
 	              	<td>
 						<a href="${UpdateCurrent}"  title="Редактировать элемент"> <c:out value="${current.getName()}"  /></a>
+					</td>
+	              	<td>
+						<a href="${UpdateCurrent}"  title="Редактировать элемент"> <c:out value="${current.getFullName()}"  /></a>
 					</td>
 	              	<td>
 						<a href="${UpdateCurrent}"  title="Редактировать элемент"> <c:out value="${current.getCountry().getName()}"  /></a>

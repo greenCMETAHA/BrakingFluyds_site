@@ -71,7 +71,7 @@
 <!--                     <a class="plus" href="#add"></a> -->
 <!--                   </form> -->
 <!--                 </div> -->
-                <c:url value="motorOil" var="UpdateGood">
+                <c:url value="gearBoxOil" var="UpdateGood">
 					<c:param name="id" value="${current.getId()}"/>
 					<c:param name="variant" value="inBasket"/>
 				</c:url>      
@@ -118,13 +118,13 @@
                   <span class="seperator">/</span>
                   <div class="inline">
                     <label>Разделы:</label>
-                    <span><a href="motorOil">Масла</a>,</span>
+                    <span><a href="gearBoxOil">Трансмиссионные масла</a>,</span>
                   </div>
                   <!-- /.inline -->
                   <span class="seperator">/</span>
                   <div class="inline">
                     <label>тэги:</label>
-                    <span><a href="motorOil">Масла</a>,</span>
+                    <span><a href=""gearBoxOil"">Трансмиссионные масла</a>,</span>
                   </div>
                   <!-- /.inline -->
                 </div>
@@ -135,8 +135,8 @@
               <div class="tab-pane" id="additional-info">
                 <ul class="tabled-data">
                   <li>
-                    <label>Тип двигателя</label>
-                    <div class="value"><c:out value="${current.getEngineType().getName()}"/></div>
+                    <label>Тип КПП</label>
+                    <div class="value"><c:out value="${current.getGearBoxType().getName()}"/></div>
                   </li>
                   <li>
                     <label>Тип масла</label>
@@ -166,13 +166,13 @@
                   <span class="seperator">/</span>
                   <div class="inline">
                     <label>категории:</label>
-                    <span><a href="motorOil">Моторные масла</a>,</span>
+                    <span><a href="gearBoxOil">Трансмиссионные масла</a>,</span>
                   </div>
                   <!-- /.inline -->
                   <span class="seperator">/</span>
                   <div class="inline">
                     <label>тэги:</label>
-                    <span><a href="motorOil">Моторные масла</a>,</span>
+                    <span><a href="gearBoxOil">Трансмиссионные масла</a>,</span>
                   </div>
                   <!-- /.inline -->
                 </div>

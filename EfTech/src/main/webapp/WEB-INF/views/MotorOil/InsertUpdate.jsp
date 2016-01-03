@@ -36,6 +36,12 @@
 	                   		<input <c:out value="${readOnly}"/> type="text" class="input" value="${currentMotorOil.getName()}" name="name_MotorOil" />
 						</div>
 	                 </li>
+	                 <li>
+	                   <label>Наименование/код по производителю:</label>
+	                   <div class="value">
+	                   		<input <c:out value="${readOnly}"/> type="text" class="input" value="${currentBrakFluid.getManufacturerCode()}" name="name_BrakeFluid" />
+						</div>
+	                 </li>
 	           	  	 <li>
 	                   <label>Описание:</label>
 	                   <div class="value">

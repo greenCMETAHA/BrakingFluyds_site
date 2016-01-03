@@ -36,6 +36,10 @@
 		                        <sec:authorize access="hasRole('ROLE_DELIVERY')">
 		                        	<li><a href="listDoc?variant=Demand">Доставка</a></li>
 		                        </sec:authorize>
+		                        <sec:authorize access="hasRole('ROLE_ADMIN')">
+                      				<li><a href="home?adminpanel=true">Конфигурирование</a></li>
+                  				</sec:authorize>
+		                        
 		                        <li>
 		                        	<c:set  var="name" value="user" />
     								<c:set var="currentUser" value="${sessionScope[name]}"></c:set>
@@ -47,9 +51,6 @@
 										<a href="j_spring_security_logout">Выйти</a>
 						 			</c:if> 
 		                        </li>
-		                        <sec:authorize access="hasRole('ROLE_ADMIN')">
-                      				<li><a href="home?adminpanel=true">Конфигурирование</a></li>
-                  				</sec:authorize>
 		                     </ul>
 		                </li>
 		            </ul>

@@ -80,6 +80,11 @@
 		     	 <div class="con"><input type="text" class="input" value="${currentBrakFluid.getName()}" name="name_BrakeFluid" id="input-three" /></div>
 		     	</div>
 				<div class="clearfix">
+		         <div class="lab"><label for="input-three">Наименование/код по производителю:</label></div>
+		     	 <div class="con"><input type="text" class="input" value="${currentBrakFluid.getManufacturerCode()}" name="name_BrakeFluid" id="input-three" /></div>
+		     	</div>
+		     	
+				<div class="clearfix">
 		         <div class="lab"><label for="input-three">Производитель:</label></div>
 		     	 <div class="con">
                    	<select size="1" name="Manufacturer"  class="le-select">

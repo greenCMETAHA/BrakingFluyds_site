@@ -843,6 +843,16 @@ public class HomeController{
 				}
 			
 				result="MotorOilComparison";
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(task)){
+				if (fluidsSelection!=null){
+					basket.clear();
+					for (int i=0;i<fluidsSelection.length; i++){
+						basket.add(new Basket(gearBoxOilDAO.getGearBoxOil(fluidsSelection[i])));
+					}
+					session.setAttribute("basket", basket);
+				}
+			
+				result="GearBoxOilComparison";
 			}
 		}
 		if (variant.compareTo("На главную")==0){
@@ -852,6 +862,9 @@ public class HomeController{
 			}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
 				model.addAttribute("list", motorOilDAO.getMotorOils());
 				result="MotorOilhome";
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(task)){
+				model.addAttribute("list", gearBoxOilDAO.getGearBoxOils());
+				result="GearBoxOilhome";
 			}
 		}
 		
@@ -885,6 +898,8 @@ public class HomeController{
 			result=Service.isAdminPanel(session,request)+"Comparison";
 		}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
 			result="MotorOilComparison";
+		}else if (Service.GEARBOX_OIL_PREFIX.equals(task)){
+			result="GearBoxOilComparison";
 		}
 		
 		return result;
@@ -2427,6 +2442,9 @@ public class HomeController{
 				result = "redirect:MotorOil";
 			}else if (Service.BRAKING_FLUID_PREFIX.equals(searchButton)){
 				result = "redirect:home";
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(searchButton)){
+				result = "redirect:GearBoxOil";
+				
 			}
 		}else{
 			HttpSession session=request.getSession();
@@ -2791,4 +2809,5 @@ public class HomeController{
 		
 		return list;
 	}
+	
 }

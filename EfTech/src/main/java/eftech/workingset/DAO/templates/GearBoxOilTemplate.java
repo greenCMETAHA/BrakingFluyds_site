@@ -32,7 +32,8 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 		String result="";
 	
 		if (searchField.length()>0){
-			result=" and ((mo.name like '%"+searchField+"%') or (mo.description  like '%"+searchField+"%') or (et.name like '%"+searchField+"%') "
+			result=" and ((go.name like '%"+searchField+"%') or (go.description  like '%"+searchField
+					+"%') or (gbt.name like '%"+searchField+"%') "
 					+ "or (man.name like '%"+searchField+"%') or (os.name  like '%"+searchField+"%')) ";
 		}
 		
@@ -43,10 +44,10 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 	
 	@Override
 	public ArrayList<GearBoxOil> getGearBoxOils() {
-		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from   as mo"
-				+ " LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
-				+ " LEFT JOIN engineType AS gbt ON (mo.gearboxtype=gbt.id)"
-				+ " left join manufacturer as man on mo.manufacturer=man.id ORDER BY mo.name";
+		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from  gearboxoils as go"
+				+ " LEFT JOIN oilstuff AS os ON (go.oilstuff=os.id)"
+				+ " LEFT JOIN gearboxtype AS gbt ON (go.gearboxtype=gbt.id)"
+				+ " left join manufacturer as man on go.manufacturer=man.id ORDER BY go.name";
 
 		try{
 			return (ArrayList<GearBoxOil>)jdbcTemplate.query(sqlQuery,new GearBoxOilRowMapper());
@@ -57,11 +58,11 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 
 	@Override
 	public GearBoxOil getGearBoxOil(int id) {
-		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from motoroils  as mo"
-				+ " LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
-				+ " LEFT JOIN gearboxtype AS gbt ON (mo.gearboxtype=gbt.id)"
-				+ " left join manufacturer as man on mo.manufacturer=man.id"
-				+ " where (mo.id=:id)";
+		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from gearboxoils  as go"
+				+ " LEFT JOIN oilstuff AS os ON (go.oilstuff=os.id)"
+				+ " LEFT JOIN gearboxtype AS gbt ON (go.gearboxtype=gbt.id)"
+				+ " left join manufacturer as man on go.manufacturer=man.id"
+				+ " where (go.id=:id)";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("id", id);
@@ -76,11 +77,11 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 
 	@Override
 	public GearBoxOil getGearBoxOilByName(String name) {
-		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from motoroils  as mo"
-				+ " LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
-				+ " LEFT JOIN gearboxtype AS gbt ON (mo.gearboxtype=gbt.id)"
-				+ " left join manufacturer as man on mo.manufacturer=man.id"
-				+ " where (mo.name=:name)";
+		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from gearboxoils  as go"
+				+ " LEFT JOIN oilstuff AS os ON (go.oilstuff=os.id)"
+				+ " LEFT JOIN gearboxtype AS gbt ON (go.gearboxtype=gbt.id)"
+				+ " left join manufacturer as man on go.manufacturer=man.id"
+				+ " where (go.name=:name)";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("name", name);
@@ -101,12 +102,12 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 		}else{
 			currentOil=getGearBoxOilByName(oil.getName());
 		}
-		String sqlUpdate="insert into motoroils (name, description, gearboxtype, oilstuff, manufacturer, judgement, photo, price"
+		String sqlUpdate="insert into gearboxoils (name, description, gearboxtype, oilstuff, manufacturer, judgement, photo, price"
 				+ ", specification, value, viscosity, discount, instock) Values (:name, :description, :gearboxtype, :oilstuff, :manufacturer, :judgement, :photo, :price"
 				+ ", :specification, :value, :viscosity, :discount, :instock)";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		if (currentOil.getId()>0){ // В БД есть такой элемент
-			sqlUpdate="update motoroils set name=:name, description=:description, gearboxtype=:gearboxtype, oilstuff=:oilstuff, judgement=:judgement"
+			sqlUpdate="update gearboxoils set name=:name, description=:description, gearboxtype=:gearboxtype, oilstuff=:oilstuff, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, price=:price, specification=:specification, value=:value"
 					+ ", viscosity=:viscosity, discount=:discount, instock=:instock where id=:id";
 			params.addValue("id", oil.getId());
@@ -153,14 +154,15 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 		}else{
 			currentOil=getGearBoxOilByName(oil.getName());
 		}
-		String sqlUpdate="insert into motoroils (name, description, gearboxtype, oilstuff, manufacturer, judgement, photo"
-				+ ", specification, value, viscosity, discount, instock) Values (:name, :description, :gearboxtype, :oilstuff, :manufacturer, :judgement, :photo"
-				+ ", :specification, :value, :viscosity, :discount, :instock)";
+		String sqlUpdate="insert into gearboxoils (name, description, gearboxtype, oilstuff, manufacturer, judgement, photo"
+				+ ", specification, value, viscosity, discount, instock, manufacturer_code) "
+				+ " Values (:name, :description, :gearboxtype, :oilstuff, :manufacturer, :judgement, :photo"
+				+ ", :specification, :value, :viscosity, :discount, :instock, :manufacturer_code)";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		if (currentOil.getId()>0){ // В БД есть такой элемент
-			sqlUpdate="update motoroils set name=:name, description=:description, gearboxtype=:gearboxtype, oilstuff=:oilstuff, judgement=:judgement"
+			sqlUpdate="update gearboxoils set name=:name, description=:description, gearboxtype=:gearboxtype, oilstuff=:oilstuff, judgement=:judgement"
 					+ ", manufacturer=:manufacturer, photo=:photo, specification=:specification, value=:value"
-					+ ", viscosity=:viscosity, discount=:discount, instock=:instock where id=:id";
+					+ ", viscosity=:viscosity, discount=:discount, instock=:instock, manufacturer_code=:manufacturer_code where id=:id";
 			params.addValue("id", oil.getId());
 		}
 
@@ -178,6 +180,7 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 		params.addValue("viscosity", oil.getViscosity());
 		params.addValue("discount", oil.getDiscount());
 		params.addValue("instock", oil.getInStock());
+		params.addValue("manufacturer_code", oil.getManufacturerCode());
 
 
 		KeyHolder keyHolder=new GeneratedKeyHolder();
@@ -201,7 +204,7 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 		GearBoxOil result=new GearBoxOil();
 		GearBoxOil currentOil = getGearBoxOilByName(oil.getName());
 		if (currentOil.getId()>0){
-			String sqlUpdate="update motoroils set price=:price where id=:id";
+			String sqlUpdate="update gearboxoils set price=:price where id=:id";
 
 			MapSqlParameterSource params = new MapSqlParameterSource();
 			params.addValue("id", oil.getId());
@@ -227,7 +230,7 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 	public double minData(String param){
 		double result = 0;
 
-		String sqlQuery="select MIN("+param+") as "+param+" from motoroils";
+		String sqlQuery="select MIN("+param+") as "+param+" from gearboxoils";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 
 		try{
@@ -242,7 +245,7 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 	public  double maxData(String param){
 		double result = 0;
 
-		String sqlQuery="select MAX("+param+") as "+param+" from motoroils";
+		String sqlQuery="select MAX("+param+") as "+param+" from gearboxoils";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 
 		try{
@@ -256,7 +259,7 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 
 	@Override
 	public ArrayList<String> getGearBoxOilViscosities() {
-		String sqlQuery="select distinct(viscosity) from motoroils order by viscosity";
+		String sqlQuery="select distinct(viscosity) from gearboxoils order by viscosity";
 		MapSqlParameterSource params = new MapSqlParameterSource();
 
 		try{
@@ -369,21 +372,21 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 						strViscosityFilter.append("'"+current.getKey()+"'");
 					}
 				}
-				strViscosityFilter.insert(0, " and (mo.viscosity IN (");
+				strViscosityFilter.insert(0, " and (go.viscosity IN (");
 				strViscosityFilter.append("))");
 			}
 		}
 
 		String sqlQuery="select count(*) from"
-				+ "(select mo.id as id from motoroils  as mo"
-				+ " 	LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
-				+ " 	LEFT JOIN gearboxtype AS gbt ON (mo.gearboxtype=gbt.id)"
-				+ "		left join manufacturer as man on mo.manufacturer=man.id "
-				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
-				+ "				 and  (mo.Value>=:currentMinValueFilter) and (mo.Value<=:currentMaxValueFilter)"
-				+ "				 and  (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
+				+ "(select go.id as id from gearboxoils  as go"
+				+ " 	LEFT JOIN oilstuff AS os ON (go.oilstuff=os.id)"
+				+ " 	LEFT JOIN gearboxtype AS gbt ON (go.gearboxtype=gbt.id)"
+				+ "		left join manufacturer as man on go.manufacturer=man.id "
+				+ "				where (go.price>=:minPrice) and (go.price<=:maxPrice)"
+				+ "				 and  (go.Value>=:currentMinValueFilter) and (go.Value<=:currentMaxValueFilter)"
+				+ "				 and  (go.Judgement>=:currentMinJudgementFilter) and (go.Judgement<=:currentMaxJudgementFilter)"
 				+ " "+strGearBoxTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+strSearchFilter(searchField)
-				+" ORDER BY mo.name ) as rez";
+				+" ORDER BY go.name ) as rez";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("minPrice", minPrice);
@@ -502,27 +505,27 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 						strViscosityFilter.append("'"+current.getKey()+"'");
 					}
 				}
-				strViscosityFilter.insert(0, " and (mo.viscosity IN (");
+				strViscosityFilter.insert(0, " and (go.viscosity IN (");
 				strViscosityFilter.append("))");
 			}
 
 		}
 
 		String sqlQuery="select * from"
-				+ "(select mo.id as id, mo.name as name, mo.price as price"
-				+ ", mo.gearboxtype AS gearboxtype, gbt.name AS gbt_name, mo.oilstuff AS oilstuff, os.name AS os_name"
-				+ ", mo.description AS description, mo.judgement AS judgement, mo.instock AS instock, mo.discount AS discount"
-				+ ", mo.photo AS photo, mo.specification AS specification, mo.viscosity AS viscosity"
-				+ ", mo.value AS value, mo.manufacturer AS manufacturer, man.name as man_name "
-				+ "   from motoroils  as mo"
-				+ " 	LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
-				+ " 	LEFT JOIN gearboxtype AS gbt ON (mo.gearboxtype=gbt.id)"
-				+ "		left join manufacturer as man on mo.manufacturer=man.id "
-				+ "				where (mo.price>=:minPrice) and (mo.price<=:maxPrice)"
-				+ "					 and (mo.value>=:currentMinValueFilter) and (mo.value<=:currentMaxValueFilter) "
-				+ "					 and (mo.Judgement>=:currentMinJudgementFilter) and (mo.Judgement<=:currentMaxJudgementFilter)"
+				+ "(select go.id as id, go.name as name, go.price as price"
+				+ ", go.gearboxtype AS gearboxtype, gbt.name AS gbt_name, go.oilstuff AS oilstuff, os.name AS os_name"
+				+ ", go.description AS description, go.judgement AS judgement, go.instock AS instock, go.discount AS discount"
+				+ ", go.photo AS photo, go.specification AS specification, go.viscosity AS viscosity"
+				+ ", go.value AS value, go.manufacturer AS manufacturer, man.name as man_name "
+				+ "   from gearboxoils  as go"
+				+ " 	LEFT JOIN oilstuff AS os ON (go.oilstuff=os.id)"
+				+ " 	LEFT JOIN gearboxtype AS gbt ON (go.gearboxtype=gbt.id)"
+				+ "		left join manufacturer as man on go.manufacturer=man.id "
+				+ "				where (go.price>=:minPrice) and (go.price<=:maxPrice)"
+				+ "					 and (go.value>=:currentMinValueFilter) and (go.value<=:currentMaxValueFilter) "
+				+ "					 and (go.Judgement>=:currentMinJudgementFilter) and (go.Judgement<=:currentMaxJudgementFilter)"
 				+ strGearBoxTypeFilter+strOilStuffFilter+strManufacturerFilter+strViscosityFilter+strSearchFilter(searchField)
-				+ " ORDER BY mo.name ) as rez LIMIT :firstRow, :number";
+				+ " ORDER BY go.name ) as rez LIMIT :firstRow, :number";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("firstRow", (currentPage-1)*elementsInList);
@@ -544,10 +547,10 @@ public class GearBoxOilTemplate implements InterfaceGearBoxOilDAO{
 
 	@Override
 	public ArrayList<GearBoxOil> getGearBoxOilsRecommended(){
-		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from motoroils  as mo"
-				+ " LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
-				+ " LEFT JOIN gearboxtype AS bgt ON (mo.gearboxtype=gbt.id)"
-				+ " left join manufacturer as man on mo.manufacturer=man.id ORDER BY mo.judgement DESC LIMIT :firstRow, :number";
+		String sqlQuery="select *, os.name as os_name, gbt.name as gbt_name, man.name as man_name from gearboxoils  as go"
+				+ " LEFT JOIN oilstuff AS os ON (go.oilstuff=os.id)"
+				+ " LEFT JOIN gearboxtype AS gbt ON (go.gearboxtype=gbt.id)"
+				+ " left join manufacturer as man on go.manufacturer=man.id ORDER BY go.judgement DESC LIMIT :firstRow, :number";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("firstRow", 0);

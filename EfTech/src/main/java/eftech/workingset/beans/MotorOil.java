@@ -11,6 +11,7 @@ public class MotorOil implements InterfaceMotorOil{
 	
 	private int id;
 	private String name;
+	private String manufacturerCode;
 	private InterfaceManufacturer manufacturer;
 	private double price; 
 	private OilStuff oilStuff;
@@ -157,6 +158,14 @@ public class MotorOil implements InterfaceMotorOil{
 		 */
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public String getManufacturerCode() {
+			return manufacturerCode;
+		}
+
+		public void setManufacturerCode(String manufacturerCode) {
+			this.manufacturerCode = manufacturerCode;
 		}
 
 		/**

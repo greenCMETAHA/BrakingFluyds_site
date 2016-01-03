@@ -25,12 +25,12 @@
 									<c:url value="Comparison" var="UpdateGood">
 										<c:param name="id" value="${current.getId()}"/>
 										<c:param name="variant" value="deleteFromCompare"/>
-										<c:param name="task" value="Oil"/>
+										<c:param name="task" value="GrO"/>
 									</c:url>
 	                                <a data-product_id="${current.getId()}" href="${UpdateGood}" class="remove-link"><i class="fa fa-times-circle"></i></a>
 	                                <img alt="${current.getName()}" class="attachment-yith-woocompare-image" src="resources/jpg/${current.getPhoto()}">                        
 	                            </div>
-								<c:url value="ShowOneMotorOil" var="UpdateGood">
+								<c:url value="ShowOneGearBoxOil" var="UpdateGood">
 									<c:param name="id" value="${current.getId()}"/>
 								</c:url>	
 								<p><strong><a href="${UpdateGood}"> <c:out value="${current.getName()}"/></a></strong></p>
