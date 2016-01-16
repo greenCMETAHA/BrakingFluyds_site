@@ -105,8 +105,9 @@
 			<!--	        mainmenu -->
 	        <ul id="floatMenu" class="mainmenu"> 
 	          <li class="first" ><input type="submit" name="task" value="На главную"></li>
-				          <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
+			  <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
 	          <li><input type="submit" name="task" value="Загрузить цены"></li>
+	          <li><input type="submit" name="task" value="Отчеты"></li>
 	          <li><input type="submit" name="task" value="Создать новый"></li>
 	          <li><a href="#">Редактировать</a>
 		            <ul class="submenu">

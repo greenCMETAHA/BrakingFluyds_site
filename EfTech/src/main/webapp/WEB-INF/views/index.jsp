@@ -63,6 +63,8 @@
 							<div class="col-md-4">
                                 <ul class="list-unstyled">
 	 		                        <li><a href="report?variant=Pay">Отчет по платежам</a></li>
+	 		                        <li><a href="report?variant=ManufacturerList">Список поставщиков</a></li>
+	 		                        <li><a href="report?variant=Price">Прайс-лист</a></li>
                                 </ul>
                             </div>                            
                         </div>

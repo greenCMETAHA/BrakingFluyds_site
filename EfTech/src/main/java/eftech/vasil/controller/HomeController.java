@@ -90,7 +90,7 @@ import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.RoleTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
-import eftech.workingset.Services.DownloadDataFromExcel;
+import eftech.workingset.Services.WorkWithExcel;
 import eftech.workingset.Services.GenerateAccessToken;
 import eftech.workingset.Services.ResultPrinter;
 import eftech.workingset.Services.Service;
@@ -108,6 +108,7 @@ import eftech.workingset.beans.FluidClassSelected;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
+import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.Offer;
 import eftech.workingset.beans.OilStuff;
 import eftech.workingset.beans.Pay;
@@ -1053,7 +1054,7 @@ public class HomeController{
 		
 		ArrayList<String> errors=new ArrayList<String>();
 		if (variant!="download"){
-			errors=DownloadDataFromExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
+			errors=WorkWithExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
 					oilStuffDAO, engineTypeDAO, motorOilDAO, gearBoxTypeDAO, gearBoxOilDAO, logDAO, priceDAO, session);
 		}
 		
@@ -1400,7 +1401,26 @@ public class HomeController{
 //			e.printStackTrace();
 //		}		
 		
-		if ("New".equals(variant)){
+		if ("Excel".equals(variant)){
+			BrakingFluid good = brakingFluidDAO.getBrakingFluid(id_BrakeFluid);
+			
+			WorkWithExcel.createGoodCard(good, session);
+			
+			String photo="";
+			if (good.hasPhoto()){
+				photo=good.getPhoto();
+			}
+			model.addAttribute("Photo", photo);
+			model.addAttribute("photoBackUp", photo);
+			
+			model.addAttribute("errors", new ArrayList<String>());
+			model.addAttribute("currentBrakFluid", good);
+			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
+			model.addAttribute("combobox_FluidClasses", fluidClassDAO.getFluidClassis());
+			
+			result= "InsertUpdate";	
+		
+		}else if ("New".equals(variant)){
 			model.addAttribute("pageInfo", "Введите новую номенклатуру: ");
 			model.addAttribute("errors", new ArrayList<String>());
 			result = "InsertUpdate";
@@ -1485,7 +1505,7 @@ public class HomeController{
 			model.addAttribute("pageInfo", pageInfo);
 			if (("Refresh".equals(variant)) || (errors.size()>0)){
 				if (formPhoto.getOriginalFilename().length()>0){
-					brFluid.setPhoto(Service.copyPhoto(DownloadDataFromExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
+					brFluid.setPhoto(Service.copyPhoto(WorkWithExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
 				}
 				String photo="";
 				if (brFluid.hasPhoto()){
@@ -1646,6 +1666,8 @@ public class HomeController{
 			model.addAttribute("variantDownload", Service.VARIANT_PRICES);
 			model.addAttribute("errors", new ArrayList<String>());
 			result="Download";
+		}else if ((task.compareTo("Отчеты")==0) || (task.compareTo("Reports")==0)){
+			result="Reports";
 		}else if(task.compareTo("Коммерческое приложение")==0){
 			model.addAttribute("listBrakFluids", basket);
 			model.addAttribute("listClients", clientDAO.getClients());
@@ -1963,6 +1985,7 @@ public class HomeController{
 	public String report(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "button", defaultValue="", required=false) String task
+			,@RequestParam(value = "goodPrefix", defaultValue="", required=false) String goodPrefix
 			,@RequestParam(value = "dateBeginFilterString" , defaultValue="2015-01-01", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") Date dateBeginFilter //, defaultValue="", required=false) String dateBeginFilterString
 			,@RequestParam(value = "dateEndFilterString" , defaultValue="2015-12-31", required=false)  @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndFilter // defaultValue="", required=false) String dateEndFilterString
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
@@ -2022,6 +2045,14 @@ public class HomeController{
 					, new Integer(infoDAO.getInfo("marketingFirm")), new Integer(infoDAO.getInfo("mainFirm")));
 			model.addAttribute("listDoc", listDoc);
 		}
+		if (("Список поставщиков".equals(variant))  || ("ManufacturerList".equals(variant))){
+			WorkWithExcel.listManufacturersExcel(variant,manufacturerDAO, logDAO,request.getSession());
+			result="index";
+		} else if (("Прайс".equals(variant)) || ("Price".equals(variant))) {
+			WorkWithExcel.PriceExcel(goodPrefix,brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, request.getSession());
+			result="index";
+		} 
+		
 
 		model.addAttribute("dateBeginFilterString", Service.getFormattedDate(dateBeginFilter));
 		model.addAttribute("dateEndFilterString", Service.getFormattedDate(dateEndFilter));

@@ -111,6 +111,7 @@
 	          <li><input type="submit" name="task" value="В корзину"></li>
          	  <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
 	          <li><input type="submit" name="task" value="Загрузить цены"></li>
+	          <li><input type="submit" name="task" value="Отчеты"></li>
 			  <li><input type="submit" name="task" value="Коммерческое приложение"></li>
  	          <li><a href="#">Редактировать</a>
 	            <ul class="submenu">
@@ -201,7 +202,7 @@
 	
 	</div>
 	  <div id="footer">
-	      <p>© Васильченко, 2015 | <a href="#main">Top</a></p>
+	      <p>© Васильченко, 2015-2016 | <a href="#main">Top</a></p>
 	    </div>
 	</div>
 </body>

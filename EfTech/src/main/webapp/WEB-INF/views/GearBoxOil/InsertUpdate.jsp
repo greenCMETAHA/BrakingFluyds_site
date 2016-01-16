@@ -80,6 +80,9 @@
 	            <div class="col-xs-12 col-sm-3 no-margin">
 		         <div class="buttons-holder">
 		             <button class="le-button" type="submit" name="variant" value="Save">Сохранить</button>
+		             <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
+					 	<button class="le-button" type="submit" name="variant" value="Excel">Экспорт</button>
+	                 </sec:authorize>    		   
 		         </div>
 		     </div>
             </div>

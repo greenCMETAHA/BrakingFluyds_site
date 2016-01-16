@@ -83,6 +83,14 @@
 					</c:url>      
 	                <a id="addto-cart" href="${UpdateBrakingFluid}" class="le-button huge">Заявка</a>
                 </sec:authorize>
+				<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
+	                <c:url value="action" var="excelGood">
+						<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+						<c:param name="variant" value="excelOne"/>
+						<c:param name="good" value="BrF"/>
+					</c:url>      
+	                <a id="addto-cart" href="${excelGood}" class="le-button huge">Экспорт</a>
+                </sec:authorize>                
               </div>
               <!-- /.qnt-holder -->
             </div>

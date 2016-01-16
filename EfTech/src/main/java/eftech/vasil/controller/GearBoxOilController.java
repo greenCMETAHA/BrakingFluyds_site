@@ -41,7 +41,7 @@ import eftech.workingset.DAO.templates.ReviewTemplate;
 import eftech.workingset.DAO.templates.RoleTemplate;
 import eftech.workingset.DAO.templates.UserTemplate;
 import eftech.workingset.DAO.templates.WishlistTemplate;
-import eftech.workingset.Services.DownloadDataFromExcel;
+import eftech.workingset.Services.WorkWithExcel;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.Country;
@@ -49,6 +49,7 @@ import eftech.workingset.beans.GearBoxType;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
 import eftech.workingset.beans.ManufacturerSelected;
+import eftech.workingset.beans.MotorOil;
 import eftech.workingset.beans.GearBoxOil;
 import eftech.workingset.beans.OilStuff;
 import eftech.workingset.beans.Price;
@@ -721,7 +722,27 @@ public class GearBoxOilController {
 //			e.printStackTrace();
 //		}		
 		
-		if ("New".equals(variant)){
+		if ("Excel".equals(variant)){
+			GearBoxOil good = gearBoxOilDAO.getGearBoxOil(id_GearBoxOil);
+			
+			WorkWithExcel.createGoodCard(good, session);
+			
+			String photo="";
+			if (good.hasPhoto()){
+				photo=good.getPhoto();
+			}
+			model.addAttribute("Photo", photo);
+			model.addAttribute("photoBackUp", photo);
+			
+			model.addAttribute("errors", new ArrayList<String>());
+			model.addAttribute("currentMotorOil", good);
+			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
+			model.addAttribute("combobox_EngineType", engineTypeDAO.getEngineTypes());
+			model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
+			
+			result= "MotorOilInsertUpdate";			
+		
+		}else if ("New".equals(variant)){
 			model.addAttribute("pageInfo", "¬ведите новую номенклатуру: ");
 			model.addAttribute("errors", new ArrayList<String>());
 			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
@@ -779,7 +800,7 @@ public class GearBoxOilController {
 			model.addAttribute("pageInfo", pageInfo);
 			if (("Refresh".equals(variant)) || (errors.size()>0)){
 				if (formPhoto.getOriginalFilename().length()>0){
-					gearBoxOil.setPhoto(Service.copyPhoto(DownloadDataFromExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
+					gearBoxOil.setPhoto(Service.copyPhoto(WorkWithExcel.convertMultipartFile(formPhoto).getAbsolutePath(), request.getSession().getServletContext().getRealPath("/")));
 				}
 				String photo="";
 				if (gearBoxOil.hasPhoto()){
@@ -794,7 +815,7 @@ public class GearBoxOilController {
 				model.addAttribute("combobox_GearBoxType", gearBoxTypeDAO.getGearBoxTypes());
 				model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
 				
-				result= "MotorOiInsertUpdate";
+				result= "GearBoxInsertUpdate";
 				
 			}else if(("Update".equals(variant)) || ("Save".equals(variant))){
 				if (request.isUserInRole("ROLE_PRODUCT")){

@@ -1,5 +1,7 @@
 package eftech.workingset.beans.intefaces.base;
 
+import eftech.workingset.beans.intefaces.InterfaceManufacturer;
+
 public interface InterfaceGood {
 	
 	int getId();
@@ -22,6 +24,11 @@ public interface InterfaceGood {
 	String getDescription();
 	String getSpecification();
 	
+	
 	String getGoodName();
 	void setPhoto(String string);
+	
+	InterfaceManufacturer getManufacturer();
+	
+	String getManufacturerCode();
 }

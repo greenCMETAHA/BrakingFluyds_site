@@ -42,7 +42,7 @@ public class MotorOilTemplate implements InterfaceMotorOilDAO{
 	
 	@Override
 	public ArrayList<MotorOil> getMotorOils() {
-		String sqlQuery="select *, os.name as os_name, et.name as et_name, man.name as man_name from   as mo"
+		String sqlQuery="select *, os.name as os_name, et.name as et_name, man.name as man_name from motoroils  as mo"
 				+ " LEFT JOIN oilstuff AS os ON (mo.oilstuff=os.id)"
 				+ " LEFT JOIN engineType AS et ON (mo.enginetype=et.id)"
 				+ " left join manufacturer as man on mo.manufacturer=man.id ORDER BY mo.name";

@@ -160,16 +160,35 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 	}
 
 	@Override
+	public ArrayList<Manufacturer> getManufacturers(String goodPrefix) {
+		return getManufacturers(0,0, goodPrefix);
+	}
+	
+	@Override
 	public ArrayList<Manufacturer> getManufacturers() {
-		return getManufacturers(0,0);
+		return getManufacturers(0,0, "");
+	}
+	
+	@Override
+	public ArrayList<Manufacturer> getManufacturers(int num, int nextRows) {
+		return getManufacturers(num,nextRows, "");
 	}
 
 	@Override
-	public ArrayList<Manufacturer> getManufacturers(int num, int nextRows) {
-		String sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c "
-				+ "where (man.country=c.id) and (ismanufacturer=1) order by man.name"
-				+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
-
+	public ArrayList<Manufacturer> getManufacturers(int num, int nextRows, String goodPrefix) {
+		String sqlQuery="";
+		if (goodPrefix.length()==0){
+			sqlQuery="select *, c.name AS c_name from manufacturer as man, country AS c "
+					+ "where (man.country=c.id) and (ismanufacturer=1) order by man.name "
+					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+		}else{
+			sqlQuery="select distinct man.name, man.fullname, c.name AS c_name from manufacturer as man "
+					+ " left join country AS c on (man.country=c.id) "
+					+ "	right join " + Service.getTable(goodPrefix) + " as good on (good.manufacturer=man.id) "
+					+ " where (ismanufacturer=1) order by man.name "
+					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
+		}
+		
 		try{
 			return (ArrayList<Manufacturer>)jdbcTemplate.query(sqlQuery, new ManufacturerRowMapper());
 		}catch (EmptyResultDataAccessException e){
@@ -202,6 +221,7 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 
 			result.setId(rs.getInt("id"));
 			result.setName(rs.getString("name"));
+			result.setFullName(rs.getString("fullname"));
 			Country country=new Country(rs.getInt("country"),rs.getString("c_name"));
 			result.setCountry(country);
 

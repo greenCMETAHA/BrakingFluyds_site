@@ -56,7 +56,6 @@ import eftech.workingset.beans.Wishlist;
 public class AddEditElementController {
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
-	@Autowired
 	BrakingFluidTemplate brakingFluidDAO;
 
 	@Autowired

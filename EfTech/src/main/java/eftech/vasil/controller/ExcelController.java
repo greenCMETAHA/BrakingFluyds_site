@@ -25,7 +25,7 @@ import eftech.workingset.DAO.templates.ManufacturerTemplate;
 import eftech.workingset.DAO.templates.MotorOilTemplate;
 import eftech.workingset.DAO.templates.OilStuffTemplate;
 import eftech.workingset.DAO.templates.PriceTemplate;
-import eftech.workingset.Services.DownloadDataFromExcel;
+import eftech.workingset.Services.WorkWithExcel;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.User;
 
@@ -67,12 +67,12 @@ public class ExcelController {
 	GearBoxOilTemplate gearBoxOilDAO;		
 	
 	
-	@RequestMapping(value = "/action", method = RequestMethod.POST)
+	@RequestMapping(value = "/action", method = { RequestMethod.POST, RequestMethod.GET})
 	public String compare(@ModelAttribute User user
-			, @RequestParam("variant") String variant
-			, @RequestParam("good") String good
-			, @RequestParam("fileExcel") MultipartFile fileExcel
-			, @RequestParam("variantDownload") byte variantDownload
+			, @RequestParam(value="variant", defaultValue="", required=false) String variant
+			, @RequestParam(value="good", defaultValue="", required=false) String good
+			, @RequestParam(value="fileExcel", required=false) MultipartFile fileExcel
+			, @RequestParam(value="variantDownload", defaultValue="", required=false) byte variantDownload
 			,HttpServletRequest request
 			,Locale locale, Model model) {
 		
@@ -89,7 +89,7 @@ public class ExcelController {
 		
 			ArrayList<String> errors=new ArrayList<String>();
 			if (variant!=""){
-				errors=DownloadDataFromExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
+				errors=WorkWithExcel.downloadExcel(variant,user, good, fileExcel, countryDAO, manufacturerDAO, fluidClassDAO, brakingFluidDAO,
 						oilStuffDAO, engineTypeDAO, motorOilDAO, gearBoxTypeDAO, gearBoxOilDAO, logDAO, priceDAO, request.getSession());
 			}
 			
@@ -99,5 +99,36 @@ public class ExcelController {
 		
 		return "adminpanel/"+result;
 	}
+	
+	@RequestMapping(value = "/reports", method = { RequestMethod.POST, RequestMethod.GET})
+	public String reports(@ModelAttribute User user
+			, @RequestParam(value="variant", defaultValue="", required=false) String variant
+			, @RequestParam(value="goodPrefix", defaultValue="", required=false) String goodPrefix
+			,HttpServletRequest request
+			,Locale locale, Model model) {
+		
+		String result="home";
+
+		if ("На главную".equals(variant)){
+			model.addAttribute("listBrakFluids", brakingFluidDAO.getBrakingFluids());
+		}else { 
+			if (("Список поставщиков".equals(variant))  || ("ManufacturerList".equals(variant))){
+				result="Reports";				
+			}else if (("Прайс".equals(variant)) || ("Price".equals(variant))) {
+				result="Reports";				
+			}
+		
+			ArrayList<String> errors=new ArrayList<String>();
+			if (("Список поставщиков".equals(variant))  || ("ManufacturerList".equals(variant))){
+				WorkWithExcel.listManufacturersExcel(variant,manufacturerDAO, logDAO,request.getSession());
+			} else if (("Прайс".equals(variant)) || ("Price".equals(variant))) {
+				WorkWithExcel.PriceExcel(goodPrefix,brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, request.getSession());
+			} 
+			
+			model.addAttribute("errors", errors);		
+		}
+		
+		return "adminpanel/"+result;
+	}	
 
 }

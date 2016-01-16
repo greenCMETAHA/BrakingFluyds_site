@@ -6,7 +6,10 @@ import eftech.workingset.beans.Manufacturer;
 
 public interface InterfaceManufacturerDAO {
 	ArrayList<Manufacturer> getManufacturers();
+	ArrayList<Manufacturer> getManufacturers(String goodPrefix);
 	ArrayList<Manufacturer> getManufacturers(int num, int nextRows);
+	ArrayList<Manufacturer> getManufacturers(int num, int nextRows, String goodPrefix);
+	
 	Manufacturer getManufacturer(int id);
 	Manufacturer getManufacturerByName(String name);
 	int getCountRows();

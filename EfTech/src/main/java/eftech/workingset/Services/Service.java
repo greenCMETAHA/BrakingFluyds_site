@@ -1243,4 +1243,19 @@ public class Service {
 
 		return result;
 	}
+	
+	public static String getTable(String goodPrefix){ //for jdbc
+		String result="";
+		
+		if (goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)){
+			result="brakingfluids";
+		}else if (goodPrefix.equals(Service.MOTOR_OIL_PREFIX)){
+			result="motorOils";
+		}else if (goodPrefix.equals(Service.GEARBOX_OIL_PREFIX)){
+			result="gearboxOils";
+		}
+		
+		return result;
+	}
+
 }
