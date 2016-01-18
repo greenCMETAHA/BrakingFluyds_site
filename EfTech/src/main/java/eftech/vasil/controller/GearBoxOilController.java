@@ -818,7 +818,7 @@ public class GearBoxOilController {
 				result= "GearBoxInsertUpdate";
 				
 			}else if(("Update".equals(variant)) || ("Save".equals(variant))){
-				if (request.isUserInRole("ROLE_PRODUCT")){
+				if (request.isUserInRole("ROLE_PRODUCT") || request.isUserInRole("ROLE_ADMIN")){
 					Manufacturer currentManufacturer=(Manufacturer)gearBoxOil.getManufacturer();
 					GearBoxType currentGearBoxType=(GearBoxType)gearBoxOil.getGearBoxType();
 					OilStuff currentOilStuff=(OilStuff)gearBoxOil.getOilStuff();

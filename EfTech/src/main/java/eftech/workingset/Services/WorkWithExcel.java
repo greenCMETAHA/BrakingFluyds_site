@@ -962,7 +962,6 @@ public class WorkWithExcel {
 			String strFormula= "E"+(numRow)+"-(E"+(numRow)+"/100*F"+discountRow+")";
 			cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
 			cell.setCellFormula(strFormula);
-				
 
 			cell = row.createCell(6);
 			style.setVerticalAlignment(CellStyle.VERTICAL_TOP);
@@ -1154,12 +1153,12 @@ public class WorkWithExcel {
 		    ClientAnchor anchor = helper.createClientAnchor();
 		   //set top-left corner for the image
 		    anchor.setCol1(1);
-		    anchor.setRow1(7);
+		    anchor.setRow1(sheet.getLastRowNum());
 
 		   //Creates a picture
 		    Picture pict = drawing.createPicture(anchor, pictureIdx);
 
-		    short rowHeight = (short) (pict.getImageDimension().getWidth()*20);
+		    short rowHeight = (short) (pict.getImageDimension().getHeight()*20);
 		    row.setHeight(rowHeight);			   
 		   //Reset the image to the original size
 		    pict.resize();
@@ -1171,9 +1170,6 @@ public class WorkWithExcel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 		
 		row = sheet.createRow(numRow++);  
 		cell = row.createCell(0);                               
@@ -1336,12 +1332,12 @@ public class WorkWithExcel {
 		    ClientAnchor anchor = helper.createClientAnchor();
 		   //set top-left corner for the image
 		    anchor.setCol1(1);
-		    anchor.setRow1(7);
+		    anchor.setRow1(sheet.getLastRowNum());
 
 		   //Creates a picture
 		    Picture pict = drawing.createPicture(anchor, pictureIdx);
 
-		    short rowHeight = (short) (pict.getImageDimension().getWidth()*20);
+		    short rowHeight = (short) (pict.getImageDimension().getHeight()*20);
 		    row.setHeight(rowHeight);			   
 		   //Reset the image to the original size
 		    pict.resize();
@@ -1512,12 +1508,13 @@ public class WorkWithExcel {
 		    ClientAnchor anchor = helper.createClientAnchor();
 		   //set top-left corner for the image
 		    anchor.setCol1(1);
-		    anchor.setRow1(7);
+		    anchor.setRow1(sheet.getLastRowNum());
 
 		   //Creates a picture
 		    Picture pict = drawing.createPicture(anchor, pictureIdx);
+		    
 
-		    short rowHeight = (short) (pict.getImageDimension().getWidth()*20);
+		    short rowHeight = (short) (pict.getImageDimension().getHeight()*20);
 		    row.setHeight(rowHeight);			   
 		   //Reset the image to the original size
 		    pict.resize();
@@ -1529,9 +1526,6 @@ public class WorkWithExcel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 		
 		row = sheet.createRow(numRow++);  
 		cell = row.createCell(0);                               
@@ -1551,7 +1545,6 @@ public class WorkWithExcel {
 		cell.setCellStyle(style);
 		cell.setCellValue("np");			
 		
-		
 	    try {
 	    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
 	    	workbook.write(new FileOutputStream(f));
@@ -1564,7 +1557,5 @@ public class WorkWithExcel {
 		   e.printStackTrace();
 	    }				
 	}	
-		
-
 	
 }

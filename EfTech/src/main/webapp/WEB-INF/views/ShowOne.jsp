@@ -3,13 +3,14 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
+	<c:set  var="current" value="${requestScope.currentBrakFluid}" />
      <div id="single-product">
         <div class="container">
           <div class="no-margin col-xs-12 col-sm-6 col-md-5 gallery-holder">
             <div class="product-item-holder size-big single-product-gallery small-gallery">
               <div id="owl-single-product">
 <!--                 <div class="single-product-gallery-item" id="slide1"> -->
-                  <img class="img-responsive" alt="" src="resources/jpg/${requestScope.currentBrakFluid.getPhoto()}" />
+                  <img class="img-responsive" alt="" src="resources/jpg/${current.getPhoto()}" />
 <!--                 </div> -->
                 <!-- /.single-product-gallery-item -->
               </div>
@@ -21,7 +22,7 @@
           <div class="no-margin col-xs-12 col-sm-7 body-holder">
             <div class="body">
               <div class="star-holder inline">
-                <div class="star" data-score="${requestScope.currentBrakFluid.getJudgement()}"></div>
+                <div class="star" data-score="${current.getJudgement()}"></div>
               </div>
               <div class="availability"><label>Доступно:</label> 
                 <c:if test="${current.getInStock()>0}">
@@ -32,34 +33,34 @@
                 </c:if>
               </div>
               
-              <div class="title"><c:out value="${requestScope.currentBrakFluid.getName()}"/></div>
-              <div class="brand"><c:out value="${requestScope.currentBrakFluid.getManufacturer().getName()}"/></div>
+              <div class="title"><c:out value="${current.getName()}"/></div>
+              <div class="brand"><c:out value="${current.getManufacturer().getName()}"/></div>
               
               <div class="buttons-holder">
    		        <div class="wish-compare">
    		        	<sec:authorize access="!isAnonymous() and !hasRole('ROLE_ADMIN')">
 		                <c:url value="home" var="UpdateBrakingFluid">
-							<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+							<c:param name="id" value="${current.getId()}"/>
 							<c:param name="variant" value="inWishlist"/>
 						</c:url>
 		          		<a class="btn-add-to-wishlist" href="${UpdateBrakingFluid}">В избранное</a>
 	          		</sec:authorize>
 		            <c:url value="home" var="UpdateBrakingFluid">
-						<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+						<c:param name="id" value="${current.getId()}"/>
 						<c:param name="variant" value="inCompare"/>
 					</c:url>              
                 	<a class="btn-add-to-compare" href="${UpdateBrakingFluid}">Сравнить</a>
               </div>
               <div class="excerpt">
-                <p><c:out value="${requestScope.currentBrakFluid.getDescription()}"/></p>
+                <p><c:out value="${current.getDescription()}"/></p>
               </div>
               <div class="prices">
               	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-              		<div class="price-current">$<c:out value="${requestScope.currentBrakFluid.getPriceWithDiscount()}"/></div>
-                	<div class="price-prev">$<c:out value="${requestScope.currentBrakFluid.getPrice()}"/></div>
+              		<div class="price-current">$<c:out value="${current.getPriceWithDiscount()}"/></div>
+                	<div class="price-prev">$<c:out value="${current.getPrice()}"/></div>
                 </sec:authorize>
            		<sec:authorize access="!hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-           			<div class="price-current">$<c:out value="${requestScope.currentBrakFluid.getPriceWithDiscount()}"/></div>
+           			<div class="price-current">$<c:out value="${current.getPriceWithDiscount()}"/></div>
            		</sec:authorize>
                 
               </div>
@@ -72,20 +73,20 @@
 <!--                   </form> -->
 <!--                 </div> -->
                 <c:url value="home" var="UpdateBrakingFluid">
-					<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+					<c:param name="id" value="${current.getId()}"/>
 					<c:param name="variant" value="inBasket"/>
 				</c:url>      
                 <a id="addto-cart" href="${UpdateBrakingFluid}" class="le-button huge">В Корзину</a>
                 <sec:authorize access="!hasAnyRole('ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
 	                <c:url value="ShowOne" var="UpdateBrakingFluid">
-						<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+						<c:param name="id" value="${current.getId()}"/>
 						<c:param name="variant" value="Demand"/>
 					</c:url>      
 	                <a id="addto-cart" href="${UpdateBrakingFluid}" class="le-button huge">Заявка</a>
                 </sec:authorize>
 				<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT','ROLE_PRICE','ROLE_DISTR')">
 	                <c:url value="action" var="excelGood">
-						<c:param name="id" value="${requestScope.currentBrakFluid.getId()}"/>
+						<c:param name="id" value="${current.getId()}"/>
 						<c:param name="variant" value="excelOne"/>
 						<c:param name="good" value="BrF"/>
 					</c:url>      
@@ -116,7 +117,7 @@
             <!-- /.nav-tabs -->
             <div class="tab-content">
               <div class="tab-pane active" id="description">
-                <p><c:out value="${requestScope.currentBrakFluid.getDescription()}"/></p>
+                <p><c:out value="${current.getDescription()}"/></p>
                 <div class="meta-row">
                   <div class="inline">
                     <label>SKU:</label>
@@ -144,31 +145,31 @@
                 <ul class="tabled-data">
                   <li>
                     <label>Класс жидкости:</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getFluidClass().getName()}"/></div>
+                    <div class="value"><c:out value="${current.getFluidClass().getName()}"/></div>
                   </li>
                   <li>
                     <label>Температура кипения (сух.):</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getBoilingTemperatureDry()}"/></div>
+                    <div class="value"><c:out value="${current.getBoilingTemperatureDry()}"/></div>
                   </li>
                   <li>
                     <label>Температура кипения (вл.):</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getBoilingTemperatureWet()}"/></div>
+                    <div class="value"><c:out value="${current.getBoilingTemperatureWet()}"/></div>
                   </li>
                   <li>
                     <label>Объём:</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getValue()}"/></div>
+                    <div class="value"><c:out value="${current.getValue()}"/></div>
                   </li>
                   <li>
                     <label>Вязкость (при -40):</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getViscosity40()}"/></div>
+                    <div class="value"><c:out value="${current.getViscosity40()}"/></div>
                   </li>
                   <li>
                     <label>Вязкость (при 100):</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getViscosity100()}"/></div>
+                    <div class="value"><c:out value="${current.getViscosity100()}"/></div>
                   </li>
                   <li>
                     <label>Спецификация:</label>
-                    <div class="value"><c:out value="${requestScope.currentBrakFluid.getSpecification()}"/></div>
+                    <div class="value"><c:out value="${current.getSpecification()}"/></div>
                   </li>
                 </ul>
                 
@@ -259,7 +260,7 @@
   					  <c:set var="currentUser" value="${sessionScope[name]}"></c:set>
   					  
                       <form action="ShowOne" id="contact-form" class="contact-form" method="post" >
-                        <input type="hidden"  name="id" value="${requestScope.currentBrakFluid.getId()}"> 
+                        <input type="hidden"  name="id" value="${current.getId()}"> 
                         <div class="row field-row">
                           <div class="col-xs-12 col-sm-6">
                             <label>Имя*</label>

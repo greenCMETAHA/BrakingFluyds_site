@@ -56,11 +56,11 @@
               </div>
               <div class="prices">
               	<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-              		<div class="price-current">$<c:out value="${requestScope.currentBrakFluid.getPriceWithDiscount()}"/></div>
-                	<div class="price-prev">$<c:out value="${requestScope.currentBrakFluid.getPrice()}"/></div>
+              		<div class="price-current">$<c:out value="${current.getPriceWithDiscount()}"/></div>
+                	<div class="price-prev">$<c:out value="${current.getPrice()}"/></div>
                 </sec:authorize>
            		<sec:authorize access="!hasAnyRole('ROLE_ADMIN','ROLE_DISTR','ROLE_OFFERPRICE','ROLE_PRICE')">
-           			<div class="price-current">$<c:out value="${requestScope.currentBrakFluid.getPriceWithDiscount()}"/></div>
+           			<div class="price-current">$<c:out value="${current.getPriceWithDiscount()}"/></div>
            		</sec:authorize>
               </div>
               <div class="qnt-holder">

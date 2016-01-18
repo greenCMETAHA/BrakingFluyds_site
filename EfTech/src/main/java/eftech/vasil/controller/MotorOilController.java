@@ -820,7 +820,7 @@ public class MotorOilController {
 				result= "MotorOilInsertUpdate";
 				
 			}else if(("Update".equals(variant)) || ("Save".equals(variant))){
-				if (request.isUserInRole("ROLE_PRODUCT")){
+				if (request.isUserInRole("ROLE_PRODUCT") || request.isUserInRole("ROLE_ADMIN")){
 					Manufacturer currentManufacturer=(Manufacturer)motorOil.getManufacturer();
 					EngineType currentEngineType=(EngineType)motorOil.getEngineType();
 					OilStuff currentOilStuff=(OilStuff)motorOil.getOilStuff();
