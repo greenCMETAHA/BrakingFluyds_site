@@ -3,7 +3,8 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
-      <form action="listDoc" method="POST" enctype="application/x-www-form-urlencoded">		
+      <form action="listDoc" method="POST" enctype="application/x-www-form-urlencoded">
+      	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>		
     <section id="category-grid">
         <div class="container">
         	<h1>
@@ -12,6 +13,7 @@
 	    	  	</c:if>
     	  	</h1>
     	  	<form action="report" method="POST" enctype="application/x-www-form-urlencoded">
+    	  		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
        			<input name="variant" type="hidden" value="${requestScope.variant}" >
        			<div class="row">
        		

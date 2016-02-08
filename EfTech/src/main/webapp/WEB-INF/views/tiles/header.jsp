@@ -27,6 +27,7 @@
 					<!-- ============================================================ SEARCH AREA ============================================================= -->
 					<div class="search-area">
 					    <form action="searchThing" method="post">
+					    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 					        <div class="control-group">
 					            <input class="search-field" placeholder="Search for item" name="searchField"/>
 					

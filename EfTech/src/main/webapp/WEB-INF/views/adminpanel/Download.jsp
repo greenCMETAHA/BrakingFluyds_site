@@ -52,6 +52,7 @@
      </div>
      <div class="box-content">
 	     <form action="action" class="formBox" method="POST"  enctype="multipart/form-data">
+	     	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	     	<input name="variantDownload" type="hidden" value="${requestScope.variantDownload}" >
 	     	<c:choose>
 			<c:when test="${requestScope.errors.size()>0}">

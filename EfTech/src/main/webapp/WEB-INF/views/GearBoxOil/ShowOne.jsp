@@ -244,6 +244,7 @@
   					  <c:set var="currentUser" value="${sessionScope[name]}"></c:set>
   					  
                       <form action="ShowOneGearBoxOil" id="contact-form" class="contact-form" method="post" >
+                      	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <input type="hidden"  name="id" value="${current.getId()}"> 
                         <div class="row field-row">
                           <div class="col-xs-12 col-sm-6">

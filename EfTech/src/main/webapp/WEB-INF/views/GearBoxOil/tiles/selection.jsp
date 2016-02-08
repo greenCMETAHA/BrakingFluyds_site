@@ -7,6 +7,7 @@
           <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
             <!-- ========================================= PRODUCT FILTER ========================================= -->
             <form action="gearBoxOil" method="POST">
+            	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <div class="widget">
               <h1>Фильтр по товарам</h1>
               <div class="body bordered">
@@ -170,7 +171,8 @@
             <!-- /.widget -->
             </form>
             <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_PRODUCT')">
-            	<form action="InsertUpdateGearBoxOil" method="POST"  enctype="multipart/form-data">
+            	<form action="InsertUpdateGearBoxOil?${_csrf.parameterName}=${_csrf.token}" method="POST"  enctype="multipart/form-data">
+            		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             		<input name="variant" type="hidden" value="New" >
 		            <div class="widget">
 		            	<div class="body bordered">

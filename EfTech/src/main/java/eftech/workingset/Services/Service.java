@@ -1247,12 +1247,12 @@ public class Service {
 	public static String getTable(String goodPrefix){ //for jdbc
 		String result="";
 		
-		if (goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)){
+		if (goodPrefix.equals(Service.BRAKING_FLUID_PREFIX)){  //use small letters for tomcat 7 
 			result="brakingfluids";
 		}else if (goodPrefix.equals(Service.MOTOR_OIL_PREFIX)){
-			result="motorOils";
+			result="motoroils";
 		}else if (goodPrefix.equals(Service.GEARBOX_OIL_PREFIX)){
-			result="gearboxOils";
+			result="gearboxoils";
 		}
 		
 		return result;

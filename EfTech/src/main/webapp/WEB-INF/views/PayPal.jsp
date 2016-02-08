@@ -49,6 +49,7 @@
         <h1 class="border">Введить данные для оплаты кредитной картой:</h1>
     	  <form action="PayPal" method="POST">
     	  	<input name="variant" type="hidden" value="${requestScope.variant}" >
+    	  	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     	  	
     	  	<h4 class="border">Данные владельца:</h4><br> 
             <div class="no-margin col-xs-12 col-sm-7 body-holder">

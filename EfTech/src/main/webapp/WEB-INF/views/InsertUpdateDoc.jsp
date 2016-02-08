@@ -6,6 +6,7 @@
      <div id="single-product">
         <div class="container">
     	  <form action="InsertUpdateDoc" method="POST">
+    	  	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 			<input name="pageInfo" type="hidden" value="${requestScope.pageInfo}" >
 			<input name="variant" type="hidden" value="${requestScope.variant}" >
 						

@@ -19,7 +19,8 @@
     <div id="content">
       <div id="login">
             <div id="logo">     </div>
-  	     	<form name='f' action='/controller/login' method='POST' id="form-login" class="formBox">
+  	     	<form name='f' action='/greenCM/login' method='POST' id="form-login" class="formBox">
+  	     	  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	          <fieldset>
 	            <div class="form-col">
 	                <label for="username" class="lab">Имя пользователя: <span class="warning"></span></label>

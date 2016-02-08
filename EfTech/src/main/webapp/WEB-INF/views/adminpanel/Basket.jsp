@@ -29,6 +29,7 @@
 </head>
 <body>
 	<form action="home" method="POST" class="formBox">
+		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     
         <!-- box -->
         <div class="box">

@@ -35,6 +35,8 @@ public class Wishlist implements InterfaceWishlist{
 			currentGood=new BrakingFluid();
 		}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 			currentGood=new MotorOil();
+		}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+			currentGood=new GearBoxOil();
 		}
 		currentGood.setId(goodId);
 		this.good = currentGood;
@@ -53,6 +55,8 @@ public class Wishlist implements InterfaceWishlist{
 			currentGood=new BrakingFluid();
 		}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
 			currentGood=new MotorOil();
+		}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
+			currentGood=new GearBoxOil();
 		}
 		currentGood.setId(goodId);
 		this.good = currentGood;

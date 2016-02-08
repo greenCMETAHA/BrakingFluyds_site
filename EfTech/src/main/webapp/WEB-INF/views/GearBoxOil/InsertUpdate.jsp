@@ -6,6 +6,7 @@
      <div id="single-product">
         <div class="container">
     	  <form action="InsertUpdateGearBoxOil" method="POST"  enctype="multipart/form-data">
+    	  	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     	    <c:set var="currentGood" value="${requestScope.currentGearBoxOil}"></c:set>
 			<input name="id_Good" type="hidden" value="${currentGood.getId()}" >
 			<input name="pageInfo" type="hidden" value="${requestScope.pageInfo}" >
@@ -128,7 +129,7 @@
 	                  <li>
 	                    <label>Тип КПП:</label>
 	                    <div class="value">
-	                    	<select size="1" name="EngineType"  <c:out value="${disabledValue}"/> class="le-select">
+	                    	<select size="1" name="GearBoxType"  <c:out value="${disabledValue}"/> class="le-select">
 			                    <option >Выберите КПП</option>	
 									<c:forEach var="punct" items="${requestScope.combobox_GearBoxType}">
 									<c:if test="${currentGood.getGearBoxType().getName() != punct.getName()}">

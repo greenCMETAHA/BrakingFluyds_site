@@ -4,9 +4,6 @@
   "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 
 <tiles-definitions>
-    
-
-
 
 	<!-- //Основной сайт. Корзина, сравнение, логин и прочее, которое выводим без меню -->
     <definition name="base.definition" template="/WEB-INF/views/TilesTemplates/mainTemplate.jsp">

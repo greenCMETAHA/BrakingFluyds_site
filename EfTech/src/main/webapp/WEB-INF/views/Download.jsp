@@ -17,6 +17,7 @@
 						<div class="col-xs-12 col-sm-4 no-margin">Загрузить номерклатуру:
 						</div>
 						<form action="Download" method="POST" enctype="multipart/form-data">
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 <%-- 							<input name="variant" type="hidden" value="${requestScope.variant}" > --%>
 							<div class="col-xs-12 col-sm-4 no-margin">
 								<input type="radio"  name="good" value="BrakingFluids">Тормозные жидкости<br><br>
@@ -47,6 +48,7 @@
 						</div>
 						
 						<form action="Download" method="POST" enctype="multipart/form-data">
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 <%-- 							<input name="variant" type="hidden" value="${requestScope.variant}" > --%>
 							<div class="col-xs-12 col-sm-4 no-margin">
 								<input type="radio"  name="good" value="MotorOils" >Моторные масла<br>

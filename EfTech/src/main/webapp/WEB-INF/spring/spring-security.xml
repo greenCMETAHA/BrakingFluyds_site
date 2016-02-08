@@ -12,7 +12,9 @@
          <intercept-url pattern="/BussinessOffer"   access="hasAnyRole('ROLE_ADMIN', 'ROLE_DISTR', 'ROLE_OFFERPRICE')"/>
          <intercept-url pattern="/Comparison" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_OFFER', 'ROLE_OFFERPRICE', 'ROLE_DISTR')"/>
          <intercept-url pattern="/Download" access="hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/>
-         <intercept-url pattern="/InsertUpdate" access="hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/> 
+         <intercept-url pattern="/InsertUpdate" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/>
+         <intercept-url pattern="/InsertUpdateGearBoxOil" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/>
+         <intercept-url pattern="/InsertUpdateMotorOil" access="isAnonymous() or hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT', 'ROLE_PRICE')"/> 
          <intercept-url pattern="/login" access="isAnonymous()"/>
          <intercept-url pattern="/AddEditElement" access="hasRole('ROLE_ADMIN')"/>
          <intercept-url pattern="listDoc" access="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER_SALE')"/>
@@ -20,14 +22,15 @@
 
 		<form-login
 			login-page="/login"
-	
 		/>
 	         
 	         
 	    <remember-me key="spitterKey"  token-validity-seconds="24192000" />    
 			
-		<logout logout-success-url="/" logout-url="/j_spring_security_logout" />
-		<csrf disabled="true"/>
+		<logout logout-success-url="/"
+				logout-url="/j_spring_security_logout" />
+				
+		<csrf disabled="false"/>
 		
 		<access-denied-handler error-page="/error403" />
     </http>

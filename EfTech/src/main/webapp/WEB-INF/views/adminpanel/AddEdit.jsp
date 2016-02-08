@@ -59,8 +59,9 @@
 <!--        #user    -->
  	     	<c:choose> 
 			<c:when test="${currentUser.isEmpty()}"> 
-			    <form action="login" method="POST">                      
-	     				<div id="user">
+			    <form action="login" method="POST"> 
+			    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>	                     
+	     			<div id="user">
 						<input type="submit" name="authorButton" value="Авторизируйтесь"  class="button"/>
 					</div>
 				</form>
@@ -68,8 +69,9 @@
 			
 			<c:when test="${!currentUser.isEmpty()}"> 
 
-			    <form action="/controller/j_spring_security_logout" method="POST">                      
-	     				<div id="user">
+			    <form action="/greenCM/j_spring_security_logout" method="POST">
+			    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>                      
+	     			<div id="user">
 						<font color="white">Здравствуйте, <c:out value="${currentUser.getName()}"  />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    </font>
 						<input type="submit" name="authorButton" value="Выйти"  class="button">
 					</div>
@@ -78,7 +80,7 @@
  			</c:when> 
  			</c:choose> 
      </div> 
-	<form action="menu" method="POST"> 
+	<form action="menu" method="POST">
 	<style> 
 		input[type="submit"]{ 
 			border:0; 
@@ -99,7 +101,8 @@
 			margin-left: -15px; 
 		} 
 	</style>  
-    <div id="sidebar"> 
+    <div id="sidebar">
+		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>     
     	<input type="text" name="variant" value="${requestScope.variant}">
     	<input name="result" type="hidden" value="0" > 
 			<!--	        mainmenu -->
@@ -135,6 +138,7 @@
      </div>
      <div class="box-content">
 	     <form action="AddEdit" class="formBox" method="POST" >
+	     	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	     	<input name="insert" type="hidden" value="${requestScope.variant}" >
 			<c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"/>
 			<input name="id_BrakeFluid" type="hidden" value="${currentBrakFluid.getId()}" >

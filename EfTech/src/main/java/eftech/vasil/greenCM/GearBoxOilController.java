@@ -1,4 +1,4 @@
-package eftech.vasil.controller;
+package eftech.vasil.greenCM;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -23,7 +23,6 @@ import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.DemandTemplate;
-import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
 import eftech.workingset.DAO.templates.GearBoxTypeTemplate;
@@ -76,9 +75,6 @@ public class GearBoxOilController {
 	@Autowired
 	ManufacturerTemplate manufacturerDAO;
 
-	@Autowired
-	EngineTypeTemplate engineTypeDAO;
-	
 	@Autowired
 	ClientTemplate clientDAO;
 
@@ -735,12 +731,12 @@ public class GearBoxOilController {
 			model.addAttribute("photoBackUp", photo);
 			
 			model.addAttribute("errors", new ArrayList<String>());
-			model.addAttribute("currentMotorOil", good);
+			model.addAttribute("currentGearBoxOil", good);
 			model.addAttribute("combobox_Manufacturers", manufacturerDAO.getManufacturers());
-			model.addAttribute("combobox_EngineType", engineTypeDAO.getEngineTypes());
+			model.addAttribute("combobox_GearBoxType", gearBoxTypeDAO.getGearBoxTypes());
 			model.addAttribute("combobox_OilStuff", oilStuffDAO.getOilStuffs());
 			
-			result= "MotorOilInsertUpdate";			
+			result= "GearBoxOilInsertUpdate";			
 		
 		}else if ("New".equals(variant)){
 			model.addAttribute("pageInfo", "¬ведите новую номенклатуру: ");

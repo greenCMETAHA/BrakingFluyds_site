@@ -71,6 +71,7 @@
         <div class="col-xs-12 col-md-3 no-margin sidebar ">
           <c:if test="${sessionScope[name].size()!=0}">
 		          <form action="PayPal" method="POST"  target="_top">
+		          	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		            <div class="widget cart-summary">
 		              <h1 class="border">В Корзине:</h1>
 		              <div class="body">
@@ -183,6 +184,7 @@
 						</div>
 						
 						<form action="Basket" method="POST">
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 							<div class="col-xs-12 col-sm-5 no-margin">
 								<select class="select" size="1" name="client" id="input-one">
 				                    <option disabled>Выберите получателя</option>	

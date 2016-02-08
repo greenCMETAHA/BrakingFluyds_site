@@ -40,6 +40,12 @@
             		        			 src="resources/jpg/${currentGood.getPhoto()}">
                     			</a>
                     		</c:if>	
+							<c:if test="${currentGood.getGoodName()=='GrO'}"> 
+	                    		<a href="ShowOneGearBoxOil?id=${currentGood.getId()}">
+    		                		<img width="" height="73" alt="${currentGood.getName()}" class="attachment-shop_thumbnail wp-post-image"
+            		        			 src="resources/jpg/${currentGood.getPhoto()}">
+                    			</a>
+                    		</c:if>	
                   		</div>
 						<div class="col-xs-12 col-sm-4 no-margin">
 		                    <div class="title">
@@ -48,6 +54,9 @@
 		                      	</c:if>
 		                      	<c:if test="${currentGood.getGoodName()=='Oil'}">
 		                      		<a href="ShowOneMotorOil?id=${currentGood.getId()}">${currentGood.getName()}</a>
+		                      	</c:if>
+		                      	<c:if test="${currentGood.getGoodName()=='GrO'}">
+		                      		<a href="ShowOneGearBoxOil?id=${currentGood.getId()}">${currentGood.getName()}</a>
 		                      	</c:if>
 		                    </div>
 		                    <!-- /.title --> 
@@ -66,7 +75,7 @@
 		                    <div class="text-right">
 		                      <div class="add-cart-button">
 			                    <c:url value="Wishlist" var="UpdateGood">
-									<c:param name="id" value="${currentBFluid.getId()}"/>
+									<c:param name="id" value="${currentGood.getId()}"/>
 									<c:param name="goodPrefix" value="${currentGood.getGoodName()}"/>
 									<c:param name="variant" value="inBasket"/>
 								</c:url>

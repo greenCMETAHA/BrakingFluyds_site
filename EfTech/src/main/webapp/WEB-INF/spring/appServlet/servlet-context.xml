@@ -23,7 +23,7 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
-	<context:component-scan base-package="eftech.vasil.controller" />
+	<context:component-scan base-package="eftech.vasil.greenCM" />
 	
 	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<beans:property name="maxUploadSize" value="1000000" />

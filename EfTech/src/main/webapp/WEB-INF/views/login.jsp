@@ -9,7 +9,8 @@
             <div class="col-md-6">
               <section class="section sign-in inner-right-xs">
                 <h2 class="bordered">Авторизируйтесь:</h2>
-                <form role="form" class="login-form cf-style-1" action='/controller/login' method='POST'>
+                <form role="form" class="login-form cf-style-1" action='/greenCM/login' method='POST'>
+                  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                   <div class="field-row">
                     <label>Имя пользователя</label>
                     <input type="text" class="le-input" name="username">
@@ -28,16 +29,9 @@
                   <div class="buttons-holder">
                     <button type="submit" class="le-button huge">Авторизация</button>
                   </div>
-                  <!-- /.buttons-holder -->
                 </form>
-                <!-- /.cf-style-1 -->
               </section>
-              <!-- /.sign-in -->
             </div>
           </div>
-          <!-- /.row -->
         </div>
-        <!-- /.container -->
       </main>
-      <!-- /.authentication -->
-      <!-- ========================================= MAIN : END ========================================= -->

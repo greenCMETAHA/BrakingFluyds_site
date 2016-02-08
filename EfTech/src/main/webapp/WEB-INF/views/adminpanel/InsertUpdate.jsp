@@ -57,6 +57,7 @@
      </div>
      <div class="box-content">
 	     <form action="InsertUpdate" class="formBox" method="POST"  enctype="multipart/form-data">
+	     	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	     	<input name="insert" type="hidden" value="${requestScope.variant}" >
 			<c:set var="currentBrakFluid" value="${requestScope.currentBrakFluid}"></c:set>
 			<input name="id_BrakeFluid" type="hidden" value="${currentBrakFluid.getId()}" >

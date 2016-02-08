@@ -12,6 +12,7 @@
                 <p class="lead"><c:out value="${requestScope.errMessage}"/></p>
                 <div class="sub-form-row inner-top-xs inner-bottom-xs">
 <!--                   <form role="form" action="find"> -->
+<!-- 					 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> -->
 <!--                     <input placeholder="Поиск по каталогу" autocomplete="off"> -->
 <!--                     <button class="le-button">Искать</button> -->
 <!--                   </form> -->

@@ -50,6 +50,7 @@
 </head>
 <body>
 	<form action="Comparison" method="POST" class="formBox">
+		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <!-- box -->
         <div class="box">
           <div class="headlines">

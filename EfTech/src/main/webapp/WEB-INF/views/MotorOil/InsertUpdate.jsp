@@ -6,6 +6,7 @@
      <div id="single-product">
         <div class="container">
     	  <form action="InsertUpdateMotorOil" method="POST"  enctype="multipart/form-data">
+    	  	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     	    <c:set var="currentMotorOil" value="${requestScope.currentMotorOil}"></c:set>
 			<input name="id_MotorOil" type="hidden" value="${currentMotorOil.getId()}" >
 			<input name="pageInfo" type="hidden" value="${requestScope.pageInfo}" >

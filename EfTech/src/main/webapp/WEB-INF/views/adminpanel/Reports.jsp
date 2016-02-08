@@ -60,18 +60,20 @@
  	     	<c:choose> 
 			<c:when test="${currentUser.isEmpty()}"> 
 			    <form action="login" method="POST">                      
-	     				<div id="user">
+	     			<div id="user">
 						<input type="submit" name="authorButton" value="Авторизируйтесь"  class="button"/>
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 					</div>
 				</form>
  			</c:when> 
 			
 			<c:when test="${!currentUser.isEmpty()}"> 
 
-			    <form action="/controller/j_spring_security_logout" method="POST">                      
-	     				<div id="user">
+			    <form action="/greenCM/j_spring_security_logout" method="POST">                      
+	     			<div id="user">
 						<font color="white">Здравствуйте, <c:out value="${currentUser.getName()}"  />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    </font>
 						<input type="submit" name="authorButton" value="Выйти"  class="button">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 					</div>
 				</form>
 					  <br/>
@@ -100,6 +102,7 @@
 		} 
 	</style>  
     <div id="sidebar"> 
+    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     	<input type="text" name="variant" value="${requestScope.variant}">
     	<input name="result" type="hidden" value="0" > 
 			<!--	        mainmenu -->
@@ -139,6 +142,7 @@
 		   	<p>
 	     
 		    <form action="action" class="formBox" method="POST">
+		       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	           <div class="btn-submit"><!-- Submit form -->
 		       	 <input type="submit"  name="variant" value="На главную" class="button" >
 		       </div>

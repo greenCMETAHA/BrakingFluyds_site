@@ -60,8 +60,9 @@
 <!--        #user    -->
  	     	<c:choose> 
 			<c:when test="${currentUser.isEmpty()}"> 
-			    <form action="login" method="POST">                      
-	     				<div id="user">
+			    <form action="login" method="POST">
+			    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> 
+	     			<div id="user">
 						<input type="submit" name="authorButton" value="Авторизируйтесь"  class="button"/>
 					</div>
 				</form>
@@ -69,10 +70,11 @@
 			
 			<c:when test="${!currentUser.isEmpty()}"> 
 
-			    <form action="/controller/j_spring_security_logout" method="POST">                      
+			    <form action="/greenCM/j_spring_security_logout" method="POST">                      
 	     				<div id="user">
 						<font color="white">Здравствуйте, <c:out value="${currentUser.getName()}"  />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    </font>
 						<input type="submit" name="authorButton" value="Выйти"  class="button">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 					</div>
 				</form>
 					  <br/>
@@ -102,6 +104,7 @@
  			} 
  		</style>  
  	    <div id="sidebar"> 
+ 	    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
   	    	<input name="result" type="hidden" value="0" > 
 <!--	        mainmenu -->
 	        
@@ -169,6 +172,7 @@
 						<c:url value="ShowOne" var="UpdateBrakingFluid">
 							<c:param name="id" value="${currentBFluid.getId()}"/>
 						</c:url>
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 						<a href="${UpdateBrakingFluid}"  title="Редактировать тормозную жидкость."> <c:out value="${currentBFluid.getName()}"  /> </a>
 					</form>
 				</td>

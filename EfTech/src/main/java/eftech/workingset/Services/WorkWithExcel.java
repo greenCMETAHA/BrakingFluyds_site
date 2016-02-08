@@ -39,7 +39,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
-import eftech.vasil.controller.ExcelController;
+import eftech.vasil.greenCM.ExcelController;
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
@@ -721,13 +721,15 @@ public class WorkWithExcel {
 		}
 		
 	    try {
-	    	File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
-	    	workbook.write(new FileOutputStream(f));
-	    	workbook.close();
-	        
-	    	Desktop desktop = Desktop.getDesktop();
-	    	desktop.edit(f);
-	    	f.delete();
+	    	if (Desktop.isDesktopSupported()) {
+		    	File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
+		    	workbook.write(new FileOutputStream(f));
+		    	workbook.close();
+		        
+		    	Desktop desktop = Desktop.getDesktop();
+		    	desktop.edit(f);
+		    	f.delete();
+	    	}
 	    } catch (IOException e) {
 		   e.printStackTrace();
 	    }
@@ -752,13 +754,15 @@ public class WorkWithExcel {
 		}
 		
 	    try {
-	    	File f = new File(session.getServletContext().getRealPath("/")+"Price.xls");
-	    	workbook.write(new FileOutputStream(f));
-	    	workbook.close();
-	        
-	    	Desktop desktop = Desktop.getDesktop();
-	    	desktop.edit(f);
-	    	f.delete();
+	    	if (Desktop.isDesktopSupported()) {
+		    	File f = new File(session.getServletContext().getRealPath("/")+"Price.xls");
+		    	workbook.write(new FileOutputStream(f));
+		    	workbook.close();
+		        
+		    	Desktop desktop = Desktop.getDesktop();
+		    	desktop.edit(f);
+		    	f.delete();
+	    	}
 	    } catch (IOException e) {
 		   e.printStackTrace();
 	    }
@@ -1191,13 +1195,15 @@ public class WorkWithExcel {
 		
 		
 	    try {
-	    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
-	    	workbook.write(new FileOutputStream(f));
-	    	workbook.close();
-	        
-	    	Desktop desktop = Desktop.getDesktop();
-	    	desktop.edit(f);
-	    	f.delete();
+	    	if (Desktop.isDesktopSupported()) {
+		    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
+		    	workbook.write(new FileOutputStream(f));
+		    	workbook.close();
+		        
+		    	Desktop desktop = Desktop.getDesktop();
+		    	desktop.edit(f);
+		    	f.delete();
+	    	}
 	    } catch (IOException e) {
 		   e.printStackTrace();
 	    }		
@@ -1369,13 +1375,15 @@ public class WorkWithExcel {
 		cell.setCellValue("np");			
 		
 	    try {
-	    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
-	    	workbook.write(new FileOutputStream(f));
-	    	workbook.close();
-	        
-	    	Desktop desktop = Desktop.getDesktop();
-	    	desktop.edit(f);
-	    	f.delete();
+	    	if (Desktop.isDesktopSupported()) {
+		    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
+		    	workbook.write(new FileOutputStream(f));
+		    	workbook.close();
+		        
+		    	Desktop desktop = Desktop.getDesktop();
+		    	desktop.edit(f);
+		    	f.delete();
+	    	}
 	    } catch (IOException e) {
 		   e.printStackTrace();
 	    }				
@@ -1546,13 +1554,15 @@ public class WorkWithExcel {
 		cell.setCellValue("np");			
 		
 	    try {
-	    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
-	    	workbook.write(new FileOutputStream(f));
-	    	workbook.close();
-	        
-	    	Desktop desktop = Desktop.getDesktop();
-	    	desktop.edit(f);
-	    	f.delete();
+	    	if (Desktop.isDesktopSupported()) {
+		    	File f = new File(session.getServletContext().getRealPath("/")+sheetName+".xls");
+		    	workbook.write(new FileOutputStream(f));
+		    	workbook.close();
+		        
+		    	Desktop desktop = Desktop.getDesktop();
+		    	desktop.edit(f);
+		    	f.delete();
+	    	}
 	    } catch (IOException e) {
 		   e.printStackTrace();
 	    }				

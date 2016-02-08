@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
       <!-- ============================================================= TOP NAVIGATION ============================================================= -->
@@ -81,7 +81,7 @@
 							
 							<c:if test="${!currentUser.isEmpty()}"> 
 								Здравствуйте, <c:out value="${currentUser.getName()}"  />&nbsp;&nbsp;&nbsp;
-								<a href="j_spring_security_logout">Выйти</a>
+								<a href="logout">Выйти</a>
 				 			</c:if> 
                         </li>
 		            </ul>

@@ -95,7 +95,7 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 						+ " left join users AS u ON (w.user=u.id)"
 						+ " left join gearboxoils AS go ON (w.good=go.id)"
 						+ " left join oilstuff as os on (go.oilstuff=os.id)"
-						+ " left join gearboxtype as gbt on (go.engineType=gbt.id)"
+						+ " left join gearboxtype as gbt on (go.gearBoxType=gbt.id)"
 						+ " left join manufacturer as m on (go.manufacturer=m.id) where w.id=:id";
 			}
 
@@ -348,8 +348,8 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				oil.setOilStuff(oilStuff);
 
 				EngineType engineType =new EngineType();
-				engineType.setId(rs.getInt("gearBoxType"));
-				engineType.setName(rs.getString("gbt_name"));
+				engineType.setId(rs.getInt("engineType"));
+				engineType.setName(rs.getString("et_name"));
 				oil.setEngineType(engineType);
 
 				oil.setPhoto(rs.getString("photo"));
@@ -357,7 +357,7 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				oil.setJudgement(rs.getDouble("judgement"));
 
 				good=oil;
-			}else if (Service.MOTOR_OIL_PREFIX.equals(goodPrefix)){
+			}else if (Service.GEARBOX_OIL_PREFIX.equals(goodPrefix)){
 				GearBoxOil oil=new GearBoxOil();
 
 				oil.setManufacturer(manufacturer);
@@ -368,8 +368,8 @@ public class WishlistTemplate implements InterfaceWishlistDAO {
 				oil.setOilStuff(oilStuff);
 
 				GearBoxType gearBoxType =new GearBoxType();
-				gearBoxType.setId(rs.getInt("engineType"));
-				gearBoxType.setName(rs.getString("et_name"));
+				gearBoxType.setId(rs.getInt("gearBoxType"));
+				gearBoxType.setName(rs.getString("gbt_name"));
 				oil.setGearBoxType(gearBoxType);
 
 				oil.setPhoto(rs.getString("photo"));

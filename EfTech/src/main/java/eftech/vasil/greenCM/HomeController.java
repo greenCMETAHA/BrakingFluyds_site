@@ -1,4 +1,4 @@
-package eftech.vasil.controller;
+package eftech.vasil.greenCM;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -46,6 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -1579,7 +1582,7 @@ public class HomeController{
 		return Service.isAdminPanel(session,request)+result;
 	}			
 	
-	@RequestMapping(value = "/login", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = { "/login", "/greenCM/login"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public String login(
 			@RequestParam(value = "variant", defaultValue="", required=false) String variant
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
@@ -1613,7 +1616,22 @@ public class HomeController{
 		session.setAttribute("compare", compare);
 		
 		return "login";
-	}		
+	}	
+	
+	@RequestMapping(value = { "/logout", "/adminpanel/logout"}, method = {RequestMethod.POST, RequestMethod.GET})
+	public String logout(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
+		
+		HttpSession session=request.getSession();
+		User user=Service.getUser(request.getUserPrincipal(), logDAO, userDAO);
+		
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth != null) {
+        	logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), user, "Пользователь вышел из системы"));
+            (new SecurityContextLogoutHandler()).logout(request, response, auth);
+        }		
+		
+		return "redirect:index";
+	}			
 	
 	@RequestMapping(value = "/menu", method = {RequestMethod.POST, RequestMethod.GET})
 	public String menuAdmin(
