@@ -37,9 +37,9 @@
 		            <div class="side-menu animate-dropdown" tabindex="-1" >
 		              <nav class="yamm megamenu-horizontal" role="navigation" >
 		                <ul class="nav">
-		                  <li class="dropdown menu-item">
+		                  <li class="greenCMmenu dropdown menu-item">
 		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.manufacturersFilter.size()-isSearch}"/>  </a>
-		                    <ul class="dropdown-menu mega-menu">
+		                    <ul class="mega-menu dropdown-menu  greenCMmenu">
 		                      <li class="yamm-content">
 		                      	<div class="row">
 		                            <div class="col-md-4">
@@ -189,3 +189,4 @@
             
           </div>
   
+  		  <link href="resources/greenCMmenu.css" rel="stylesheet" type="text/css"/>

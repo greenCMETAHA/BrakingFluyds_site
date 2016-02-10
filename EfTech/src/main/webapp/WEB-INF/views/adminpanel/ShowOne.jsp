@@ -12,7 +12,6 @@
     <title>ЭфТех ООО</title>   
     <link href="resources/Adminpanel/css/default.css" rel="stylesheet" type="text/css" media="screen" />
     <link href="resources/Adminpanel/css/gray.css" rel="stylesheet" type="text/css" media="screen" /> <!-- color skin: blue / red / green / dark -->
-  
   </head>
 <body>
 

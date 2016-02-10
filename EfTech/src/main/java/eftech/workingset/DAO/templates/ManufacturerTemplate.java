@@ -182,7 +182,7 @@ public class ManufacturerTemplate implements InterfaceManufacturerDAO{
 					+ "where (man.country=c.id) and (ismanufacturer=1) order by man.name "
 					+ ((num+nextRows)==0?"":" LIMIT "+((num-1)*Service.LOG_ELEMENTS_IN_LIST)+","+Service.LOG_ELEMENTS_IN_LIST);
 		}else{
-			sqlQuery="select distinct man.name, man.fullname, c.name AS c_name from manufacturer as man "
+			sqlQuery="select distinct man.name, man.id as id, man.fullname, c.id as country, c.name AS c_name from manufacturer as man "
 					+ " left join country AS c on (man.country=c.id) "
 					+ "	right join " + Service.getTable(goodPrefix) + " as good on (good.manufacturer=man.id) "
 					+ " where (ismanufacturer=1) order by man.name "

@@ -3,6 +3,7 @@ package eftech.vasil.greenCM;
 import java.util.ArrayList;
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -104,7 +105,7 @@ public class ExcelController {
 	public String reports(@ModelAttribute User user
 			, @RequestParam(value="variant", defaultValue="", required=false) String variant
 			, @RequestParam(value="goodPrefix", defaultValue="", required=false) String goodPrefix
-			,HttpServletRequest request
+			,HttpServletRequest request, HttpServletResponse response
 			,Locale locale, Model model) {
 		
 		String result="home";
@@ -120,7 +121,7 @@ public class ExcelController {
 		
 			ArrayList<String> errors=new ArrayList<String>();
 			if (("Список поставщиков".equals(variant))  || ("ManufacturerList".equals(variant))){
-				WorkWithExcel.listManufacturersExcel(variant,manufacturerDAO, logDAO,request.getSession());
+				WorkWithExcel.listManufacturersExcel(variant,manufacturerDAO, logDAO,request.getSession(),request,response);
 			} else if (("Прайс".equals(variant)) || ("Price".equals(variant))) {
 				WorkWithExcel.PriceExcel(goodPrefix,brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, request.getSession());
 			} 

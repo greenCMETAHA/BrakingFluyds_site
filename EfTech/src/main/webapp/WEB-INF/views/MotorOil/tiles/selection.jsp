@@ -39,7 +39,7 @@
 		                <ul class="nav">
 		                  <li class="dropdown menu-item">
 		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.manufacturersFilter.size()-isSearch}"/>  </a>
-		                    <ul class="dropdown-menu mega-menu">
+		                    <ul class="greenCMmenu dropdown-menu mega-menu">
 		                      <li class="yamm-content">
 		                      	<div class="row">
 		                            <div class="col-md-4">
@@ -185,3 +185,5 @@
 	            </form>
             </sec:authorize>            
           </div>
+          
+          <link href="resources/greenCMmenu.css" rel="stylesheet" type="text/css"/>

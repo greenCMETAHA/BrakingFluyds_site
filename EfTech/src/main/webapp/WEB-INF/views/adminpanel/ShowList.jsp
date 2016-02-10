@@ -46,6 +46,8 @@
     <script type="text/javascript" src="resources/Adminpanel/js/jquery.filestyle.js"></script>
     
     <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
+    
+    <link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
 	
 </head>
 <body>
@@ -81,48 +83,28 @@
  			</c:choose> 
      </div> 
 	<form action="menu" method="POST"> 
-	<style> 
-		input[type="submit"]{ 
-			border:0; 
-			padding:0; 
-			background:none; 
-			cursor:pointer; 
-			text-decoration:blink; 
-			color: #404040; font-weight: bold; font-size: 1.2em; 
-			margin-left: -15px; 
-		} 
-		input[type="submit"]:hover{ 
-			border:0; 
-			padding:0; 
-			background:none; 
-			cursor:pointer; 
-			text-decoration:blink; 
-			color: #000000; font-weight: bold; font-size: 1.2em; 
-			margin-left: -15px; 
-		} 
-	</style>  
     <div id="sidebar">
     	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> 
     	<input type="text" name="variant" value="${requestScope.variant}">
     	<input name="result" type="hidden" value="0" > 
 			<!--	        mainmenu -->
 	        <ul id="floatMenu" class="mainmenu"> 
-	          <li class="first" ><input type="submit" name="task" value="На главную"></li>
-				          <li><input type="submit" name="task" value="Загрузить номенклатуру"></li>
-	          <li><input type="submit" name="task" value="Загрузить цены"></li>
-	          <li><input type="submit" name="task" value="Отчеты"></li>
-	          <li><input type="submit" name="task" value="Создать новый"></li>
+	          <li class="first" ><input class="adminmenu" type="submit" name="task" value="На главную"></li>
+			  <li><input class="adminmenu" type="submit" name="task" value="Загрузить номенклатуру"></li>
+	          <li><input class="adminmenu" type="submit" name="task" value="Загрузить цены"></li>
+	          <li><input class="adminmenu" type="submit" name="task" value="Отчеты"></li>
+	          <li><input class="adminmenu" type="submit" name="task" value="Создать новый"></li>
 	          <li><a href="#">Редактировать</a>
 		            <ul class="submenu">
-		              <li><input type="submit" name="task" value="Производители"></a></li>          
-		              <li><input type="submit" name="task" value="Классы жидкости"></li>
-		              <li><input type="submit" name="task" value="Страны"></li>
-		              <li><input type="submit" name="task" value="Клиенты"></li>
-		              <li><input type="submit" name="task" value="Пользователи"></li>
-		              <li><input type="submit" name="task" value="Состав масел"></li>
-		              <li><input type="submit" name="task" value="Тип двигателя"></li>
-		              <li><input type="submit" name="task" value="Тип КПП"></li>
-		              <li><input type="submit" name="task" value="Логирование"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Производители"></a></li>          
+		              <li><input class="adminmenu" type="submit" name="task" value="Классы жидкости"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Страны"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Клиенты"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Пользователи"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Состав масел"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Тип двигателя"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Тип КПП"></li>
+		              <li><input class="adminmenu" type="submit" name="task" value="Логирование"></li>
 		            </ul>
 		          </li>
           	  </li>

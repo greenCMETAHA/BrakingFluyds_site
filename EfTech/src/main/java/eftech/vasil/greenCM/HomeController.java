@@ -123,11 +123,10 @@ import eftech.workingset.beans.Role;
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes({"user", "adminpanel", "basket", "wishlist", "compare", "manufacturersFilter", "fluidClassFilter", "elementsInList"
-	, "currentPriceFilter" , "currentBoilingTemperatureDryFilter" , "currentBoilingTemperatureWetFilter" , "currentValueFilter" 
-	, "currentViscosity40Filter" , "currentViscosity100Filter", "currentJudgementFilter"
-	,"dateBeginFilterOffer", "dateEndFilterOffer", "dateBeginFilterDemand", "dateEndFilterDemand", "Payment_Amount", "Payment_Option"
-	, "viscosityFilter", "engineTypeFilter", "oilStuffFilter"})
+@SessionAttributes({"user", "adminpanel", "basket", "wishlist", "compare", "manufacturersFilterBrF", "fluidClassFilterBrF", "elementsInListBrF"
+	, "currentPriceFilterBrF" , "currentBoilingTemperatureDryFilterBrF" , "currentBoilingTemperatureWetFilterBrF" , "currentValueFilterBrF" 
+	, "currentViscosity40FilterBrF" , "currentViscosity100FilterBrF", "currentJudgementFilterBrF"
+	,"dateBeginFilterOffer", "dateEndFilterOffer", "dateBeginFilterDemand", "dateEndFilterDemand", "Payment_Amount", "Payment_Option"})
 public class HomeController{
 	
 	Map<String, String> map = new HashMap<String, String>();  //for paypal
@@ -532,52 +531,52 @@ public class HomeController{
 		if (compare==null){
 			compare=createComparement();
 		}
-		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilterBrF");
 		if (manufacturersFilter==null){
 			manufacturersFilter = createManufacturersFilter();
 		}
-		LinkedList<FluidClassSelected>  fluidClassFilter = (LinkedList<FluidClassSelected>) session.getAttribute("fluidClassFilter");
+		LinkedList<FluidClassSelected>  fluidClassFilter = (LinkedList<FluidClassSelected>) session.getAttribute("fluidClassFilterBrF");
 		if (fluidClassFilter==null){
 			fluidClassFilter = createFluidClassFilter();
 		}
 		if (currentPriceFilter.toString().equals("0,0")){
-			if (session.getAttribute("currentPriceFilter")!=null){
-				currentPriceFilter =(String) session.getAttribute("currentPriceFilter");
+			if (session.getAttribute("currentPriceFilterBrF")!=null){
+				currentPriceFilter =(String) session.getAttribute("currentPriceFilterBrF");
 			}
 		}
 		if (currentBoilingTemperatureDryFilter.toString().equals("0,0")){
-			if (session.getAttribute("currentBoilingTemperatureDryFilter")!=null){
-				currentBoilingTemperatureDryFilter =(String) session.getAttribute("currentBoilingTemperatureDryFilter");
+			if (session.getAttribute("currentBoilingTemperatureDryFilterBrF")!=null){
+				currentBoilingTemperatureDryFilter =(String) session.getAttribute("currentBoilingTemperatureDryFilterBrF");
 			}
 		}
 		if (currentBoilingTemperatureWetFilter.toString().equals("0,0")){
-			if (session.getAttribute("currentBoilingTemperatureWetFilter")!=null){
-				currentBoilingTemperatureWetFilter =(String) session.getAttribute("currentBoilingTemperatureWetFilter");
+			if (session.getAttribute("currentBoilingTemperatureWetFilterBrF")!=null){
+				currentBoilingTemperatureWetFilter =(String) session.getAttribute("currentBoilingTemperatureWetFilterBrF");
 			}
 		}
 		if (currentValueFilter.toString().equals("0,0")){	
-			if (session.getAttribute("currentValueFilter")!=null){
-				currentValueFilter =(String) session.getAttribute("currentValueFilter");
+			if (session.getAttribute("currentValueFilterBrF")!=null){
+				currentValueFilter =(String) session.getAttribute("currentValueFilterBrF");
 			}
 		}
 		if (currentViscosity40Filter.toString().equals("0,0")){
-			if (session.getAttribute("currentViscosity40Filter")!=null){
-				currentViscosity40Filter =(String) session.getAttribute("currentViscosity40Filter");
+			if (session.getAttribute("currentViscosity40FilterBrF")!=null){
+				currentViscosity40Filter =(String) session.getAttribute("currentViscosity40FilterBrF");
 			}
 		}
 		if (currentViscosity100Filter.toString().equals("0,0")){
-			if (session.getAttribute("currentViscosity100Filter")!=null){
-				currentViscosity100Filter =(String) session.getAttribute("currentViscosity100Filter");
+			if (session.getAttribute("currentViscosity100FilterBrF")!=null){
+				currentViscosity100Filter =(String) session.getAttribute("currentViscosity100FilterBrF");
 			}
 		}
 		if (currentJudgementFilter.toString().equals("0,0")){
-			if (session.getAttribute("currentJudgementFilter")!=null){
-				currentJudgementFilter =(String) session.getAttribute("currentJudgementFilter");
+			if (session.getAttribute("currentJudgementFilterBrF")!=null){
+				currentJudgementFilter =(String) session.getAttribute("currentJudgementFilterBrF");
 			}
 		}
 		int elementsInList = Service.ELEMENTS_IN_LIST;
-		if (session.getAttribute("elementsInList")!=null){
-			elementsInList = (Integer) session.getAttribute("elementsInList");
+		if (session.getAttribute("elementsInListBrF")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInListBrF");
 		}
  
 		Service.workWithList(id, Service.BRAKING_FLUID_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
@@ -827,7 +826,7 @@ public class HomeController{
 		String result=Service.isAdminPanel(session,request)+"Comparison";
 		
 		if (variant.compareTo("Сравнить")==0){
-			if ("BrF".equals(task)){
+			if (Service.BRAKING_FLUID_PREFIX.equals(task)){
 				if (fluidsSelection!=null){
 					basket.clear();
 					for (int i=0;i<fluidsSelection.length; i++){
@@ -897,8 +896,7 @@ public class HomeController{
 			task=compare.get(0).getGoodName();
 		}
 			
-		if ("BrF".equals(task)){
-			//return Service.isAdminPanel(session,request)+"Comparison";
+		if (Service.BRAKING_FLUID_PREFIX.equals(task)){
 			result=Service.isAdminPanel(session,request)+"Comparison";
 		}else if (Service.MOTOR_OIL_PREFIX.equals(task)){
 			result="MotorOilComparison";
@@ -1161,29 +1159,29 @@ public class HomeController{
 			model.addAttribute("reviews", reviewDAO.getReviews(id,Service.BRAKING_FLUID_PREFIX));
 			model.addAttribute("prices", priceDAO.getPrices(id, Service.BRAKING_FLUID_PREFIX));
 			
-			return "ShowOne";
+			return Service.isAdminPanel(session,request)+"ShowOne";   //!!!! somwhere here is a mistake for a admin InsertUpdate
 		}
 		
 	}	
 	
 	public String defaultHome(HttpSession session, Model model, User user, LinkedList<Basket> basket
 			, LinkedList<Wishlist> wishlist, LinkedList<InterfaceGood> compare, String searchField){
-		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilterBrF");
 		if (manufacturersFilter==null){
 			manufacturersFilter = createManufacturersFilter();
 		}
-		LinkedList<FluidClassSelected>  fluidClassFilter = (LinkedList<FluidClassSelected>) session.getAttribute("fluidClassFilter");
+		LinkedList<FluidClassSelected>  fluidClassFilter = (LinkedList<FluidClassSelected>) session.getAttribute("fluidClassFilterBrF");
 		if (fluidClassFilter==null){
 			fluidClassFilter = createFluidClassFilter();
 		}
 		String currentPriceFilter = createCurrentPriceFilter();
-		if (session.getAttribute("currentPriceFilter")!=null){
-			currentPriceFilter =(String) session.getAttribute("currentPriceFilter");
+		if (session.getAttribute("currentPriceFilterBrF")!=null){
+			currentPriceFilter =(String) session.getAttribute("currentPriceFilterBrF");
 		}else{
 		}
 		int elementsInList = Service.ELEMENTS_IN_LIST;
-		if (session.getAttribute("elementsInList")!=null){
-			elementsInList = (Integer) session.getAttribute("elementsInList");
+		if (session.getAttribute("elementsInListBrF")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInListBrF");
 		}
 		
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -2007,7 +2005,7 @@ public class HomeController{
 			,@RequestParam(value = "dateBeginFilterString" , defaultValue="2015-01-01", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") Date dateBeginFilter //, defaultValue="", required=false) String dateBeginFilterString
 			,@RequestParam(value = "dateEndFilterString" , defaultValue="2015-12-31", required=false)  @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndFilter // defaultValue="", required=false) String dateEndFilterString
 			,@RequestParam(value = "id", defaultValue="0", required=false) int id
-			,HttpServletRequest request
+			,HttpServletRequest request, HttpServletResponse response
 			,Locale locale, Model model, Object ArrayList) {
 		
 	 	HttpSession session=request.getSession();
@@ -2064,7 +2062,7 @@ public class HomeController{
 			model.addAttribute("listDoc", listDoc);
 		}
 		if (("Список поставщиков".equals(variant))  || ("ManufacturerList".equals(variant))){
-			WorkWithExcel.listManufacturersExcel(variant,manufacturerDAO, logDAO,request.getSession());
+			WorkWithExcel.listManufacturersExcel(variant,manufacturerDAO, logDAO,request.getSession(),request, response);
 			result="index";
 		} else if (("Прайс".equals(variant)) || ("Price".equals(variant))) {
 			WorkWithExcel.PriceExcel(goodPrefix,brakingFluidDAO, motorOilDAO, gearBoxOilDAO, logDAO, request.getSession());
@@ -2719,22 +2717,22 @@ public class HomeController{
 		return i+","+j;
 	}
 	
-	@ModelAttribute("currentPriceFilter")
+	@ModelAttribute("currentPriceFilterBrF")
 	public String createCurrentPriceFilter(){
 		return createFilterValue("price");
 	}
 	
-	@ModelAttribute("currentBoilingTemperatureDryFilter")
+	@ModelAttribute("currentBoilingTemperatureDryFilterBrF")
 	public String createCurrentTemperatureDryFilter(){
 		return createFilterValue("boilingTemperatureDry");
 	}
 	
-	@ModelAttribute("currentBoilingTemperatureWetFilter")
+	@ModelAttribute("currentBoilingTemperatureWetFilterBrF")
 	public String createCurrentTemperatureWetFilter(){
 		return createFilterValue("boilingTemperatureWet");
 	}	
 	
-	@ModelAttribute("currentValueFilter")
+	@ModelAttribute("currentValueFilterBrF")
 	public String createCurrentValueFilter(){
 		double minPrice=brakingFluidDAO.minData("Value")*1000;  //если текущая цена в фильтре не задана - возьмём максимум
 		int i=new Double(minPrice).intValue();
@@ -2746,25 +2744,25 @@ public class HomeController{
 		return i+","+j;
 	}	
 	
-	@ModelAttribute("currentViscosity40Filter")
+	@ModelAttribute("currentViscosity40FilterBrF")
 	public String createCurrentViscosity40Filter(){
 		return createFilterValue("Viscosity40");
 	}			
 	
-	@ModelAttribute("currentViscosity100Filter")
+	@ModelAttribute("currentViscosity100FilterBrF")
 	public String createCurrentViscosity100Filter(){
 		return createFilterValue("Viscosity100");
 	}
 	
-	@ModelAttribute("currentJudgementFilter")
+	@ModelAttribute("currentJudgementFilterBrF")
 	public String createCurrentJudgementFilter(){
 		return createFilterValue("Judgement");
 	}		
 	
-	@ModelAttribute("manufacturersFilter")
+	@ModelAttribute("manufacturersFilterBrF")
 	public LinkedList<ManufacturerSelected> createManufacturersFilter(){
 		LinkedList<ManufacturerSelected> listManufacturerSelected = new LinkedList<ManufacturerSelected>();
-		for (Manufacturer currentManufacturer:manufacturerDAO.getManufacturers()){
+		for (Manufacturer currentManufacturer:manufacturerDAO.getManufacturers(Service.BRAKING_FLUID_PREFIX)){
 			ManufacturerSelected man=new ManufacturerSelected();
 			man.setId(currentManufacturer.getId());
 			man.setName(currentManufacturer.getName());
@@ -2776,7 +2774,7 @@ public class HomeController{
 		return listManufacturerSelected;
 	}
 	
-	@ModelAttribute("fluidClassFilter")
+	@ModelAttribute("fluidClassFilterBrF")
 	public LinkedList<FluidClassSelected> createFluidClassFilter(){
 		LinkedList<FluidClassSelected> listFluidClassSelected = new LinkedList<FluidClassSelected>();
 		for (FluidClass currentFluidClass:fluidClassDAO.getFluidClassis()){
@@ -2790,7 +2788,7 @@ public class HomeController{
 		return listFluidClassSelected;
 	}		
 	
-	@ModelAttribute("elementsInList")  //количество элементов, выводимых одновременно в списке. Используется в педжинации
+	@ModelAttribute("elementsInListBrF")  //количество элементов, выводимых одновременно в списке. Используется в педжинации
 	public int createElementsInList(){
 		return Service.ELEMENTS_IN_LIST;
 	}		
@@ -2834,7 +2832,7 @@ public class HomeController{
 	public String setPaymentOption(){
 		return "PayPal";
 	}
-	
+/*	
 	@ModelAttribute("viscosityFilter")
 	public HashMap<String,Boolean> createViscosityFilter(){
 		HashMap<String,Boolean> map = new HashMap<String,Boolean>();
@@ -2857,6 +2855,6 @@ public class HomeController{
 		LinkedList<OilStuff> list = new LinkedList<OilStuff>(oilStuffDAO.getOilStuffs());
 		
 		return list;
-	}
+	}*/
 	
 }

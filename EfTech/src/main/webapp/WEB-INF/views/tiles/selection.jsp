@@ -3,12 +3,13 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
-    <style type="text/css">
+
+ <!--    <style type="text/css">
 		.dropdown-menu:hover {
 		  display: block;
 		}
     </style>
-
+ -->
 
           <!-- ========================================= SIDEBAR ========================================= -->
           <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
@@ -46,7 +47,7 @@
 		                <ul class="nav">
 		                  <li class="dropdown menu-item">
 		                    <a href=""  class="dropdown-toggle" data-toggle="dropdown">Ещё <c:out value="${requestScope.manufacturersFilter.size()-isSearch}"/>  </a>
-		                    <ul class="dropdown-menu  mega-menu">
+		                    <ul class="greenCMmenu dropdown-menu  mega-menu">
 		                      <li class="yamm-content">
 		                      	<div class="row">
 		                            <div class="col-md-4">
@@ -270,3 +271,4 @@
             
           </div>
           <!-- ========================================= CONTENT ========================================= -->
+          <link href="resources/greenCMmenu.css" rel="stylesheet" type="text/css"/>

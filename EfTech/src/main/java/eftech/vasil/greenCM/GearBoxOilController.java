@@ -58,9 +58,8 @@ import eftech.workingset.beans.Wishlist;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 @Controller
-@SessionAttributes({"user", "adminpanel", "basket", "wishlist", "compare", "manufacturersFilter", "gearBoxTypeFilter", "oilStuffFilter", "viscosityFilter"
-	, "elementsInList", "currentPriceFilter" , "currentValueFilter", "currentJudgementFilter"
-	,"dateBeginFilterOffer", "dateEndFilterOffer", "dateBeginFilterDemand", "dateEndFilterDemand", "Payment_Amount", "Payment_Option" })
+@SessionAttributes({"user", "adminpanel", "basket", "wishlist", "compare", "manufacturersFilterGrO", "gearBoxTypeFilterGrO", "oilStuffFilterGrO"
+	, "viscosityFilterGrO", "elementsInListGrO", "currentPriceFilterGrO" , "currentValueFilterGrO", "currentJudgementFilterGrO"})
 public class GearBoxOilController {
 	@Autowired
 	BrakingFluidTemplate brakingFluidDAO;
@@ -237,44 +236,44 @@ public class GearBoxOilController {
 		if (compare==null){
 			compare=createComparement();
 		}
-		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilterGrO");
 		if (manufacturersFilter==null){
 			manufacturersFilter = createManufacturersFilter();
 		}
 
-		LinkedList<GearBoxType>  gearBoxTypeFilter = (LinkedList<GearBoxType>) session.getAttribute("gearBoxTypeFilter");
+		LinkedList<GearBoxType>  gearBoxTypeFilter = (LinkedList<GearBoxType>) session.getAttribute("gearBoxTypeFilterGrO");
 		if (gearBoxTypeFilter==null){
 			gearBoxTypeFilter = createGearBoxTypeFilter();
 		}
 
-		LinkedList<OilStuff>  oilStuffFilter = (LinkedList<OilStuff>) session.getAttribute("oilStuffFilter");
+		LinkedList<OilStuff>  oilStuffFilter = (LinkedList<OilStuff>) session.getAttribute("oilStuffFilterGrO");
 		if (oilStuffFilter==null){
 			oilStuffFilter = createOilStuffFilter();
 		}
 		
-		HashMap<String,Boolean> viscosityFilter = (HashMap<String,Boolean>) session.getAttribute("viscosityFilter");
+		HashMap<String,Boolean> viscosityFilter = (HashMap<String,Boolean>) session.getAttribute("viscosityFilterGrO");
 		if (viscosityFilter==null){
 			viscosityFilter = createViscosityFilter(); 
 		}
 		
 		if (currentPriceFilter.toString().equals("0,0")){
-			if (session.getAttribute("currentPriceFilter")!=null){
-				currentPriceFilter =(String) session.getAttribute("currentPriceFilter");
+			if (session.getAttribute("currentPriceFilterGrO")!=null){
+				currentPriceFilter =(String) session.getAttribute("currentPriceFilterGrO");
 			}
 		}
 		if (currentValueFilter.toString().equals("0,0")){	
-			if (session.getAttribute("currentValueFilter")!=null){
-				currentValueFilter =(String) session.getAttribute("currentValueFilter");
+			if (session.getAttribute("currentValueFilterGrO")!=null){
+				currentValueFilter =(String) session.getAttribute("currentValueFilterGrO");
 			}
 		}
 		if (currentJudgementFilter.toString().equals("0,0")){
-			if (session.getAttribute("currentJudgementFilter")!=null){
-				currentJudgementFilter =(String) session.getAttribute("currentJudgementFilter");
+			if (session.getAttribute("currentJudgementFilterGrO")!=null){
+				currentJudgementFilter =(String) session.getAttribute("currentJudgementFilterGrO");
 			}
 		}
 		int elementsInList = Service.ELEMENTS_IN_LIST;
-		if (session.getAttribute("elementsInList")!=null){
-			elementsInList = (Integer) session.getAttribute("elementsInList");
+		if (session.getAttribute("elementsInListGrO")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInListGrO");
 		}
  
 		Service.workWithList(id, Service.GEARBOX_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
@@ -496,33 +495,33 @@ public class GearBoxOilController {
 	public String defaultHome(HttpSession session, Model model, User user, LinkedList<Basket> basket
 			, LinkedList<Wishlist> wishlist, LinkedList<InterfaceGood> compare, String searchField){
 	
-		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilter");
+		LinkedList<ManufacturerSelected>  manufacturersFilter = (LinkedList<ManufacturerSelected>) session.getAttribute("manufacturersFilterGrO");
 		if (manufacturersFilter==null){
 			manufacturersFilter = createManufacturersFilter();
 		}
-		LinkedList<GearBoxType>  gearBoxTypeFilter = (LinkedList<GearBoxType>) session.getAttribute("gearBoxTypeFilter");
+		LinkedList<GearBoxType>  gearBoxTypeFilter = (LinkedList<GearBoxType>) session.getAttribute("gearBoxTypeFilterGrO");
 		if (gearBoxTypeFilter==null){
 			gearBoxTypeFilter = createGearBoxTypeFilter();
 		}
 
-		LinkedList<OilStuff>  oilStuffFilter = (LinkedList<OilStuff>) session.getAttribute("oilStuffFilter");
+		LinkedList<OilStuff>  oilStuffFilter = (LinkedList<OilStuff>) session.getAttribute("oilStuffFilterGrO");
 		if (oilStuffFilter==null){
 			oilStuffFilter = createOilStuffFilter();
 		}
 		
-		HashMap<String,Boolean> viscosityFilter = (HashMap<String,Boolean>) session.getAttribute("viscosityFilter");
+		HashMap<String,Boolean> viscosityFilter = (HashMap<String,Boolean>) session.getAttribute("viscosityFilterGrO");
 		if (viscosityFilter==null){
 			viscosityFilter = createViscosityFilter();
 		}
 
 		String currentPriceFilter = createCurrentPriceFilter();
-		if (session.getAttribute("currentPriceFilter")!=null){
-			currentPriceFilter =(String) session.getAttribute("currentPriceFilter");
+		if (session.getAttribute("currentPriceFilterGrO")!=null){
+			currentPriceFilter =(String) session.getAttribute("currentPriceFilterGrO");
 		}else{
 		}
 		int elementsInList = Service.ELEMENTS_IN_LIST;
-		if (session.getAttribute("elementsInList")!=null){
-			elementsInList = (Integer) session.getAttribute("elementsInList");
+		if (session.getAttribute("elementsInListGrO")!=null){
+			elementsInList = (Integer) session.getAttribute("elementsInListGrO");
 		}
 		
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -894,7 +893,7 @@ public class GearBoxOilController {
 		return new LinkedList<Wishlist>();
 	}	
 
-	@ModelAttribute("viscosityFilter")
+	@ModelAttribute("viscosityFilterGrO")
 	public HashMap<String,Boolean> createViscosityFilter(){
 		HashMap<String,Boolean> map = new HashMap<String,Boolean>();
 		for (String current: gearBoxOilDAO.getGearBoxOilViscosities()){
@@ -904,14 +903,14 @@ public class GearBoxOilController {
 		return map;
 	}
 	
-	@ModelAttribute("gearBoxTypeFilter")
+	@ModelAttribute("gearBoxTypeFilterGrO")
 	public LinkedList<GearBoxType> createGearBoxTypeFilter(){
 		LinkedList<GearBoxType> list = new LinkedList<GearBoxType>(gearBoxTypeDAO.getGearBoxTypes());
 		
 		return list;
 	}
 	
-	@ModelAttribute("oilStuffFilter")
+	@ModelAttribute("oilStuffFilterGrO")
 	public LinkedList<OilStuff> createOilStuffFilter(){
 		LinkedList<OilStuff> list = new LinkedList<OilStuff>(oilStuffDAO.getOilStuffs());
 		
@@ -919,10 +918,10 @@ public class GearBoxOilController {
 	}
 	
 	
-	@ModelAttribute("manufacturersFilter")
+	@ModelAttribute("manufacturersFilterGrO")
 	public LinkedList<ManufacturerSelected> createManufacturersFilter(){
 		LinkedList<ManufacturerSelected> listManufacturerSelected = new LinkedList<ManufacturerSelected>();
-		for (Manufacturer currentManufacturer:manufacturerDAO.getManufacturers()){
+		for (Manufacturer currentManufacturer:manufacturerDAO.getManufacturers(Service.GEARBOX_OIL_PREFIX)){
 			ManufacturerSelected man=new ManufacturerSelected();
 			man.setId(currentManufacturer.getId());
 			man.setName(currentManufacturer.getName());
@@ -947,12 +946,12 @@ public class GearBoxOilController {
 		return i+","+j;
 	}
 	
-	@ModelAttribute("currentPriceFilter")
+	@ModelAttribute("currentPriceFilterGrO")
 	public String createCurrentPriceFilter(){
 		return createFilterValue("price");
 	}
 	
-	@ModelAttribute("currentValueFilter")
+	@ModelAttribute("currentValueFilterGrO")
 	public String createCurrentValueFilter(){
 		double minPrice=gearBoxOilDAO.minData("Value")*1000;  //если текущая цена в фильтре не задана - возьмём максимум
 		int i=new Double(minPrice).intValue();
@@ -962,5 +961,10 @@ public class GearBoxOilController {
 			j++;
 		}
 		return i+","+j;
-	}	
+	}
+	
+	@ModelAttribute("elementsInListGrO")  //количество элементов, выводимых одновременно в списке. Используется в педжинации
+	public int createElementsInList(){
+		return Service.ELEMENTS_IN_LIST;
+	}		
 }

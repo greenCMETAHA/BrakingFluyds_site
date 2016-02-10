@@ -1,12 +1,15 @@
 package eftech.workingset.Services;
 
 import java.awt.Desktop;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.WriteAbortedException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -15,6 +18,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFBorderFormatting;
@@ -669,7 +674,8 @@ public class WorkWithExcel {
 		return errors;
 	}
 
-	public static void listManufacturersExcel(String variant, ManufacturerTemplate manufacturerDAO, LogTemplate logDAO, HttpSession session) {
+	public static void listManufacturersExcel(String variant, ManufacturerTemplate manufacturerDAO, LogTemplate logDAO, HttpSession session
+			, HttpServletRequest request, HttpServletResponse response) {
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet("Производители");
 		HSSFCellStyle style = workbook.createCellStyle();
@@ -720,21 +726,46 @@ public class WorkWithExcel {
 			}
 		}
 		
+//	    try {
+//	    	if (Desktop.isDesktopSupported()) {
+//	    		File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
+//		    	workbook.write(new FileOutputStream(f));
+//		    	workbook.close();
+//		        
+//		    	Desktop desktop = Desktop.getDesktop();
+//		    	desktop.edit(f);
+//		    	f.delete();
+//	    	}
+//	    	
+//	    	
+//	    } catch (IOException e) {
+//		   e.printStackTrace();
+//	    }
+		//----------------------------------------------------------
+//	    try {
+//   		 File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
+//   		 workbook.write(new FileOutputStream(f));
+//		    workbook.close();
+//            response.setContentType("application/vnd.ms-excel");
+//	    // experiment with either inline or attachment. IE settings can override this behavior.
+//            response.setHeader("Content-disposition", "inline;filename="+"Manufacturers.xls");
+//            // response.setHeader("Content-disposition", "attachment;filename=inline.xls");
+//            f.delete();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//		
+		
+		String file = request.getParameter( "xls" ) ;
+	    response.setContentType( "application/vnd.ms-excel" );
+	    response.setHeader( "Content-Disposition", "inline; filename=\"Manufacturers.xls\"");
 	    try {
-	    	if (Desktop.isDesktopSupported()) {
-		    	File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
-		    	workbook.write(new FileOutputStream(f));
-		    	workbook.close();
-		        
-		    	Desktop desktop = Desktop.getDesktop();
-		    	desktop.edit(f);
-		    	f.delete();
-	    	}
-	    } catch (IOException e) {
-		   e.printStackTrace();
-	    }
-		
-		
+			OutputStream out = response.getOutputStream();
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	    
+	 
 	}
 	
 	public static void PriceExcel(String goodPrefix, BrakingFluidTemplate brakingFluidDAO, MotorOilTemplate motorOilDAO
