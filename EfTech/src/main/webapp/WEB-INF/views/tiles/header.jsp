@@ -108,7 +108,7 @@
 					                                	</c:if>
 					                                </div>
 					                                <div class="price">
-				                                		$<c:out value="${currentGood.getPriceWithDiscount()}"/>
+				                                		$<c:out value="${currentGood.getPriceWithDiscount()*currentBasket.getQauntity()}"/>
 					                                </div>
 					                            </div>
 					                        </div>

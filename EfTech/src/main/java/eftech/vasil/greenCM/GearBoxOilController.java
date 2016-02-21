@@ -44,6 +44,7 @@ import eftech.workingset.Services.WorkWithExcel;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.Country;
+import eftech.workingset.beans.Customer;
 import eftech.workingset.beans.GearBoxType;
 import eftech.workingset.beans.Log;
 import eftech.workingset.beans.Manufacturer;
@@ -277,7 +278,7 @@ public class GearBoxOilController {
 		}
  
 		Service.workWithList(id, Service.GEARBOX_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
-				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1);
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1, new Customer());
 		
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
@@ -289,42 +290,13 @@ public class GearBoxOilController {
 		if (maxPrice<maxPriceDouble){
 			maxPrice++;
 		}
+		int[] priceFilter=Service.createFilterForSlider("Price", Service.GEARBOX_OIL_PREFIX, minPrice, maxPrice, currentPriceFilter, model, session);
 		
-		int currentMinPriceFilter = new Integer(currentPriceFilter.substring(0, currentPriceFilter.indexOf(",")));
-		int currentMaxPriceFilter = new Integer(currentPriceFilter.substring(currentPriceFilter.indexOf(",")+1, currentPriceFilter.length()));
-		if (currentMaxPriceFilter==0){
-			currentMaxPriceFilter=(int) Math.ceil(gearBoxOilDAO.maxData("Price"));
-		}		
-		
-		currentPriceFilter=currentMinPriceFilter+","+currentMaxPriceFilter;
-
-		model.addAttribute("MinPrice", minPrice);
-		model.addAttribute("MaxPrice", maxPrice);	
-		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
-		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);		
-
-			
-		session.setAttribute("currentPriceFilter", currentPriceFilter);
-		model.addAttribute("currentPriceFilter",currentPriceFilter);
-
 		//--2
 		int minValue=new Double(gearBoxOilDAO.minData("Value")*1000).intValue();
 		int maxValue=new Double(gearBoxOilDAO.maxData("Value")*1000).intValue();
-		double maxValueDouble=gearBoxOilDAO.maxData("Value")*1000;
-		int currentMinValueFilter = new Integer(currentValueFilter.substring(0, currentValueFilter.indexOf(",")));
-		int currentMaxValueFilter = new Integer(currentValueFilter.substring(currentValueFilter.indexOf(",")+1, currentValueFilter.length()));
-		if (currentMaxValueFilter==0){
-			currentMaxValueFilter=(int) Math.ceil(gearBoxOilDAO.maxData("value")*1000);
-		}		
-	
-		model.addAttribute("MinValue", minValue);
-		model.addAttribute("MaxValue", maxValue);		
-		model.addAttribute("currentMinValueFilter", currentMinValueFilter);
-		model.addAttribute("currentMaxValueFilter", currentMaxValueFilter);		
-			
-		currentValueFilter=currentMinValueFilter+","+currentMaxValueFilter;
-		session.setAttribute("currentValueFilter", currentValueFilter);	
-		model.addAttribute("currentValueFilter",currentValueFilter);
+		
+		int[] valueFilter=Service.createFilterForSlider("Value", Service.GEARBOX_OIL_PREFIX, minValue, maxValue, currentValueFilter, model, session);
 		
 		//--3
 //		int minJudgement=new Double(gearBoxOilDAO.minData("Judgement")).intValue();  //пока отключим. Бо не получается позиционировать на [0:5], вываливает на [100:0]
@@ -345,7 +317,7 @@ public class GearBoxOilController {
 		model.addAttribute("currentMaxJudgementFilter", 5); //currentMaxJudgementFilter);		
 			
 		currentJudgementFilter=currentMinJudgementFilter+","+currentMaxJudgementFilter;
-		session.setAttribute("currentJudgementFilter", currentJudgementFilter);
+		session.setAttribute("currentJudgementFilterGrO", currentJudgementFilter);
 		model.addAttribute("currentJudgementFilter",currentJudgementFilter);
 		
 		manufacturersFilter=fillSelectedManufacturers(manufacturerSelections,manufacturersFilter); //method
@@ -356,14 +328,14 @@ public class GearBoxOilController {
 //		System.out.println(fluidClassselections);
 	
 		ArrayList<GearBoxOil> list=gearBoxOilDAO.getGearBoxOils(currentPage,elementsInList,manufacturersFilter,gearBoxTypeFilter
-				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
-				,currentMinValueFilter/1000,currentMaxValueFilter/1000
+				,oilStuffFilter,viscosityFilter,priceFilter[0],priceFilter[1]
+				,valueFilter[0]/1000,valueFilter[1]/1000
 				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField); 
 		
 		model.addAttribute("listGearBoxOils", list);
 		int totalProduct=gearBoxOilDAO.getCountRows(currentPage,elementsInList,manufacturersFilter,gearBoxTypeFilter
-				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
-				,currentMinValueFilter/1000,currentMaxValueFilter/1000
+				,oilStuffFilter,viscosityFilter,priceFilter[0],priceFilter[1]
+				,valueFilter[0]/1000,valueFilter[1]/1000
 				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField);
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
@@ -374,7 +346,6 @@ public class GearBoxOilController {
 		model.addAttribute("oilStuffFilter", oilStuffFilter);
 		model.addAttribute("viscosityFilter", viscosityFilter);
 		model.addAttribute("recommended", gearBoxOilDAO.getGearBoxOilsRecommended());
-		model.addAttribute("currentPriceFilter", currentMinPriceFilter+","+currentMaxPriceFilter); 
 		 
 		model.addAttribute("paginationString_part1", ""+((currentPage-1)*elementsInList+1)+"-"+(((currentPage-1)*elementsInList)+elementsInList));
 		model.addAttribute("paginationString_part2", totalProduct);
@@ -386,11 +357,11 @@ public class GearBoxOilController {
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
-		session.setAttribute("manufacturersFilter", manufacturersFilter);
-		session.setAttribute("gearBoxTypeFilter", gearBoxTypeFilter);
-		session.setAttribute("oilStuffFilter", oilStuffFilter);
-		session.setAttribute("viscosityFilter", viscosityFilter);
-		session.setAttribute("elementsInList", elementsInList);
+		session.setAttribute("manufacturersFilterGrO", manufacturersFilter);
+		session.setAttribute("gearBoxTypeFilterGrO", gearBoxTypeFilter);
+		session.setAttribute("oilStuffFilterGrO", oilStuffFilter);
+		session.setAttribute("viscosityFilterGrO", viscosityFilter);
+		session.setAttribute("elementsInListGrO", elementsInList);
 		
 		//return Service.isAdminPanel(session,request)+"home";
 		return "GearBoxOilhome";
@@ -449,7 +420,7 @@ public class GearBoxOilController {
 		}		
 		
 		Service.workWithList(id, Service.GEARBOX_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
-				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1, new Customer());
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -628,9 +599,9 @@ public class GearBoxOilController {
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
-		session.setAttribute("currentPriceFilter", currentPriceFilter);
-		session.setAttribute("manufacturersFilter", manufacturersFilter);
-		session.setAttribute("elementsInList", elementsInList);
+		session.setAttribute("currentPriceFilterGrO", currentPriceFilter);
+		session.setAttribute("manufacturersFilterGrO", manufacturersFilter);
+		session.setAttribute("elementsInListGrO", elementsInList);
 		
 		return "GearBoxOilhome";
 	}	
@@ -702,7 +673,7 @@ public class GearBoxOilController {
 		
 		
 		Service.workWithList(id, Service.GEARBOX_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
-				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1, new Customer());
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);

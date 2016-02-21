@@ -33,6 +33,7 @@ import org.springframework.ui.Model;
 import eftech.workingset.DAO.templates.BrakingFluidTemplate;
 import eftech.workingset.DAO.templates.ClientTemplate;
 import eftech.workingset.DAO.templates.CountryTemplate;
+import eftech.workingset.DAO.templates.CustomerTemplate;
 import eftech.workingset.DAO.templates.DemandTemplate;
 import eftech.workingset.DAO.templates.EngineTypeTemplate;
 import eftech.workingset.DAO.templates.FluidClassTemplate;
@@ -78,6 +79,7 @@ public class Service {
 	public static String MARKETING_FIRM = "marketingFirm";  //эта фирма осуществляет продажу и забирает себе 5% от стоимости товара
 	public static String MAIN_FIRM = "mainFirm";  //эта фирма предоставляет товар (условно: оптовый склад)
 	public static int ID_EMPTY_CLIENT = 8;  //эта фирма предоставляет товар (условно: оптовый склад)
+	public static int ID_EMPTY_CUSTOMER = 1;  //это код клиента в таблице customer при оплате через paypal и кредитную карту
 	public static String BRAKING_FLUID_PREFIX = "BrF";
 	public static String MOTOR_OIL_PREFIX = "Oil";
 	public static String GEARBOX_OIL_PREFIX = "GrO";	
@@ -617,7 +619,35 @@ public class Service {
 		return  result;
 	}
 	
+	public static int[] createFilterForSlider(String name, String prefix, int minValue, int maxValue, String strFilterValue
+			, Model model, HttpSession session){
+		
+		int currentMin=new Integer(strFilterValue.substring(0, strFilterValue.indexOf(",")));
+		int currentMax=new Integer(strFilterValue.substring(strFilterValue.indexOf(",")+1, strFilterValue.length()));
+		//В бутстрапе A_min всегда <=A_max
+		if ((currentMin==0) && (currentMax==0)){ //первый заход на страницу. Фильтры ещё нулевые
+			currentMin=minValue;
+			currentMax=maxValue;
+		}else{
+			currentMin=Math.max(minValue,currentMin);
+			currentMax=Math.min(maxValue,currentMax);
+		}
+		
+		String filter=currentMin+","+currentMax;
 	
+		model.addAttribute("Min"+name, minValue);
+		model.addAttribute("Max"+name, maxValue);	
+		model.addAttribute("currentMin"+name+"Filter", currentMin);
+		model.addAttribute("currentMax"+name+"Filter", currentMax);		
+
+			
+		session.setAttribute("current"+name+"Filter"+prefix, filter);
+		model.addAttribute("current"+name+"Filter",filter);
+		
+		int[] result={currentMin, currentMax};
+		
+		return result;
+	}
 
 	public static boolean isDate(Date begin, Date end){
 		boolean result=false;
@@ -741,7 +771,7 @@ public class Service {
 	
 	public static void createDemandAndPay(User user, LinkedList<Basket> basket, ClientTemplate clientDAO, ManufacturerTemplate manufacturerDAO
 			, OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO, PayTemplate payDAO
-			, double paySumm, int client_id, LogTemplate logDAO, int paid, int shipping){
+			, double paySumm, int client_id, LogTemplate logDAO, int paid, int shipping, Customer customer){
 		Client client=clientDAO.getClient((client_id==0?Service.ID_EMPTY_CLIENT:client_id));
 		boolean storno=false;
 		if (paySumm<0){
@@ -760,7 +790,7 @@ public class Service {
 				+":"+currentTime.getTime().getHours()+":"+currentTime.getTime().getMinutes()+":"+currentTime.getTime().getSeconds();
 		String demand_id="Demand_"+timeDoc;
 		synchronized (demand_id) {
-			ArrayList<Demand> listDemand = demandDAO.createDemand(demand_id, basket, user, offerStatusDAO.getOfferStatus(1), user, client, paid, shipping);
+			ArrayList<Demand> listDemand = demandDAO.createDemand(demand_id, basket, user, offerStatusDAO.getOfferStatus(1), user, client, paid, shipping, customer);
 			for (Demand demand:listDemand){
 				logDAO.createLog(new Log(0, user, new GregorianCalendar().getTime(), demand, "Создали заявку (товар уже оплачен)"));
 			}
@@ -1004,7 +1034,7 @@ public class Service {
 	public static void showDocInInsertUpdateDoc(String variant, String task, String doc_id, Double doc_summ, GregorianCalendar currentTime
 			, User user, HttpServletRequest request,Model model, DemandTemplate demandDAO, OfferTemplate offerDAO, PayTemplate payDAO
 			, ManufacturerTemplate manufacturerDAO, InfoTemplate infoDAO, ClientTemplate clientDAO
-			, UserTemplate userDAO, OfferStatusTemplate offerStatusDAO) {
+			, UserTemplate userDAO, OfferStatusTemplate offerStatusDAO, CustomerTemplate customerDAO) {
 		if ("Demand".equals(variant)){
 			model.addAttribute("pageInfo", "Редактировать заявку");
 			ArrayList<Demand> listDoc=demandDAO.getDemand(doc_id);
@@ -1017,6 +1047,8 @@ public class Service {
 			model.addAttribute("client", currentClient);
 			model.addAttribute("paid",  (listDoc.size()>0?(listDoc.get(0).isPaid()?1:0):0));
 			model.addAttribute("shipping", (listDoc.size()>0?(listDoc.get(0).isShipping()?1:0):1));
+			int idCusomer=(listDoc.size()>0?((Customer)(listDoc.get(0).getCustomer())).getId():Service.ID_EMPTY_CUSTOMER);
+			model.addAttribute("customer", (idCusomer==Service.ID_EMPTY_CUSTOMER?new Customer():customerDAO.getCustomer(idCusomer)));
 		}else if ("Offer".equals(variant)){
 			model.addAttribute("pageInfo", "Редактировать коммерческое предложение");
 			model.addAttribute("listDoc", offerDAO.getOffer(doc_id));
@@ -1074,7 +1106,9 @@ public class Service {
 			,BrakingFluidTemplate brakingFluidDAO, MotorOilTemplate motorOilDAO, GearBoxOilTemplate gearBoxOilDAO, LogTemplate logDAO, ClientTemplate clientDAO
 			, ManufacturerTemplate manufacturerDAO,OfferStatusTemplate offerStatusDAO, InfoTemplate infoDAO, DemandTemplate demandDAO
 			, PayTemplate payDAO, WishlistTemplate wishlistDAO			
-			, HttpSession session, double paySumm, int client_id, int paid, int shipping){  
+			, HttpSession session, double paySumm, int client_id, int paid, int shipping, Customer customer){
+		
+		isChanging=true;  //новое пожелание. 19 02 2016
 	
 		if (variant.compareTo("Demand")==0){
 			LinkedList<Basket>  listBasket = null; 
@@ -1151,7 +1185,7 @@ public class Service {
 		}
 		if (variant.compareTo("checkout")==0){
 			Service.createDemandAndPay(user, basket, clientDAO, manufacturerDAO,
-					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO, paid, shipping);
+					offerStatusDAO, infoDAO, demandDAO, payDAO, paySumm, client_id, logDAO, paid, shipping, customer);
 			basket.clear();  //здесь нужно обработать выдачу кассового чека
 		}
 		if (variant.compareTo("inWishlist")==0){

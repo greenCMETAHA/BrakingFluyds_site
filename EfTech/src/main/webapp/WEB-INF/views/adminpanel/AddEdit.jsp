@@ -47,8 +47,6 @@
     
     <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
     
-    <link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
-	
 </head>
 <body>
 <div id="main"> 
@@ -89,7 +87,7 @@
     	<input name="result" type="hidden" value="0" > 
 			<!--	        mainmenu -->
 	        <ul id="floatMenu" class="mainmenu"> 
-	          <li class="first" ><input type="submit" name="task" value="На главную"></li>
+	          <li class="first" ><input class="adminmenu" type="submit" name="task" value="На главную"></li>
 			  <li><input class="adminmenu" type="submit" name="task" value="Загрузить номенклатуру"></li>
 	          <li><input class="adminmenu" type="submit" name="task" value="Загрузить цены"></li>
 	          <li><input class="adminmenu" type="submit" name="task" value="Отчеты"></li>
@@ -320,5 +318,6 @@
    </div><!-- /box-content -->
    </div><!-- /box -->
 </div>
+<link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
 </body>
 </html>

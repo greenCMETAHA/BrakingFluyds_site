@@ -20,9 +20,10 @@ public class Demand implements InterfaceDemand {
 	private InterfaceClient client;
 	private boolean paid;
 	private boolean shipping;
+	private Customer customer;
 	
 	public Demand(int id, Date time, User user, String demand_id, InterfaceGood good, int quantity,	double price
-			, InterfaceOfferStatus status, User executer, InterfaceClient client, boolean paid, boolean shipping ) {
+			, InterfaceOfferStatus status, User executer, InterfaceClient client, boolean paid, boolean shipping, Customer customer) {
 		super();
 		this.id = id;
 		this.time = time;
@@ -36,6 +37,7 @@ public class Demand implements InterfaceDemand {
 		this.setClient(client);
 		this.paid=paid;
 		this.shipping=shipping;
+		this.customer=customer;
 	}
 	
 	public Demand(int id, String demand_id, InterfaceOfferStatus status, boolean paid, boolean shipping ) {
@@ -45,7 +47,6 @@ public class Demand implements InterfaceDemand {
 		this.status = status;
 		this.paid=paid;
 		this.shipping=shipping;
-		
 	}
 	
 
@@ -201,6 +202,14 @@ public class Demand implements InterfaceDemand {
 
 	public void setShipping(boolean shipping) {
 		this.shipping = shipping;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 	
 	

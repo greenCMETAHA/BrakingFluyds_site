@@ -367,11 +367,14 @@ public class DemandTemplate implements InterfaceDemandDAO{
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 
-		String sqlUpdate="insert into demand (time, demand_id, good, quantity, price, user, status, executer, client, goodprefix, paid, shipping)"
-				+ " Values (:time, :demand_id, :good, :quantity, :price, :user, :status, :executer, :client, :goodPrefix, :paid, :shipping)";
+		String sqlUpdate="insert into demand (time, demand_id, good, quantity, price, user, status, executer, client"
+				+ ", goodprefix, paid, shipping, customer)"
+				+ " Values (:time, :demand_id, :good, :quantity, :price, :user, :status, :executer, :client"
+				+ ", :goodPrefix, :paid, :shipping, :customer)";
 		if (currentDemand.getId()>0){ // В БД есть такой элемент
 			sqlUpdate="update demand set time=:time, demand_id=:demand_id, good=:good, quantity=:quantity, price=:price, user=:user"
-					+ ", status=:status, executer=:executer , client=:client, goodprefix=:goodPrefix, paid=:paid, shipping=:shipping where id=:id";
+					+ ", status=:status, executer=:executer , client=:client, goodprefix=:goodPrefix, paid=:paid, shipping=:shipping"
+					+ ", customer=:customer where id=:id";
 			params.addValue("id", currentDemand.getId());
 		}
 
@@ -387,6 +390,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 		params.addValue("client", (((Client)demand.getClient()).getId()==0?Service.ID_EMPTY_CLIENT:((Client)demand.getClient()).getId()));
 		params.addValue("paid", (demand.isPaid()?1:0));
 		params.addValue("shipping", (demand.isShipping()?1:0));
+		params.addValue("customer", (((Customer)demand.getCustomer()).getId()));
 
 
 		KeyHolder keyHolder=new GeneratedKeyHolder();
@@ -462,7 +466,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 
 	@Override
 	public ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executer, Client client
-			,int paid, int shipping) {
+			,int paid, int shipping, Customer customer) {
 		ArrayList<Demand> list=getDemand(demand_id);	//все строки документа получили
 		ArrayList<Demand> result=new ArrayList<Demand>();
 		LinkedList<Basket> copyBasket=(LinkedList<Basket>)basket.clone();
@@ -494,6 +498,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			demand.setClient(client);
 			demand.setPaid((paid>0?true:false));
 			demand.setShipping((shipping>0?true:false));
+			demand.setCustomer(customer);
 
 			result.add(demand);
 		}
@@ -553,6 +558,7 @@ public class DemandTemplate implements InterfaceDemandDAO{
 			demand.setUser(new User(rs.getInt("user_id"),rs.getString("user_name"),rs.getString("user_email"),rs.getString("user_login")));
 			demand.setStatus(new OfferStatus(rs.getInt("status_id"),rs.getString("status_name")));
 			demand.setExecuter(new User(rs.getInt("executer_id"),rs.getString("executer_name"),rs.getString("executer_email"),rs.getString("executer_login")));
+			demand.setCustomer(new Customer(rs.getInt("customer")));
 
 			return demand;
 		}

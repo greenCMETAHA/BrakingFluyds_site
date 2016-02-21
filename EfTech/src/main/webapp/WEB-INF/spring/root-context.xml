@@ -78,6 +78,11 @@
       <property name="dataSource"  ref="dataSource" />    
    </bean>
    
+  <bean id="customerDAO" class="eftech.workingset.DAO.templates.CustomerTemplate">
+      <property name="dataSource"  ref="dataSource" />    
+   </bean>
+   
+   
   <bean id="payDAO" class="eftech.workingset.DAO.templates.PayTemplate">
       <property name="dataSource"  ref="dataSource" />    
    </bean>   

@@ -85,9 +85,9 @@
 						<li>
 		                    <label>Оплата:</label>
 		                    <div class="value pull-right">
-								<input  checked type="radio"  name="card" value="PayPal" >PayPal<br>
-									<input type="radio"  name="card" value="visa">Кредитная карта<br>
-									<input type="radio"  name="card" value="Nalik">Наличные<br><br>	
+								<input  checked type="radio"  name="card" value="PayPal" class="le-radio">PayPal<br>
+									<input type="radio"  name="card" value="visa" class="le-radio">Кредитная карта<br>
+									<input type="radio"  name="card" value="Nalik" class="le-radio">Наличные<br><br>	
 								</div>
 		                  </li>		                  
 		                  

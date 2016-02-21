@@ -44,6 +44,7 @@ import eftech.workingset.Services.WorkWithExcel;
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.Country;
+import eftech.workingset.beans.Customer;
 import eftech.workingset.beans.EngineType;
 import eftech.workingset.beans.GearBoxOil;
 import eftech.workingset.beans.Log;
@@ -283,78 +284,39 @@ public class MotorOilController {
 		}
  
 		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
-				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1);
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0, 0, 0, 1, new Customer());
 
 		elementsInList=(elementsInList==0?Service.ELEMENTS_IN_LIST:elementsInList);
 	
 		//--1
 		int minPrice=new Double(motorOilDAO.minData("Price")).intValue();
-		int currentMinPriceFilter = new Double(minPrice).intValue();
 		double maxPriceDouble=motorOilDAO.maxData("Price");
 		int maxPrice=new Double(maxPriceDouble).intValue();
 		if (maxPrice<maxPriceDouble){
 			maxPrice++;
 		}
-		int currentMaxPriceFilter=maxPrice;
-		
-		currentMinPriceFilter = Math.max(new Integer(currentPriceFilter.substring(0, currentPriceFilter.indexOf(","))), minPrice);
-		int oldValue=new Integer(currentPriceFilter.substring(currentPriceFilter.indexOf(",")+1, currentPriceFilter.length()));
-		currentMaxPriceFilter = Math.min((oldValue==0?maxPrice:currentMaxPriceFilter),maxPrice);  //нужно вз€ть минимум из верхнего интервала. Ќо может быть 0, его надо убрать.
-			
-		currentPriceFilter=currentMinPriceFilter+","+currentMaxPriceFilter;
-
-		model.addAttribute("MinPrice", minPrice);
-		model.addAttribute("MaxPrice", maxPrice);	
-		model.addAttribute("currentMinPriceFilter", currentMinPriceFilter);
-		model.addAttribute("currentMaxPriceFilter", currentMaxPriceFilter);		
-
-			
-		session.setAttribute("currentPriceFilter", currentPriceFilter);
-		model.addAttribute("currentPriceFilter",currentPriceFilter);
+		int[] priceFilter=Service.createFilterForSlider("Price", Service.MOTOR_OIL_PREFIX, minPrice, maxPrice, currentPriceFilter, model, session);
 
 		//--2
 		int minValue=new Double(motorOilDAO.minData("Value")*1000).intValue();
-		int currentMinValueFilter = new Double(minValue).intValue();
 		double maxValueDouble=motorOilDAO.maxData("Value")*1000;
 		int maxValue=new Double(maxValueDouble).intValue();
 		if (maxValue<maxValueDouble){
 			maxValue++;
 		}
-		int currentMaxValueFilter=maxValue;
 		
-		currentMinValueFilter = Math.max(new Integer(currentValueFilter.substring(0, currentValueFilter.indexOf(","))), minValue);
-		oldValue=new Integer(currentValueFilter.substring(currentValueFilter.indexOf(",")+1, currentValueFilter.length()));
-		currentMaxValueFilter = Math.min((oldValue==0?maxValue:currentMaxValueFilter),maxValue);
-		model.addAttribute("MinValue", minValue);
-		model.addAttribute("MaxValue", maxValue);		
-		model.addAttribute("currentMinValueFilter", currentMinValueFilter);
-		model.addAttribute("currentMaxValueFilter", currentMaxValueFilter);		
-			
-		currentValueFilter=currentMinValueFilter+","+currentMaxValueFilter;
-		session.setAttribute("currentValueFilter", currentValueFilter);	
-		model.addAttribute("currentValueFilter",currentValueFilter);
+		int[] valueFilter=Service.createFilterForSlider("Value", Service.MOTOR_OIL_PREFIX, minValue, maxValue, currentValueFilter, model, session);
 		
 		//--3
 		int minJudgement=new Double(motorOilDAO.minData("Judgement")).intValue();  //пока отключим. Ѕо не получаетс€ позиционировать на [0:5], вываливает на [100:0]
-		int currentMinJudgementFilter = new Double(minJudgement).intValue();
 		double maxJudgementDouble=motorOilDAO.maxData("Judgement");
 		int maxJudgement=new Double(maxJudgementDouble).intValue();
 		if (maxJudgement<maxJudgementDouble){
 			maxJudgement++;
 		}
-		int currentMaxJudgementFilter=maxJudgement;
 		
-		currentMinJudgementFilter = Math.max(new Integer(currentJudgementFilter.substring(0, currentJudgementFilter.indexOf(","))), minJudgement);
-		oldValue=new Integer(currentJudgementFilter.substring(currentJudgementFilter.indexOf(",")+1, currentJudgementFilter.length()));
-		currentMaxJudgementFilter = Math.min((oldValue==0?maxJudgement:currentMaxJudgementFilter),maxJudgement);
-		model.addAttribute("MinJudgement", minJudgement);
-		model.addAttribute("MaxJudgement", maxJudgement);
-		model.addAttribute("currentMinJudgementFilter", currentMinJudgementFilter);
-		model.addAttribute("currentMaxJudgementFilter", currentMaxJudgementFilter);		
-			
-		currentJudgementFilter=currentMinJudgementFilter+","+currentMaxJudgementFilter;
-		session.setAttribute("currentJudgementFilter", currentJudgementFilter);
-		model.addAttribute("currentJudgementFilter",currentJudgementFilter);
+		int[] judgementFilter=Service.createFilterForSlider("Judgement", Service.MOTOR_OIL_PREFIX, minJudgement, maxJudgement
+				, currentJudgementFilter, model, session);
 		
 		manufacturersFilter=fillSelectedManufacturers(manufacturerSelections,manufacturersFilter); //method
 		engineTypeFilter=fillSelectedEngineType(engineTypeSelections,engineTypeFilter); //method
@@ -364,15 +326,15 @@ public class MotorOilController {
 //		System.out.println(fluidClassselections);
 	
 		ArrayList<MotorOil> list=motorOilDAO.getMotorOils(currentPage,elementsInList,manufacturersFilter,engineTypeFilter
-				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
-				,currentMinValueFilter/1000,currentMaxValueFilter/1000
-				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField); 
+				,oilStuffFilter,viscosityFilter,priceFilter[0],priceFilter[1]
+				,valueFilter[0]/1000,valueFilter[1]/1000
+				,judgementFilter[0],judgementFilter[1], searchField); 
 		
 		model.addAttribute("listMotorOils", list);
 		int totalProduct=motorOilDAO.getCountRows(currentPage,elementsInList,manufacturersFilter,engineTypeFilter
-				,oilStuffFilter,viscosityFilter,currentMinPriceFilter,currentMaxPriceFilter
-				,currentMinValueFilter/1000,currentMaxValueFilter/1000
-				,currentMinJudgementFilter,currentMaxJudgementFilter, searchField);
+				,oilStuffFilter,viscosityFilter,priceFilter[0],priceFilter[1]
+				,valueFilter[0]/1000,valueFilter[1]/1000
+				,judgementFilter[0],judgementFilter[1], searchField); 
 		int totalPages = (int)(totalProduct/elementsInList)+(totalProduct%elementsInList>0?1:0);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("currentPage", currentPage);
@@ -382,7 +344,6 @@ public class MotorOilController {
 		model.addAttribute("oilStuffFilter", oilStuffFilter);
 		model.addAttribute("viscosityFilter", viscosityFilter);
 		model.addAttribute("recommended", motorOilDAO.getMotorOilsRecommended());
-		model.addAttribute("currentPriceFilter", currentMinPriceFilter+","+currentMaxPriceFilter); 
 		 
 		model.addAttribute("paginationString_part1", ""+((currentPage-1)*elementsInList+1)+"-"+(((currentPage-1)*elementsInList)+elementsInList));
 		model.addAttribute("paginationString_part2", totalProduct);
@@ -394,11 +355,11 @@ public class MotorOilController {
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
-		session.setAttribute("manufacturersFilter", manufacturersFilter);
-		session.setAttribute("engineTypeFilter", engineTypeFilter);
-		session.setAttribute("oilStuffFilter", oilStuffFilter);
-		session.setAttribute("viscosityFilter", viscosityFilter);
-		session.setAttribute("elementsInList", elementsInList);
+		session.setAttribute("manufacturersFilterOil", manufacturersFilter);
+		session.setAttribute("engineTypeFilterOil", engineTypeFilter);
+		session.setAttribute("oilStuffFilterOil", oilStuffFilter);
+		session.setAttribute("viscosityFilterOil", viscosityFilter);
+		session.setAttribute("elementsInListOil", elementsInList);
 		
 		//return Service.isAdminPanel(session,request)+"home";
 		return "MotorOilhome";
@@ -457,7 +418,7 @@ public class MotorOilController {
 		}		
 		
 		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
-				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1, new Customer());
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);
@@ -636,9 +597,9 @@ public class MotorOilController {
 		session.setAttribute("basket", basket);
 		session.setAttribute("wishlist", wishlist);
 		session.setAttribute("compare", compare);
-		session.setAttribute("currentPriceFilter", currentPriceFilter);
-		session.setAttribute("manufacturersFilter", manufacturersFilter);
-		session.setAttribute("elementsInList", elementsInList);
+		session.setAttribute("currentPriceFilterOil", currentPriceFilter);
+		session.setAttribute("manufacturersFilterOil", manufacturersFilter);
+		session.setAttribute("elementsInListOil", elementsInList);
 		
 		return "MotorOilhome";
 	}	
@@ -710,7 +671,7 @@ public class MotorOilController {
 		
 		
 		Service.workWithList(id, Service.MOTOR_OIL_PREFIX, 0, false, variant, user, basket, wishlist, compare, brakingFluidDAO, motorOilDAO, gearBoxOilDAO
-				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1);
+				, logDAO, clientDAO, manufacturerDAO, offerStatusDAO,  infoDAO, demandDAO, payDAO, wishlistDAO, session,0,0, 0, 1, new Customer());
 		model=Service.createHeader(model, user, basket, wishlist,compare, infoDAO, wishlistDAO);		 //method
 		
 		session.setAttribute("basket", basket);

@@ -46,10 +46,7 @@
     <script type="text/javascript" src="resources/Adminpanel/js/jquery.filestyle.js"></script>
     
     <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
-    
-    <link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
-	
-</head>
+ </head>
 <body>
 <div id="main"> 
 <!--      #header  -->
@@ -329,6 +326,7 @@
    </div><!-- /box-content -->
    </div><!-- /box -->
 </div>
+<link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
 </body>
 </html>
 

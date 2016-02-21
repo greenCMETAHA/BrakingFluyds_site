@@ -6,7 +6,7 @@
           <!-- ========================================= SIDEBAR ========================================= -->
           <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
             <!-- ========================================= PRODUCT FILTER ========================================= -->
-            <form action="motorOil" method="POST">
+            <form action="motorOil?${_csrf.parameterName}=${_csrf.token}" method="POST">
             	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <div class="widget">
               <h1>Фильтр по товарам</h1>

@@ -1,5 +1,6 @@
 package eftech.workingset.beans;
 
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceCountry;
 
@@ -13,6 +14,7 @@ public class Client implements InterfaceClient {
 	public Client() {
 		super();
 		name="";
+		id=Service.ID_EMPTY_CLIENT;
 	}
 	
 	public Client(int id, String name, String email, String address, InterfaceCountry country) {

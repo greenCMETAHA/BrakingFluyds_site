@@ -3,18 +3,10 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
-
- <!--    <style type="text/css">
-		.dropdown-menu:hover {
-		  display: block;
-		}
-    </style>
- -->
-
           <!-- ========================================= SIDEBAR ========================================= -->
           <div class="col-xs-12 col-sm-3 no-margin sidebar narrow">
             <!-- ========================================= PRODUCT FILTER ========================================= -->
-            <form action="home" method="POST">
+            <form action="home?${_csrf.parameterName}=${_csrf.token}" method="POST">
             	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <div class="widget">
               <h1>Фильтр по товарам</h1>
@@ -145,6 +137,7 @@
                 
 				<div class="price-filter">
                   <h2>Цена</h2>
+                  
                   <hr>
                   <div class="price-range-holder">
 					<input id="ex2" type="text" class="price-slider" value="" name="currentPriceFilter"

@@ -90,7 +90,12 @@
     
     <definition name="PayPal" extends="base.definition">
         <put-attribute name="body" value="/WEB-INF/views/PayPal.jsp"></put-attribute>
+    </definition>
+    
+    <definition name="checkout" extends="base.definition">
+        <put-attribute name="body" value="/WEB-INF/views/checkout.jsp"></put-attribute>
     </definition>   
+       
        
     <definition name="Report" extends="base.definition">
         <put-attribute name="body" value="/WEB-INF/views/Report.jsp"></put-attribute>

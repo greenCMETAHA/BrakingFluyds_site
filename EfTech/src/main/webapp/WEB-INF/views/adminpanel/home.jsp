@@ -45,10 +45,7 @@
     <script type="text/javascript" src="resources/Adminpanel/js/jquery.filestyle.js"></script>
     
     <script type="text/javascript" src="resources/Adminpanel/js/init.js"></script>
-    
-    <link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
-	
-</head>
+ </head>
 <body>
  <c:set var="currentUser" value="${requestScope.user}"></c:set> 
 
@@ -92,7 +89,7 @@
 <!--	        mainmenu -->
 	        
  	        <ul id="floatMenu" class="mainmenu"> 
- 	          <li class="first" ><input type="submit" name="task" value="В начало"></li>	
+ 	          <li class="first" ><input class="adminmenu" type="submit" name="task" value="В начало"></li>	
  	          <li> <input  class="adminmenu" type="submit" name="task" value="Сравнить"></li>	
 	          <li><input class="adminmenu" type="submit" name="task" value="В корзину"></li>
          	  <li><input class="adminmenu" type="submit" name="task" value="Загрузить номенклатуру"></li>
@@ -192,5 +189,6 @@
 	      <p>© Васильченко, 2015-2016 | <a href="#main">Top</a></p>
 	    </div>
 	</div>
+	<link href="resources/adminmenu.css" rel="stylesheet" type="text/css" media="screen" />
 </body>
 </html>

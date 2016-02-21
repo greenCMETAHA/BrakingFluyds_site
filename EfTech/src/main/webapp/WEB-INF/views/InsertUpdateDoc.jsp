@@ -103,8 +103,21 @@
 					                </select>
 		                   		</c:if>
 		                   		<c:if test="${requestScope.task!='New'}">
-		                   			<input name="client_id" type="hidden" value="${requestScope.currentClient}" >
-		                   			<c:out value="${requestScope.client.getName()}"/><br>
+		                   			<c:if test="${requestScope.customer.getId()==1}">
+			                   			<input name="client_id" type="hidden" value="${requestScope.currentClient}" >
+			                   			<c:out value="${requestScope.client.getName()}"/><br>
+			                   		</c:if>
+			                   		<c:if test="${requestScope.customer.getId()!=1}">
+			                   			<c:out value="${requestScope.customer.getFullName()}"/><br>
+			                   			<c:out value="${requestScope.customer.getLastName()}"/><br>
+			                   			<c:out value="${requestScope.customer.getCompanyName()}"/><br>
+			                   			<c:out value="${requestScope.customer.getAddress()}"/><br>
+			                   			<c:out value="${requestScope.customer.getTown()}"/><br>
+			                   			<c:out value="${requestScope.customer.getZip()}"/><br>
+			                   			<c:out value="${requestScope.customer.getEMail()}"/><br>
+			                   			<c:out value="${requestScope.customer.getPhone()}"/><br>
+			                   			
+			                   		</c:if>
 		                   		</c:if>
 							</div>
 		                 </li>

@@ -726,21 +726,21 @@ public class WorkWithExcel {
 			}
 		}
 		
-//	    try {
-//	    	if (Desktop.isDesktopSupported()) {
-//	    		File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
-//		    	workbook.write(new FileOutputStream(f));
-//		    	workbook.close();
-//		        
-//		    	Desktop desktop = Desktop.getDesktop();
-//		    	desktop.edit(f);
-//		    	f.delete();
-//	    	}
-//	    	
-//	    	
-//	    } catch (IOException e) {
-//		   e.printStackTrace();
-//	    }
+	    try {
+	    	if (Desktop.isDesktopSupported()) {
+	    		File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");
+		    	workbook.write(new FileOutputStream(f));
+		    	workbook.close();
+		        
+		    	Desktop desktop = Desktop.getDesktop();
+		    	desktop.edit(f);
+		    	f.delete();
+	    	}
+	    	
+	    	
+	    } catch (IOException e) {
+		   e.printStackTrace();
+	    }
 		//----------------------------------------------------------
 //	    try {
 //   		 File f = new File(session.getServletContext().getRealPath("/")+"Manufacturers.xls");

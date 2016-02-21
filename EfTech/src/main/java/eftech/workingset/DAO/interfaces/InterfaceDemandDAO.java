@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import eftech.workingset.beans.Basket;
 import eftech.workingset.beans.Client;
+import eftech.workingset.beans.Customer;
 import eftech.workingset.beans.Demand;
 import eftech.workingset.beans.OfferStatus;
 import eftech.workingset.beans.User;
@@ -20,7 +21,8 @@ public interface InterfaceDemandDAO {
 	Demand getDemandByDemandId(String demand_id, int good_id, String goodPrefix);
 	
 	
-	ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executor, Client Client, int paid, int shipping);
+	ArrayList<Demand> createDemand(String demand_id, LinkedList<Basket> basket, User user, OfferStatus status, User executor
+			, Client Client, int paid, int shipping, Customer customer);
 	ArrayList<Demand> changeStatus(String demand_id, OfferStatus status);
 	ArrayList<Demand> changeExecuter(String demand_id, User executer);
 }
