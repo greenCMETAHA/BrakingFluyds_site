@@ -1,12 +1,18 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceCountry;
 import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 
 public class Manufacturer implements InterfaceManufacturer{
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
+	
+	@Size(min = 0, max = 150)
 	private String fullName;
 	private InterfaceCountry country;
 	
@@ -21,8 +27,8 @@ public class Manufacturer implements InterfaceManufacturer{
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
-		this.fullName=name;
+		setName(name);
+		setFullName(name);
 		this.country = country;
 	}
 	
@@ -30,8 +36,8 @@ public class Manufacturer implements InterfaceManufacturer{
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
-		this.fullName=fullName;
+		setName(fullName);
+		setFullName(fullName);
 		this.country = country;
 	}	
 
@@ -61,7 +67,7 @@ public class Manufacturer implements InterfaceManufacturer{
 	 */
 	public void setName(String name) {
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 
 	public String getFullName() {
@@ -69,7 +75,7 @@ public class Manufacturer implements InterfaceManufacturer{
 	}
 
 	public void setFullName(String fullName) {
-		this.fullName = fullName;
+		this.fullName = Service.validateString(fullName,150);
 	}
 
 	/**

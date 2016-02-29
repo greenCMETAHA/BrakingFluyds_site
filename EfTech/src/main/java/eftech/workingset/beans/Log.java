@@ -2,6 +2,9 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
+import javax.validation.constraints.Size;
+
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceLog;
 
 public class Log implements InterfaceLog{
@@ -9,6 +12,8 @@ public class Log implements InterfaceLog{
 	private User user;
 	private Date time;
 	private Object object;
+	
+	@Size(min = 0, max = 249)
 	private String info;
 	
 	public Log(int id, User user, Date time, Object object, String info) {
@@ -17,7 +22,7 @@ public class Log implements InterfaceLog{
 		this.user = user;
 		this.time = time;
 		this.object = object;
-		this.info = info;
+		setInfo(info);
 	}
 	
 	public Log() {
@@ -107,7 +112,7 @@ public class Log implements InterfaceLog{
 	 * @param info the info to set
 	 */
 	public void setInfo(String info) {
-		this.info = info;
+		this.info = Service.validateString(info,250);
 	}	
 	
 }

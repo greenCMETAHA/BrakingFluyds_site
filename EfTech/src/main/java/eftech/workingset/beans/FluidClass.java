@@ -1,10 +1,14 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceFluidClass;
 
 public class FluidClass implements InterfaceFluidClass{
 	private int id;
+	
+	@Size(min = 0, max = 30)
 	private String name;
 	
 	public FluidClass() {
@@ -16,7 +20,7 @@ public class FluidClass implements InterfaceFluidClass{
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		setName(name);
 	}
 
 	/**
@@ -45,7 +49,7 @@ public class FluidClass implements InterfaceFluidClass{
 	 */
 	public void setName(String name) {
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		this.name = Service.validateString(name,30);
 	}
 	
 	

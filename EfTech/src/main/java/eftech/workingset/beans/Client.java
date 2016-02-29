@@ -1,13 +1,18 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceCountry;
 
 public class Client implements InterfaceClient {
 	private int id;
+	@Size(min = 0, max = 100)
 	private String name;
+	@Size(min = 0, max = 45)
 	private String email;
+	@Size(min = 0, max = 45)
 	private String address;
 	private InterfaceCountry country;
 	
@@ -20,9 +25,9 @@ public class Client implements InterfaceClient {
 	public Client(int id, String name, String email, String address, InterfaceCountry country) {
 		super();
 		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.address = address;
+		setName(name);
+		setEmail(email);
+		setAddress(address);
 		this.country = country;
 	}
 	
@@ -48,7 +53,7 @@ public class Client implements InterfaceClient {
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,100);
 	}
 	/**
 	 * @return the email
@@ -60,7 +65,7 @@ public class Client implements InterfaceClient {
 	 * @param email the email to set
 	 */
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = Service.validateString(email,45);
 	}
 	/**
 	 * @return the address
@@ -72,7 +77,7 @@ public class Client implements InterfaceClient {
 	 * @param address the address to set
 	 */
 	public void setAddress(String address) {
-		this.address = address;
+		this.address = Service.validateString(address,45);
 	}
 	/**
 	 * @return the country

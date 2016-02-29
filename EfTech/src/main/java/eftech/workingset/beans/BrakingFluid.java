@@ -1,6 +1,9 @@
 package eftech.workingset.beans;
 
 import java.io.File;
+
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceBrakingFluid;
 import eftech.workingset.beans.intefaces.InterfaceFluidClass;
@@ -8,9 +11,12 @@ import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 
 public class BrakingFluid implements InterfaceBrakingFluid {
 	private int id;
+	@Size(min = 0, max = 20)
 	private String manufacturerCode;
+	@Size(min = 0, max = 100)
 	private String name;
 	private InterfaceManufacturer manufacturer;
+	
 	private double price; //private InterfacePrice price;
 	private InterfaceFluidClass fluidClass;
 	private double boilingTemperatureDry;
@@ -39,7 +45,7 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 			double judgement, double discount, int inStock) {
 		super();
 		this.id = id;
-		this.name = name;
+		setName(name);
 		this.manufacturer = manufacturer;
 		this.price = price;
 		this.fluidClass = fluidClass;
@@ -61,7 +67,7 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 			double judgement, double discount, int inStock) {
 		super();
 		this.id = id;
-		this.name = name;
+		setName(name);
 
 		Manufacturer currentManufacturer=new Manufacturer();
 		currentManufacturer.setName(manufacturer);
@@ -126,7 +132,7 @@ public class BrakingFluid implements InterfaceBrakingFluid {
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,100);
 	}
 
 	public String getManufacturerCode() {

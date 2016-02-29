@@ -1,10 +1,14 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceGearBoxType;
 
 public class GearBoxType implements InterfaceGearBoxType{
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
 	boolean selected;
 	
@@ -17,7 +21,7 @@ public class GearBoxType implements InterfaceGearBoxType{
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		setName(name);
 		selected=false;
 	}
 
@@ -46,7 +50,7 @@ public class GearBoxType implements InterfaceGearBoxType{
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 	
 	/**

@@ -1,11 +1,18 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceReview;
 import eftech.workingset.beans.intefaces.base.InterfaceGood;
 
 public class Review implements InterfaceReview {
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
+	
+	@Size(min = 0, max = 45)
 	private String email;
 	private double judgement;
 	private String review;
@@ -19,8 +26,8 @@ public class Review implements InterfaceReview {
 	public Review(int id, String name, String email, double judgement, String review, InterfaceGood good) {
 		super();
 		this.id = id;
-		this.name = name;
-		this.email = email;
+		setName(name);
+		setEmail(email);
 		this.judgement = judgement;
 		this.review = review;
 		this.good=good;
@@ -65,7 +72,7 @@ public class Review implements InterfaceReview {
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 
 	/**
@@ -79,7 +86,7 @@ public class Review implements InterfaceReview {
 	 * @param email the email to set
 	 */
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = Service.validateString(email,45);
 	}
 
 	/**

@@ -1,10 +1,14 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceCountry;
 
 public class Country implements InterfaceCountry {
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
 	
 	public Country() {
@@ -15,7 +19,7 @@ public class Country implements InterfaceCountry {
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		setName(name);
 	}
 
 	/**
@@ -43,7 +47,7 @@ public class Country implements InterfaceCountry {
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 	
 

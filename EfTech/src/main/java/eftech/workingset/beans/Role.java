@@ -1,10 +1,14 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceRole;
 
 public class Role implements InterfaceRole{
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
 	
 	public Role() {
@@ -16,7 +20,7 @@ public class Role implements InterfaceRole{
 	public Role(int id, String name) {
 		super();
 		this.id = id;
-		this.name = name;
+		setName(name);
 	}
 
 	/**
@@ -45,7 +49,7 @@ public class Role implements InterfaceRole{
 	 */
 	public void setName(String name) {
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 
 	

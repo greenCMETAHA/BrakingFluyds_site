@@ -1,10 +1,17 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceInfo;
 
 public class Info implements InterfaceInfo{
 	private int id;
+	
+	@Size(min = 0, max = 20)
 	private String name;
+	
+	@Size(min = 0, max = 100)
 	private String value;
 	
 	public Info() {
@@ -13,8 +20,8 @@ public class Info implements InterfaceInfo{
 	public Info(int id, String name, String value) {
 		super();
 		this.id = id;
-		this.name = name;
-		this.value = value;
+		setName(name);
+		setValue(value);
 	}
 	/**
 	 * @return the id
@@ -38,7 +45,7 @@ public class Info implements InterfaceInfo{
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,20);
 	}
 	/**
 	 * @return the value
@@ -50,7 +57,7 @@ public class Info implements InterfaceInfo{
 	 * @param value the value to set
 	 */
 	public void setValue(String value) {
-		this.value = value;
+		this.value = Service.validateString(value,100);
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

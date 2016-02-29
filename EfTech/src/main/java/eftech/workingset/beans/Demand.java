@@ -2,6 +2,9 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
+import javax.validation.constraints.Size;
+
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceDemand;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
@@ -11,6 +14,8 @@ public class Demand implements InterfaceDemand {
 	private int id;
 	private Date time;
 	private User user;
+	
+	@Size(min = 0, max = 50)
 	private String demand_id;
 	private InterfaceGood good;
 	private int quantity;
@@ -28,7 +33,7 @@ public class Demand implements InterfaceDemand {
 		this.id = id;
 		this.time = time;
 		this.user = user;
-		this.demand_id = demand_id;
+		setDemand_id(demand_id);
 		this.good = good;
 		this.quantity = quantity;
 		this.price = price;
@@ -43,7 +48,7 @@ public class Demand implements InterfaceDemand {
 	public Demand(int id, String demand_id, InterfaceOfferStatus status, boolean paid, boolean shipping ) {
 		super();
 		this.id = id;
-		this.demand_id = demand_id;
+		setDemand_id(demand_id);
 		this.status = status;
 		this.paid=paid;
 		this.shipping=shipping;
@@ -111,7 +116,7 @@ public class Demand implements InterfaceDemand {
 	 * @param offer_id the offer_id to set
 	 */
 	public void setDemand_id(String demand_id) {
-		this.demand_id = demand_id;
+		this.demand_id = Service.validateString(demand_id, 50);
 	}
 
 	/**

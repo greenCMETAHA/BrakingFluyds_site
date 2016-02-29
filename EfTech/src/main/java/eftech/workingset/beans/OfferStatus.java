@@ -1,10 +1,14 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceOfferStatus;
 
 public class OfferStatus implements InterfaceOfferStatus{
 	private int id;
+	
+	@Size(min = 0, max = 70)
 	private String name;
 	
 	public OfferStatus() {
@@ -16,7 +20,7 @@ public class OfferStatus implements InterfaceOfferStatus{
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		setName(name);
 	}
 
 	/**
@@ -45,9 +49,7 @@ public class OfferStatus implements InterfaceOfferStatus{
 	 */
 	public void setName(String name) {
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		this.name = Service.validateString(name,70);
 	}
 	
-	
-
 }

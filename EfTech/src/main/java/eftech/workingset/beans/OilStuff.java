@@ -1,9 +1,13 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 
 public class OilStuff {
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
 	boolean selected;
 	
@@ -16,7 +20,7 @@ public class OilStuff {
 		super();
 		this.id = id;
 		name=(name.length()==0?Service.EMPTY:name);
-		this.name = name;
+		setName(name);
 		selected=false;
 	}
 
@@ -45,7 +49,7 @@ public class OilStuff {
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 	
 	/**

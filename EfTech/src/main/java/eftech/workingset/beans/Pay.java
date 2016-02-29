@@ -2,6 +2,9 @@ package eftech.workingset.beans;
 
 import java.util.Date;
 
+import javax.validation.constraints.Size;
+
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceClient;
 import eftech.workingset.beans.intefaces.InterfaceManufacturer;
 import eftech.workingset.beans.intefaces.InterfacePay;
@@ -10,6 +13,8 @@ public class Pay implements InterfacePay {
 	private int id;
 	private Date time;
 	private User user;
+	
+	@Size(min = 0, max = 50)
 	private String numDoc;
 	private String demand_id;
 	private InterfaceManufacturer manufacturer;
@@ -27,7 +32,7 @@ public class Pay implements InterfacePay {
 		this.id = id;
 		this.time = time;
 		this.user = user;
-		this.numDoc = numDoc;
+		setNumDoc(numDoc);
 		this.demand_id = demand_id;
 		this.manufacturer = manufacturer;
 		this.storno = storno;
@@ -92,7 +97,7 @@ public class Pay implements InterfacePay {
 	 * @param numDoc the numDoc to set
 	 */
 	public void setNumDoc(String numDoc) {
-		this.numDoc = numDoc;
+		this.numDoc = Service.validateString(numDoc,50);
 	}
 
 	

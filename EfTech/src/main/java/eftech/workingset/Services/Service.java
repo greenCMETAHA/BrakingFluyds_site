@@ -90,6 +90,16 @@ public class Service {
 		return oldFile.exists();	
 		
 	}
+	
+	public static String validateString(String value, int size){
+		String result = value;
+		
+		if (value.length()>size) 
+			result=value.substring(0, size-1);
+		
+		return result;
+		
+	}
 
 	public static synchronized String copyPhoto(String oldPhoto, String globalPath){
 		String result="";

@@ -2,6 +2,8 @@ package eftech.workingset.beans;
 
 import java.io.File;
 
+import javax.validation.constraints.Size;
+
 import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceEngineType;
 import eftech.workingset.beans.intefaces.InterfaceGearBoxOil;
@@ -13,11 +15,15 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 	
 	private int id;
 	private String manufacturerCode;
+	
+	@Size(min = 0, max = 100)
 	private String name;
 	private InterfaceManufacturer manufacturer;
 	private double price; 
 	private OilStuff oilStuff;
 	private GearBoxType gearBoxType;
+	
+	@Size(min = 0, max = 8)
 	private String viscosity;
 	private double value;
 	private String photo;
@@ -48,12 +54,12 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 				, String specification,	double judgement, double discount, int inStock) {
 			super();
 			this.id = id;
-			this.name = name;
+			setName(name);
 			this.manufacturer = manufacturer;
 			this.price = price;
 			this.oilStuff = (OilStuff) oilStuff;
 			this.gearBoxType = (GearBoxType) gearBoxType;
-			this.viscosity = viscosity;
+			setViscosity(viscosity);
 			this.value = value;
 			this.photo = createPhotoPath(photo);
 			this.description = description;
@@ -67,7 +73,7 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 				,double price, String photo, String description, String specification, double judgement, double discount, int inStock) {
 			super();
 			this.id = id;
-			this.name = name;
+			setName(name);
 
 			Manufacturer currentManufacturer=new Manufacturer();
 			currentManufacturer.setName(manufacturer);
@@ -85,7 +91,7 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 			this.price = price;		
 			this.photo = createPhotoPath(photo);
 			this.description = description;
-			this.viscosity = viscosity;
+			setViscosity(viscosity);
 			this.specification = specification;
 			this.judgement = judgement;
 			this.discount=discount;
@@ -131,7 +137,7 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 		 * @param viscosity the viscosity to set
 		 */
 		public void setViscosity(String viscosity) {
-			this.viscosity = viscosity;
+			this.viscosity = Service.validateString(viscosity,8);
 		}
 
 		/**
@@ -159,7 +165,7 @@ public class GearBoxOil implements InterfaceGearBoxOil{
 		 * @param name the name to set
 		 */
 		public void setName(String name) {
-			this.name = name;
+			this.name = Service.validateString(name,100);
 		}
 
 		public String getManufacturerCode() {

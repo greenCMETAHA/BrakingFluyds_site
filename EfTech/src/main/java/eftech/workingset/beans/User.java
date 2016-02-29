@@ -1,13 +1,24 @@
 package eftech.workingset.beans;
 
+import javax.validation.constraints.Size;
+
+import eftech.workingset.Services.Service;
 import eftech.workingset.beans.intefaces.InterfaceRole;
 import eftech.workingset.beans.intefaces.InterfaceUser;
 
 public class User implements InterfaceUser{
 	private int id;
+	
+	@Size(min = 0, max = 45)
 	private String name;
+	
+	@Size(min = 0, max = 45)
 	private String email;
+	
+	@Size(min = 0, max = 45)
 	private String login;
+	
+	@Size(min = 0, max = 45)
 	private String password;
 	private InterfaceRole role;
 	
@@ -23,25 +34,25 @@ public class User implements InterfaceUser{
 	public User(int id, String name, String email, String login, String password, Role role) {
 		super();
 		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.login = login;
-		this.password = password;
+		setName(name);
+		setEmail(email);
+		setLogin(login);
+		setPassword(password);
 		this.role = (InterfaceRole)role;
 	}
 	
 	public User(int id, String name, String email, String login) {
 		super();
 		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.login = login;
+		setName(name);
+		setEmail(email);
+		setLogin(login);
 	}	
 	
 	public User(String login, String password) {
 		super();
-		this.login = login;
-		this.password = password;
+		setLogin(login);
+		setPassword(password);
 	}	
 	/**
 	 * @return the id
@@ -65,7 +76,7 @@ public class User implements InterfaceUser{
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Service.validateString(name,45);
 	}
 	/**
 	 * @return the email
@@ -77,7 +88,7 @@ public class User implements InterfaceUser{
 	 * @param email the email to set
 	 */
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = Service.validateString(email,45);
 	}
 	/**
 	 * @return the login
@@ -89,7 +100,7 @@ public class User implements InterfaceUser{
 	 * @param login the login to set
 	 */
 	public void setLogin(String login) {
-		this.login = login;
+		this.login = Service.validateString(login,45);
 	}
 	/**
 	 * @return the password
@@ -101,7 +112,7 @@ public class User implements InterfaceUser{
 	 * @param password the password to set
 	 */
 	public void setPassword(String password) {
-		this.password = password;
+		this.password = Service.validateString(password,45);
 	}
 	
 	/**
